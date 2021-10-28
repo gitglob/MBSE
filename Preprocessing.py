@@ -9,7 +9,6 @@ from matplotlib import pyplot as plt
 
 # read map png file
 def read_png_file():
-    cwd = os.getcwd()
     dir_path = os.path.dirname(os.path.realpath('city.png'))
     im_frame = Image.open(dir_path + '\city.png')
     map_1d = np.array(im_frame.getdata())
