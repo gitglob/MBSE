@@ -30,3 +30,6 @@ def apply_co2_dispersion():
                 if city.grid3d[i][j][k].co2:
                     pass
                     
+def generate_co2():
+    for car in cars:
+        car.generate_co2()

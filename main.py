@@ -21,14 +21,17 @@ def main():
         iteration +=1
         print("iteration # ", iteration)
         
+        # generato co2
+        f.generate_co2()
+        
         # iterate over the entire grid
-        calculate_co2()
+        f.calculate_co2()
         
         # calculate wind effect
-        apply_wind()
+        f.apply_wind()
         
         # apply dispersion
-        apply_co2_dispersion()
+        f.apply_co2_dispersion()
 
     return 0
 

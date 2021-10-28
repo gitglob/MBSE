@@ -50,8 +50,17 @@ class Vehicle(GridCell):
         super().__init__(cell)
         self.fuel_type = fuel_type
         self.speed = speed
-        
-        self.co2 = 5
+        self.co2 = 0
+
+    def generate_co2(self):
+        # if each iteration is one sec and speed is in m/sec
+        # gasoline 33.64093867 (gr co2)/liter
+        # diesel 38.5354738 (gr co2)/liter
+        if self.fuel_type == 'gasoline':
+            self.co2 += self.speed * 33.64093867 / 100000
+        if self.fuel_type == 'diesel':
+            self.co2 += self.speed * 38.5354738 / 100000
+
 
 # building objects
 class Building(GridCell):
