@@ -14,24 +14,49 @@ def main():
 
     model = Grid(map_3d)
 
-    # run the simulation
-    simulation_flag = False
+    # run the simulation - Note: Every iteration is 1 second
+    simulation_flag = True
     iteration = -1
+
     while (simulation_flag):
         iteration +=1
-        print("iteration # ", iteration)
+        #print("iteration # ", iteration)
         
-        # generato co2
+        # update the date
+        year = iteration // (86400*30*12)
+        month = iteration // (86400*30)
+        week = iteration // (86400*7)
+        day = iteration // (86400)
+        hour = iteration // 3600
+        minute = iteration // 60
+        sec = iteration
+
+        # calculate date starting from 1/1/1
+        current_month = month%12 + 1
+        current_day = day%30 + 1
+        current_year = year + 1
+        if iteration%86400 == 0:
+            print("Date: ", current_day, "/", current_day, "/", current_year)
+
+        # calculate wind speed
+        wind_speed = f.calculate_wind_speed(current_month, sec)
+        #print('wind_speed: ', wind_speed)
+        wind_direction = f.calculate_wind_directions(wind_speed)
+        #print('wind direction: ', wind_direction)
+        if iteration == 2:
+            simulation_flag=False
+
+        # generate co2
         f.generate_co2()
         
         # iterate over the entire grid
         f.calculate_co2()
-        
+
         # calculate wind effect
-        f.apply_wind()
+        #f.apply_wind()
         
         # apply dispersion
-        f.apply_co2_dispersion()
+        #f.apply_co2_dispersion()
 
     return 0
 
