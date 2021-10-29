@@ -40,17 +40,17 @@ def main():
 
         # calculate wind speed
         wind_speed = f.calculate_wind_speed(current_month, sec)
-        #print('wind_speed: ', wind_speed)
+        print('wind_speed: ', wind_speed)
         wind_direction = f.calculate_wind_directions(wind_speed)
-        #print('wind direction: ', wind_direction)
+        print('wind direction: ', wind_direction)
         if iteration == 2:
             simulation_flag=False
 
         # generate co2
-        f.generate_co2()
+        #f.generate_co2()
         
         # iterate over the entire grid
-        f.calculate_co2()
+        #f.calculate_co2()
 
         # calculate wind effect
         #f.apply_wind()
