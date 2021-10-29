@@ -43,11 +43,16 @@ class GridCell():
         self.sensor_flag = False
         self.co2 = None
 
+        # variable that defines what is inside the cell
+        self.contains = None
+
 
 # car objects
 class Vehicle(GridCell):
     def __init__(self, cell, fuel_type, speed):
         super().__init__(cell)
+        self.contains = 'vehicle'
+        
         self.fuel_type = fuel_type
         self.speed = speed
         
@@ -56,12 +61,16 @@ class Vehicle(GridCell):
 # building objects
 class Building(GridCell):
     def __init__(self, cell):
+        self.contains = 'building'
+
         pass
 
 # road object
 class Road(GridCell):
     def __init__(self, cell, road_type):
         super().__init__(cell)
+        self.contains = 'road'
+
         if road_type == "high road":
             self.speed_limit = 90
         elif road_type == "inner road":
@@ -71,10 +80,11 @@ class Road(GridCell):
 class Tree(GridCell):
     def __init__(self, cell):
         super().__init__(cell)
-        pass
+        self.contains = 'tree'
 
 # empty object
 class Empty(GridCell):
     def __init__(self, cell):
         super().__init__(cell)
-        pass
+        self.contains = 'empty'
+

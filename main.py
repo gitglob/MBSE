@@ -46,6 +46,9 @@ def main():
         if iteration == 2:
             simulation_flag=False
 
+        # apply trees effect
+        f.apply_trees_effect(model)
+
         # iterate over the entire grid
         #calculate_co2()
         

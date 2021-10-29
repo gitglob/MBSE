@@ -5,6 +5,7 @@ in order to execute certain tasks.
 import pandas as pd
 import os
 import random
+from Classes import *
 
 dir_path = os.path.dirname(os.path.realpath('wind_months.csv'))
 wind_month_day_df = pd.read_csv(dir_path + '\wind_months.csv', header=0)
@@ -87,4 +88,144 @@ def apply_co2_dispersion():
             for k in city.height:
                 if city.grid3d[i][j][k].co2:
                     pass
-                    
+
+# apply trees effect on co2 levels
+def apply_trees_effect(city):
+    # a tree roughly absorbs 48 pounds of co2 per year (21,7724 kg)
+    year_absorbtion = 15 # we will consider a mature tree, but not a huge one, because we are in a city, so ~15kg/year 
+    sec_absorbtion = year_absorbtion/(86400*30*12)
+
+    # iterate over the 3d grid
+    for i in city.rows:
+        for j in city.cols:
+            for k in city.height:
+                # check if the current grid cell is a tree
+                if isinstance(city.grid3d[i][j][k], Tree):
+                    # find how many adjacent grid cells are empty for every tree
+                    num_free_cells, adj_cells = find_num_free_adj_cells(city, i, j, k, "3d")
+
+
+
+# Check for free adjacent cells in either 2d or 3d
+def find_num_free_adj_cells(city, i, j, k, d): 
+'''
+i, j, k: position of cell in 3d grid
+d: dimension of search - 2d or 3d
+'''
+    num_free_cells = 0
+    adj_cells = []
+    if d == "2d":
+        if citty.grid3d[i][j-1][k].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i,j-1,k]
+        if citty.grid3d[i][j+1][k].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i,j+1,k]
+        if citty.grid3d[i-1][j][k].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i-1,j,k]
+        if citty.grid3d[i+1][j][k].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i+1,j,k]
+        if citty.grid3d[i-1][j-1][k].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i-1,j-1,k]
+        if citty.grid3d[i+1][j+1][k].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i+1,j+1,k]
+        if citty.grid3d[i+1][j-1][k]].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i+1,j-1,k]
+        if citty.grid3d[i-1][j+1][k].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i-1,j+1,k]
+    elif d = "3d":
+        if citty.grid3d[i][j-1][k].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i,j-1,k]
+        if citty.grid3d[i][j+1][k].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i,j+1,k]
+        if citty.grid3d[i][j][k-1].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i,j,k-1]
+        if citty.grid3d[i][j][k+1].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i,j,k+1]
+        if citty.grid3d[i][j-1][k-1].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i,j-1,k-1]
+        if citty.grid3d[i][j+1][k+1].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i,j+1,k+1]
+        if citty.grid3d[i][j-1][k+1].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i,j-1,k+1]
+        if citty.grid3d[i][j+1][k-1].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i,j+1,k-1]
+
+        if citty.grid3d[i-1][j][k].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i-1,j,k]
+        if citty.grid3d[i+1][j][k].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i+1,j,k]
+        if citty.grid3d[i-1][j][k-1].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i-1,j,k-1]
+        if citty.grid3d[i+1][j][k+1].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i+1,j,k+1]
+        if citty.grid3d[i-1][j][k+1].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i-1,j,k+1]
+        if citty.grid3d[i+1][j][k-1].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i+1,j,k-1]
+
+        if citty.grid3d[i+1][j+1][k].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i+1,j+1,k]
+        if citty.grid3d[i-1][j-1][k].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i-1,j-1,k]
+        if citty.grid3d[i-1][j+1][k].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i-1,j+1,k]
+        if citty.grid3d[i+1][j-1][k].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i+1,j-1,k]
+
+        if citty.grid3d[i+1][j+1][k+1].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i+1,j+1,k+1]
+        if citty.grid3d[i+1][j-1][k-1].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i+1,j-1,k-1]
+        if citty.grid3d[i+1][j-1][k+1].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i+1,j-1,k+1]
+        if citty.grid3d[i+1][j+1][k-1].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i+1,j+1,k-1]
+        if citty.grid3d[i-1][j+1][k+1].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i-1,j+1,k+1]
+        if citty.grid3d[i-1][j+1][k-1].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i-1,j+1,k-1]
+        if citty.grid3d[i-1][j-1][k-1].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i-1,j-1,k-1]
+        if citty.grid3d[i-1][j-1][k+1].contains == "road" or city.grid3d[i-1][j][k].contains == "Empty":
+            num_free_cells += 1
+            adj_cells.append[i-1,j-1,k+1]
+
+    return num_free_cells, adj_cells
+
+        
+
+
+
+
