@@ -43,25 +43,6 @@ class GridCell():
         self.sensor_flag = False
         self.co2 = None
 
-
-# car objects
-class Vehicle(GridCell):
-    def __init__(self, cell, fuel_type, speed):
-        super().__init__(cell)
-        self.fuel_type = fuel_type
-        self.speed = speed
-        self.co2 = 0
-
-    def generate_co2(self):
-        # if each iteration is one sec and speed is in m/sec
-        # gasoline 33.64093867 (gr co2)/liter
-        # diesel 38.5354738 (gr co2)/liter
-        if self.fuel_type == 'gasoline':
-            self.co2 += self.speed * 33.64093867 / 100000
-        if self.fuel_type == 'diesel':
-            self.co2 += self.speed * 38.5354738 / 100000
-
-
 # building objects
 class Building(GridCell):
     def __init__(self, cell):
@@ -72,9 +53,47 @@ class Road(GridCell):
     def __init__(self, cell, road_type):
         super().__init__(cell)
         if road_type == "high road":
-            self.speed_limit = 90
+            self.speed_limit = 19.44 #70 km/h = 19.44 m/s
         elif road_type == "inner road":
-            self.speed_limit = 40
+            self.speed_limit = 8.33 #30 km/h = 8.33 m/s
+
+# car objects
+class Vehicle(Road):
+    def __init__(self, cell, speed, road_type, co2):
+        super().__init__(cell, road_type)
+        self.speed = speed
+        self.co2 = co2
+        self.fuel_co2_factor = 0
+        self.consumption = 0
+
+    def generate_co2(self):
+        self.co2 += self.consumption * self.speed * self.fuel_co2_factor / 100000
+
+# gasolin cars
+class Gasolin_Car(Vehicle):
+    def __init__(self, cell, speed, road_type, co2):
+        super().__init__(cell, speed, road_type, co2)
+        self.fuel_co2_factor = 33.64093867
+        self.get_consumption()
+
+    def get_consumption(self):
+        if self.road_type == "high road":
+            self.consumption = 5.5
+        elif self.road_type == "inner road":
+            self.consumption = 8
+
+# diesel cars
+class Diesel_Car(Vehicle):
+    def __init__(self, cell, speed, road_type, co2):
+        super().__init__(cell, speed, road_type, co2)
+        self.fuel_co2_factor = 38.5354738
+        self.get_consumption()
+
+    def get_consumption(self, road: Road):
+        if road.road_type == "high road":
+            self.consumption = 4.5
+        elif road.road_type == "inner road":
+            self.consumption = 6
 
 # tree object
 class Tree(GridCell):
