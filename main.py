@@ -42,23 +42,26 @@ def main():
 
         # calculate wind speed
         wind_speed = f.calculate_wind_speed(current_month, sec)
-        #print('wind_speed: ', wind_speed)
         wind_direction = f.calculate_wind_directions(wind_speed)
-        #print('wind direction: ', wind_direction)
-        if iteration == 0:
-            simulation_flag=False
+        # convert km/h to m/s
+        wind_speed = float(wind_speed) * 1000 / 3600
+        print('wind_speed: ', wind_speed, "(m/sec)")
+        print('wind direction: ', wind_direction)
 
         # apply trees effect
         #f.apply_trees_effect(city)
-
-        # iterate over the entire grid
-        #calculate_co2()
         
         # calculate wind effect
-        #apply_wind()
+        #f.apply_wind_effect()
         
         # apply dispersion
         #apply_co2_dispersion()
+
+        # iterate over the entire grid
+        #f.calculate_co2()
+
+        if iteration == 0:
+            simulation_flag = False
 
     return 0
 

@@ -39,6 +39,14 @@ def calculate_wind_speed(month, secs):
 
 # calculate the wind direction
 def calculate_wind_directions(wind_speed):
+    """
+    This function calculates the wind direction. As a general rule:
+    east -> i+
+    west -> i-
+    north -> j+
+    south -> j-
+    """
+
     # possible wind directions
     directions = ['w', 'wnw', 'nw', 'nnw', 'n', 'nne', 'ne', 'ene', 'e', 'ese',	'se', 'sse', 's', 'ssw', 'sw', 'wsw']
     
@@ -58,38 +66,96 @@ def match_month(m):
     Function to match integer to the corresponding month
     """
     if m == 1:
-            return "January"
+        return "January"
     elif m == 2:
-            return "February"
+        return "February"
     elif m == 3:
-            return "March"
+        return "March"
     elif m == 4: 
-            return "April"
+        return "April"
     elif m == 5:  
-            return "May"
+        return "May"
     elif m == 6:  
-            return "June"
+        return "June"
     elif m == 7:  
-            return "July"
+        return "July"
     elif m == 8:  
-            return "August"
+        return "August"
     elif m == 9: 
-            return "September"
+        return "September"
     elif m == 10: 
-            return "October"
+        return "October"
     elif m == 11: 
-            return "November"
+        return "November"
     elif m == 12: 
-            return "December"
+        return "December"
         
 
 # apply wind effect
-def apply_wind():
+def apply_wind_effect(direction, speed):
+    # iterate over the entire grid
     for i in city.rows:
         for j in city.cols:
             for k in city.height:
-                if city.grid3d[i][j][k].co2:
-                    pass
+                cell = city.grid3d[i][j][k]
+                # check if the current cell has co2
+                if cell.co2 > 0:
+                    # find percentage of wind flowing to nearby cells and to which cells
+                    pct, cells = match_direction(direction)
+
+                    # find how many and which adjacent grid cells are free for the current cell
+                    num_free_cells, adj_cells = find_num_free_adj_cells(city, i, j, k, "2d")
+
+def match_direction(d):
+    """
+    function to match direction (east, west, north, south) to a percentage
+    input:
+        d -> direction of wind ('w', 'wnw', 'nw', 'nnw', 'n', 'nne', 'ne', 'ene', 'e', 'ese',	'se', 'sse', 's', 'ssw', 'sw', 'wsw')
+    output:
+        p -> list with percentage of wind flowing to adjacent cells
+        c -> list with the corresponding adjacent cells that the wind flows to
+    """
+    if len(d) > 1:
+        p = [0.5, 0.5]
+    else:
+        p = [1]
+
+    if d == 'e':
+        c = [[i+1]]
+    elif d == 'w':
+        c = [[i-1]]
+    elif d == 'n':
+        c = [[j+1]]
+    elif d == 's':
+        c = [[j-1]]
+
+    elif d == 'ne':
+        c = [[i+1, j+1]]
+    elif d == "nw":
+        c = [[i-1, j+1]]
+    elif d == "se":
+        c = [[i+1, j-1]]
+    elif d == "sw":
+        c = [[i-1, j-1]]
+
+    elif d == "ene":
+        c = [[i+1, j], [i+1, j+1]]
+    elif d == "ese":
+        c = [[i+1, j], [i+1, j-1]]
+    elif d == "wnw":
+        c = [[i-1, j], [i-1, j+1]]
+    elif d == "wsw":
+        c = [[i-1, j], [i-1, j-1]]
+    elif d == "nne":
+        c = [[i, j+1], [i+1, j+1]]
+    elif d == "nnw":
+        c = [[i, j+1], [i-1, j+1]]
+    elif d == "sse":
+        c = [[i, j-1], [i+1, j-1]]
+    elif d == "ssw":
+        c = [[i, j-1], [i-1, j-1]]
+
+    return p, c
 
 # apply air dispersion dynamics
 def apply_co2_dispersion():
@@ -159,7 +225,7 @@ def find_num_free_adj_cells(city, x, y, z, d):
     elif d == "3d":
         for i in [x, x-1, x+1]:
             for j in [y, y-1, y+1]:
-                for k in [z, z-1, z+1]
+                for k in [z, z-1, z+1]:
                     if (i==x and j==y and z==k) or ((i==x+1 or i==x-1) and corner_x_flag) or ((j==y-1 or j==y+1) and corner_y_flag) or ((k==z-1 or k==z+1) and corner_z_flag):
                         continue
                     index = [i, j, k]
