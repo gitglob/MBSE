@@ -6,6 +6,8 @@ from PIL import Image
 import numpy as np
 import os
 from matplotlib import pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from pylab import *
 
 # read map png file
 def read_png_file():
@@ -124,3 +126,44 @@ def visualize_3d_grid(map_3d, rows, cols, height):
     ax.scatter(x4, y4, z4, c='white', alpha=1)
     plt.show()
 
+# Visualize CO2 levels in 3d grid
+def visualize_co2(city):
+    # create the grid
+    x = []
+    y = []
+    z = []
+    for i in range(180):
+        for j in range(180):
+            for k in range(3):
+                x.append(i)
+                y.append(j)
+                z.append(k)
+
+    # extract the co2 levels from the grid 
+    co2 = []
+    for i in city.rows:
+        for j in city.cols:
+            for k in city.height:
+                co2.append(city.grid3d[i][j][k].co2)
+    
+    # creating figures
+    fig = plt.figure(figsize=(10, 10))
+    ax = fig.add_subplot(111, projection='3d')
+    
+    # setting color bar
+    color_map = cm.ScalarMappable(cmap=cm.Greys)
+    color_map.set_array(co2)
+    
+    # creating the heatmap
+    img = ax.scatter(x, y, z, marker='s',
+                    s=20, color='grey')
+    plt.colorbar(color_map)
+    
+    # adding title and labels
+    ax.set_title("3D Heatmap")
+    ax.set_xlabel('X-axis')
+    ax.set_ylabel('Y-axis')
+    ax.set_zlabel('Z-axis')
+    
+    # displaying plot
+    plt.show()

@@ -41,10 +41,18 @@ class GridCell():
         
         # boolean flags
         self.sensor_flag = False
-        self.co2 = None
+        self.co2 = 0
 
         # variable that defines what is inside the cell
         self.contains = None
+
+    # method that checks if the current cell is free
+    def is_free():
+        if (self.contains == "vehicle") or (self.contains == "empty") or (self.contains == "road"):
+            return True
+        else:
+            return False
+
 
 
 # car objects
