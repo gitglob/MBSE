@@ -12,7 +12,9 @@ def main():
     map_3d, rows, cols, height = pre.convert_2d_grid_to_3d(map_2d, rows, cols, height)
     pre.visualize_3d_grid(map_3d, rows, cols, height)
 
-    model = Grid(map_3d)
+    # initialize our 3d grid
+    city = Grid(map_3d)
+    print ("Our city is a: {} grid".format([len(city.grid3d), len(city.grid3d[0]), len(city.grid3d[0][0])]))
 
     # run the simulation - Note: Every iteration is 1 second
     simulation_flag = True
@@ -40,25 +42,33 @@ def main():
 
         # calculate wind speed
         wind_speed = f.calculate_wind_speed(current_month, sec)
-        print('wind_speed: ', wind_speed)
         wind_direction = f.calculate_wind_directions(wind_speed)
+        # convert km/h to m/s
+        wind_speed = float(wind_speed) * 1000 / 3600
+        print('wind_speed: ', wind_speed, "(m/sec)")
         print('wind direction: ', wind_direction)
-        if iteration == 2:
-            simulation_flag=False
 
         # generate co2
         #f.generate_co2()
         
-        # iterate over the entire grid
-        #f.calculate_co2()
+        # apply trees effect
+        #f.apply_trees_effect(city)
 
         # calculate wind effect
-        #f.apply_wind()
+        #f.apply_wind_effect(city, wind_direction, wind_speed)
         
         # apply dispersion
         #f.apply_co2_dispersion()
 
+        # iterate over the entire grid
+        #f.calculate_co2()
+
+        if iteration == 0:
+            simulation_flag = False
+
     return 0
+
+    
 
 if __name__ == "__main__":
     main()
