@@ -41,21 +41,21 @@ def generate_cars(city_size, grid, time, max_cars):
             if grid(x,y) == 'road':
                 if x < city_zone1['bound'] or x > city_size - city_zone1['bound'] and y < city_zone1['bound'] or y > city_size - city_zone1['bound']:
                     if random.random() < city_zone1['probability']:
-                        if random.randrange(2) == 0:
+                        if random.random() < 0.5:
                             car = Classes.Gasolin_Car()
                         else:
                             car - Classes.Diesel_Car()
                         cars.append(car)
                 elif x < city_zone2['bound'] or x > city_size - city_zone2['bound'] and y < city_zone2['bound'] or y > city_size - city_zone2['bound']:
                     if random.random() < city_zone2['probability']:
-                        if random.randrange(2) == 0:
+                        if random.random() < 0.5:
                             car = Classes.Gasolin_Car()
                         else:
                             car - Classes.Diesel_Car()
                         cars.append(car)
                 else:
                     if random.random() < city_zone3['probability']:
-                        if random.randrange(2) == 0:
+                        if random.random() < 0.5:
                             car = Classes.Gasolin_Car()
                         else:
                             car - Classes.Diesel_Car()
