@@ -53,6 +53,12 @@ class GridCell():
         else:
             return False
 
+    def add_co2(self, co2):
+        self.co2 += co2
+
+    def remove_co2(self, co2):
+        self.co2 -= co2
+
 # building objects
 class Building(GridCell):
     def __init__(self, cell):
@@ -63,29 +69,29 @@ class Road(GridCell):
     def __init__(self, cell, road_type):
         super().__init__(cell)
         self.contains = 'road'
+        self.road_type = road_type
 
         if road_type == "high road":
-            self.speed_limit = 19.44 #70 km/h = 19.44 m/s
+            self.speed = 19.44 #70 km/h = 19.44 m/s
         elif road_type == "inner road":
-            self.speed_limit = 8.33 #30 km/h = 8.33 m/s
+            self.speed = 8.33 #30 km/h = 8.33 m/s
 
 # car objects
 class Vehicle(Road):
-    def __init__(self, cell, speed, road_type, co2):
+    def __init__(self, cell, road_type):
         super().__init__(cell, road_type)
         self.contains = 'vehicle'
-        self.speed = speed
-        self.co2 = co2
         self.fuel_co2_factor = 0
         self.consumption = 0
 
-    def generate_co2(self):
-        self.co2 += self.consumption * self.speed * self.fuel_co2_factor / 100000
+    def generate_co2(self, cell):
+        co2 = self.consumption * self.speed * self.fuel_co2_factor / 100000
+        cell.add_co2(co2)
 
 # gasolin cars
 class Gasolin_Car(Vehicle):
-    def __init__(self, cell, speed, road_type, co2):
-        super().__init__(cell, speed, road_type, co2)
+    def __init__(self, cell, road_type):
+        super().__init__(cell, road_type)
         self.fuel_co2_factor = 33.64093867
         self.get_consumption()
 
@@ -97,15 +103,15 @@ class Gasolin_Car(Vehicle):
 
 # diesel cars
 class Diesel_Car(Vehicle):
-    def __init__(self, cell, speed, road_type, co2):
-        super().__init__(cell, speed, road_type, co2)
+    def __init__(self, cell, road_type):
+        super().__init__(cell, road_type)
         self.fuel_co2_factor = 38.5354738
         self.get_consumption()
 
-    def get_consumption(self, road: Road):
-        if road.road_type == "high road":
+    def get_consumption(self):
+        if self.road_type == "high road":
             self.consumption = 4.5
-        elif road.road_type == "inner road":
+        elif self.road_type == "inner road":
             self.consumption = 6
 
 # tree object
