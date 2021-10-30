@@ -6,7 +6,9 @@ import pandas as pd
 import os
 import random
 from Classes import *
+from math import sqrt
 
+# here we read once the necessary csv files with the information about wind in Copenhagen
 dir_path = os.path.dirname(os.path.realpath('wind_months.csv'))
 wind_month_day_df = pd.read_csv(dir_path + '\wind_months.csv', header=0)
 wind_directions_distribution_df = pd.read_csv(dir_path + '\wind_directions_distribution.csv', header=0)
@@ -25,6 +27,15 @@ def calculate_co2():
 
 # calculate the wind speed based on the date
 def calculate_wind_speed(month, secs):
+    """
+    Function that calculates the wind speed of a city based on the month and the amount of time that has passed in that month.
+
+    Input:
+        month -> integer inside [1, 12]
+        secs -> amount of seconds that have passed in that month [0, 2.592.000]
+    Output:
+        wind_speed -> speed of wind (km/h)
+    """
     secs = secs % 2628000
     month_name = match_month(month)
     col = wind_month_day_df[month_name]
@@ -45,6 +56,11 @@ def calculate_wind_directions(wind_speed):
     west -> i-
     north -> j+
     south -> j-
+
+    Input:
+        wind_speed -> wind speed in km/h
+    Output:
+        wind_direction[0] -> a string that shows the direction of the wind (i.e. 'n', or "nne", or "ne", or "ene" ...)
     """
 
     # possible wind directions
@@ -61,9 +77,15 @@ def calculate_wind_directions(wind_speed):
 
     return wind_direction[0]
 
+# match month from integer to string
 def match_month(m):
     """
-    Function to match integer to the corresponding month
+    Function to match integer to the corresponding month.
+
+    Input:
+        m -> Integer, corresponds to month [1,12].
+    Output:
+        string that haw the name of the month that corresponds to the input integer.
     """
     if m == 1:
         return "January"
@@ -90,9 +112,19 @@ def match_month(m):
     elif m == 12: 
         return "December"
         
-
 # apply wind effect
-def apply_wind_effect(direction, speed):
+def apply_wind_effect(city, direction, speed):
+    """
+    Function that applies the effect of wind to the co2 inside a 3d city model.
+
+    Input:
+        city -> the 3d grid of the model of our city as a 3d list with objects of grid_cell inside
+        direction -> the wind direction ('w', 'wnw', 'nw', 'nnw', 'n', 'nne', 'ne', 'ene', 'e', 'ese',	'se', 'sse', 's', 'ssw', 'sw', 'wsw')
+        speed -> the wind speed (m/sec)
+    Output:
+        none, changes the city object
+    """
+
     # iterate over the entire grid
     for i in city.rows:
         for j in city.cols:
@@ -100,62 +132,127 @@ def apply_wind_effect(direction, speed):
                 cell = city.grid3d[i][j][k]
                 # check if the current cell has co2
                 if cell.co2 > 0:
-                    # find percentage of wind flowing to nearby cells and to which cells
-                    pct, cells = match_direction(direction)
-
                     # find how many and which adjacent grid cells are free for the current cell
-                    num_free_cells, adj_cells = find_num_free_adj_cells(city, i, j, k, "2d")
+                    _, adj_cells = find_free_adj_cells(city, i, j, k, "2d")
 
-def match_direction(d):
+                    # find which cells the wind flows towards
+                    flow_cells = match_direction(direction, i, j, k)
+
+                    # check if the wind flows to 1 cell
+                    if len(flow_cells) == 1:
+                        # check if that cell is free
+                        if flow_cells.is_free():
+                            # and give it all the co2 this cell contains
+                            city.grid3d[flow_cells[0]][flow_cells[1]][flow_cells[2]] += cell.co2
+                        # if the flow cell is not free
+                        else:
+                            # find the closest free cells to it
+                            closest_free_cells = find_closest_free_cells(flow_cells, adj_cells)
+                            # if there is exactly 1 free cell closest to the flow cell
+                            if len(closest_free_cells) == 1:
+                                city.grid3d[closest_free_cells[0]][closest_free_cells[1]][closest_free_cells[2]] += cell.co2
+                            else:
+                                # if there are 2 adjacent free cells that are the closest to the flow cell
+                                for free_cell in closest_free_cells:
+                                    city.grid3d[free_cell[0]][free_cell[1]][free_cell[2]] += 0.5*cell.co2
+                    # else, if the wind flows to 2 cells
+                    else:
+                        # for every flow cell
+                        for flow_cell in flow_cells:
+                            # check if the cell is free
+                            if flow_cell.is_free():
+                                # and give it half the co2 this cell contains if it is
+                                city.grid3d[flow_cell[0]][flow_cell[1]][flow_cell[2]] += 0.5*cell.co2
+                            else:
+                                # if it isn't free, check which is the closest free cell to it
+                                closest_free_cells = find_closest_free_cells(flow_cells, adj_cells)
+                                # if there is exactly 1 free cell closest to the flow cell give it 50% of the co2
+                                if len(closest_free_cells) == 1:
+                                    city.grid3d[closest_free_cells[0]][closest_free_cells[1]][closest_free_cells[2]] += 0.5*cell.co2
+                                # else there are 2 free cells that are the closest to the flow cell
+                                else:
+                                    # give 25% of co2 to each
+                                    for free_cell in closest_free_cells:
+                                        city.grid3d[free_cell[0]][free_cell[1]][free_cell[2]] += 0.25*cell.co2
+
+                # since the co2 moved to nearby cells, this cell has now 0 co2 again
+                cell.co2 = 0
+
+# find the closest free cells
+def find_closest_free_cells(cell, adj_cells):
     """
-    function to match direction (east, west, north, south) to a percentage
+    Function that finds the closest free grid cell to the current one based on euclidean distance.
+
+    Input:
+        cell -> 1d integer list of current cell index ([i, j, k])
+        adj_cells -> 2d integer list of free adjacent cells ([[i+1, j, k][i-1, j, k], ...])
+    Output:
+        closest_cells -> 2d integer list of the closest cell(s) based on euclidean distance ([[i+1, j, k], [i, j+1, k], ...])
+    """
+    # find the euclidean distance for all the adjacent cells
+    euc_distance_list = []
+    for c in adj_cells:
+        euc_distance = sqrt((cell[0] - c[0])**2 + (cell[1] - c[1])**2 + (cell[2] - c[2])**2)
+        euc_distance_list.append(euc_distance)
+
+    # find the minimum euclidean distance
+    min_euc_distance = min(euc_distance_list)
+
+    # get all the closest elements
+    closest_cells = []
+    for index, d in enumerate(euc_distance_list):
+        if d == min_euc_distance:
+            closest_cells.append(adj_cells[index])
+
+    return closest_cells
+
+# match wind direction to adjacent cell
+def match_direction(d, i, j, k):
+    """
+    Function to match wind direction (east, west, north, south) to a adjacent cell
+
     input:
         d -> direction of wind ('w', 'wnw', 'nw', 'nnw', 'n', 'nne', 'ne', 'ene', 'e', 'ese',	'se', 'sse', 's', 'ssw', 'sw', 'wsw')
     output:
-        p -> list with percentage of wind flowing to adjacent cells
-        c -> list with the corresponding adjacent cells that the wind flows to
+        c -> 2d list with the corresponding adjacent cells that the wind flows to
     """
-    if len(d) > 1:
-        p = [0.5, 0.5]
-    else:
-        p = [1]
 
     if d == 'e':
-        c = [[i+1]]
+        c = [[i+1, j, k]]
     elif d == 'w':
-        c = [[i-1]]
+        c = [[i-1, j, k]]
     elif d == 'n':
-        c = [[j+1]]
+        c = [[j+1, j, k]]
     elif d == 's':
-        c = [[j-1]]
+        c = [[j-1, j, k]]
 
     elif d == 'ne':
-        c = [[i+1, j+1]]
+        c = [[i+1, j+1, k]]
     elif d == "nw":
-        c = [[i-1, j+1]]
+        c = [[i-1, j+1, k]]
     elif d == "se":
-        c = [[i+1, j-1]]
+        c = [[i+1, j-1, k]]
     elif d == "sw":
-        c = [[i-1, j-1]]
+        c = [[i-1, j-1, k]]
 
     elif d == "ene":
-        c = [[i+1, j], [i+1, j+1]]
+        c = [[i+1, j, k], [i+1, j+1, k]]
     elif d == "ese":
-        c = [[i+1, j], [i+1, j-1]]
+        c = [[i+1, j, k], [i+1, j-1, k]]
     elif d == "wnw":
-        c = [[i-1, j], [i-1, j+1]]
+        c = [[i-1, j, k], [i-1, j+1, k]]
     elif d == "wsw":
-        c = [[i-1, j], [i-1, j-1]]
+        c = [[i-1, j, k], [i-1, j-1, k]]
     elif d == "nne":
-        c = [[i, j+1], [i+1, j+1]]
+        c = [[i, j+1, k], [i+1, j+1, k]]
     elif d == "nnw":
-        c = [[i, j+1], [i-1, j+1]]
+        c = [[i, j+1, k], [i-1, j+1, k]]
     elif d == "sse":
-        c = [[i, j-1], [i+1, j-1]]
+        c = [[i, j-1, k], [i+1, j-1, k]]
     elif d == "ssw":
-        c = [[i, j-1], [i-1, j-1]]
+        c = [[i, j-1, k], [i-1, j-1, k]]
 
-    return p, c
+    return c
 
 # apply air dispersion dynamics
 def apply_co2_dispersion():
@@ -167,6 +264,14 @@ def apply_co2_dispersion():
 
 # apply trees effect on co2 levels
 def apply_trees_effect(city):
+    """
+    Function that applies the effect that trees have to co2.
+
+    Input:
+        city -> the 3d grid of the model of our city as a 3d list with objects of grid_cell inside
+    Output:
+        none, changes the city object
+    """
     # a tree roughly absorbs 48 pounds of co2 per year (21,7724 kg)
     year_absorbtion = 15 # we will consider a mature tree, but not a huge one, because we are in a city, so ~15kg/year 
     sec_absorbtion = year_absorbtion/(86400*30*12) # we might need an hourly absorbtion, to reduce the computation time
@@ -178,7 +283,7 @@ def apply_trees_effect(city):
                 # check if the current grid cell is a tree
                 if city.grid3d[i][j][k].contains == "tree":
                     # find how many adjacent grid cells are free for every tree
-                    num_free_cells, adj_cells = find_num_free_adj_cells(city, i, j, k, "3d")
+                    num_free_cells, adj_cells = find_free_adj_cells(city, i, j, k, "3d")
 
                     # how much co2 will be absorved from free adjacent cells
                     adj_cells_co2_absorbtion = sec_absorbtion/num_free_cells
@@ -191,10 +296,17 @@ def apply_trees_effect(city):
                         city.grid3d[ii][jj][kk].co2 -= adj_cells_co2_absorbtion 
 
 # Check for free adjacent cells in either 2d or 3d
-def find_num_free_adj_cells(city, x, y, z, d): 
+def find_free_adj_cells(city, x, y, z, d): 
     """
-    x, y, z: position of cell in 3d grid
-    d: dimension of search - 2d or 3d
+    Function that finds the number and the position of the free adjacent cells for a city grid block in 2d or 3d.
+    
+    Input:
+        city -> 3d grid of model of a city in the form of 3d list with grid_cell objects as elements
+        x, y, z -> position of cell in 3d grid
+        d -> dimension of search - 2d or 3d
+    Output:
+        num_free_cells -> number that shows how many adjacent free cells there are
+        adj_cells -> 2d list that contains [i, j, k] elements with the position of the adjacent cells
     """
 
     # chck if this is a corner cell

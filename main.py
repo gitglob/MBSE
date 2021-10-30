@@ -52,7 +52,7 @@ def main():
         #f.apply_trees_effect(city)
         
         # calculate wind effect
-        #f.apply_wind_effect()
+        #f.apply_wind_effect(city, wind_direction, wind_speed)
         
         # apply dispersion
         #apply_co2_dispersion()
