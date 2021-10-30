@@ -85,9 +85,9 @@ def generate_cars(city, time, max_cars):
 def calculate_co2(city):
     # calculate car emissions
     co2_sum = 0
-    for i in city.rows:
-        for j in city.cols:
-            for k in city.height:
+    for i in range(city.rows):
+        for j in range(city.cols):
+            for k in range(city.height):
                 if city.grid3d[i][j][k].is_free():
                     co2_sum += city.grid3d[i][j][k].co2
                     
@@ -104,6 +104,7 @@ def calculate_wind_speed(month, secs):
     Output:
         wind_speed -> speed of wind (km/h)
     """
+    print("Applying wind effect...")
     secs = secs % 2628000
     month_name = match_month(month)
     col = wind_month_day_df[month_name]
@@ -206,42 +207,53 @@ def apply_wind_effect(city, direction, speed):
                     # find which cells the wind flows towards
                     flow_cells = match_direction(direction, i, j, k)
 
+                    # drop the flow cells that are out of the city grid
+                    remove_list = []
+                    for flc in flow_cells:
+                        if ((flc[0] < 0) or (flc[1] < 0) or (flc[2] < 0) or 
+                         (flc[0] > (len(city.grid3d)-1)) or 
+                         (flc[1] > (len(city.grid3d[0])-1)) or 
+                         (flc[2] > (len(city.grid3d[0][0])-1))):
+                            remove_list.append(flc)
+                    for e in remove_list:
+                        flow_cells.remove(e)
+
                     # check if the wind flows to 1 cell
                     if len(flow_cells) == 1:
                         # check if that cell is free
-                        if flow_cells.is_free():
+                        if city.grid3d[flow_cells[0][0]][flow_cells[0][1]][flow_cells[0][2]].is_free():
                             # and give it all the co2 this cell contains
-                            city.grid3d[flow_cells[0]][flow_cells[1]][flow_cells[2]] += cell.co2
+                            city.grid3d[flow_cells[0][0]][flow_cells[0][1]][flow_cells[0][2]].add_co2(cell.co2)
                         # if the flow cell is not free
                         else:
                             # find the closest free cells to it
-                            closest_free_cells = find_closest_free_cells(flow_cells, adj_cells)
+                            closest_free_cells = find_closest_free_cells(flow_cells[0], adj_cells)
                             # if there is exactly 1 free cell closest to the flow cell
                             if len(closest_free_cells) == 1:
-                                city.grid3d[closest_free_cells[0]][closest_free_cells[1]][closest_free_cells[2]] += cell.co2
+                                city.grid3d[closest_free_cells[0][0]][closest_free_cells[0][1]][closest_free_cells[0][2]].add_co2(cell.co2)
                             else:
                                 # if there are 2 adjacent free cells that are the closest to the flow cell
                                 for free_cell in closest_free_cells:
-                                    city.grid3d[free_cell[0]][free_cell[1]][free_cell[2]] += 0.5*cell.co2
+                                    city.grid3d[free_cell[0]][free_cell[1]][free_cell[2]].add_co2(0.5*cell.co2)
                     # else, if the wind flows to 2 cells
-                    else:
+                    elif len(flow_cells) == 2:
                         # for every flow cell
                         for flow_cell in flow_cells:
                             # check if the cell is free
-                            if flow_cell.is_free():
+                            if city.grid3d[flow_cell[0]][flow_cell[1]][flow_cell[2]].is_free():
                                 # and give it half the co2 this cell contains if it is
-                                city.grid3d[flow_cell[0]][flow_cell[1]][flow_cell[2]] += 0.5*cell.co2
+                                city.grid3d[flow_cell[0]][flow_cell[1]][flow_cell[2]].add_co2(0.5*cell.co2)
                             else:
                                 # if it isn't free, check which is the closest free cell to it
-                                closest_free_cells = find_closest_free_cells(flow_cells, adj_cells)
+                                closest_free_cells = find_closest_free_cells(flow_cell, adj_cells)
                                 # if there is exactly 1 free cell closest to the flow cell give it 50% of the co2
                                 if len(closest_free_cells) == 1:
-                                    city.grid3d[closest_free_cells[0]][closest_free_cells[1]][closest_free_cells[2]] += 0.5*cell.co2
+                                    city.grid3d[closest_free_cells[0][0]][closest_free_cells[0][1]][closest_free_cells[0][2]].add_co2(0.5*cell.co2)
                                 # else there are 2 free cells that are the closest to the flow cell
                                 else:
                                     # give 25% of co2 to each
                                     for free_cell in closest_free_cells:
-                                        city.grid3d[free_cell[0]][free_cell[1]][free_cell[2]] += 0.25*cell.co2
+                                        city.grid3d[free_cell[0]][free_cell[1]][free_cell[2]].add_co2(0.25*cell.co2)
 
                 # since the co2 moved to nearby cells, this cell has now 0 co2 again
                 cell.co2 = 0
@@ -344,28 +356,32 @@ def apply_trees_effect(city):
     Output:
         none, changes the city object
     """
+    print("Applying trees effect...")
     # a tree roughly absorbs 48 pounds of co2 per year (21,7724 kg)
     year_absorbtion = 15 # we will consider a mature tree, but not a huge one, because we are in a city, so ~15kg/year 
-    sec_absorbtion = year_absorbtion/(86400*30*12) # we might need an hourly absorbtion, to reduce the computation time
+    hour_absorbtion = year_absorbtion/(12*30*24)
+    #sec_absorbtion = year_absorbtion/(86400*30*12)
 
     # iterate over the 3d grid
-    for i in city.rows:
-        for j in city.cols:
-            for k in city.height:
+    for i in range(city.rows):
+        for j in range(city.cols):
+            for k in range(city.height):
                 # check if the current grid cell is a tree
                 if city.grid3d[i][j][k].contains == "tree":
                     # find how many adjacent grid cells are free for every tree
                     num_free_cells, adj_cells = find_free_adj_cells(city, i, j, k, "3d")
 
-                    # how much co2 will be absorved from free adjacent cells
-                    adj_cells_co2_absorbtion = sec_absorbtion/num_free_cells
+                    # if there are any free adjacent cells
+                    if num_free_cells > 0:
+                        # how much co2 will be absorved from free adjacent cells
+                        adj_cells_co2_absorbtion = hour_absorbtion/num_free_cells
 
-                    # subtract the absorbed co2 from the free adjacent cells
-                    for adj_cell in adj_cells:
-                        ii = adj_cell[0]
-                        jj = adj_cell[1]
-                        kk = adj_cell[2]
-                        city.grid3d[ii][jj][kk].co2 -= adj_cells_co2_absorbtion 
+                        # subtract the absorbed co2 from the free adjacent cells
+                        for adj_cell in adj_cells:
+                            ii = adj_cell[0]
+                            jj = adj_cell[1]
+                            kk = adj_cell[2]
+                            city.grid3d[ii][jj][kk].remove_co2(adj_cells_co2_absorbtion)
 
 # Check for free adjacent cells in either 2d or 3d
 def find_free_adj_cells(city, x, y, z, d): 
@@ -385,11 +401,11 @@ def find_free_adj_cells(city, x, y, z, d):
     corner_x_flag = False
     corner_y_flag = False
     corner_z_flag = False
-    if x == 0 or x == len(city.grid3d[0]):
+    if x == 0 or x == len(city.grid3d)-1:
         corner_x_flag = True
-    if y == 0 or y == len(city.grid3d[0][0]):
+    if y == 0 or y == len(city.grid3d[0])-1:
         corner_y_flag = True
-    if z == 0 or z == len(city.grid3d[0][0][0]):
+    if z == 0 or z == len(city.grid3d[0][0])-1:
         corner_z_flag = True
 
     # count the # of adjacent cells in 2d or 3d
@@ -405,7 +421,7 @@ def find_free_adj_cells(city, x, y, z, d):
                 cell = city.grid3d[i][j][k]
                 if cell.is_free():
                     num_free_cells += 1
-                    adj_cells.append[index]
+                    adj_cells.append(index)
     elif d == "3d":
         for i in [x, x-1, x+1]:
             for j in [y, y-1, y+1]:
@@ -416,6 +432,6 @@ def find_free_adj_cells(city, x, y, z, d):
                     cell = city.grid3d[i][j][k]
                     if cell.is_free():
                         num_free_cells += 1
-                        adj_cells.append[index]
+                        adj_cells.append(index)
 
     return num_free_cells, adj_cells

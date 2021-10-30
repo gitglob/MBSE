@@ -1,14 +1,13 @@
 '''
 This file initializes the classes that we will use throughout the simulation.
 '''
-import numpy as np
 
 # class for the entire grid
 class Grid():
     def __init__(self, city_model):
-        self.rows = np.shape(city_model)[0]
-        self.cols = np.shape(city_model)[1]
-        self.height = np.shape(city_model)[2]
+        self.rows = len(city_model)
+        self.cols = len(city_model[0])
+        self.height = len(city_model[0][0])
         
         # initialize all the grid cells
         self.grid3d = []

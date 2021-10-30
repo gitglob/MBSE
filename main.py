@@ -44,43 +44,44 @@ def main():
         # every 6 hours generate new positions for cars
         if sec%21600 == 0:
             print("Hour: ", current_hour)
-            cars = f.generate_cars(city, time=1, max_cars=500)
+            cars = f.generate_cars(city, time=1, max_cars=5000)
 
         # cars generate co2
         f.generate_co2(cars, city)
 
-        # calculate wind speed
-        wind_speed = f.calculate_wind_speed(current_month, sec)
+        # every hour apply the wind effect and the trees effect
+        if sec%3600 == 0:
+            # calculate wind speed
+            wind_speed = f.calculate_wind_speed(current_month, sec)
 
-        # calculate wind direction
-        wind_direction = f.calculate_wind_directions(wind_speed)
+            # calculate wind direction
+            wind_direction = f.calculate_wind_directions(wind_speed)
 
-        # convert wind_speed from km/h to m/s
-        wind_speed = float(wind_speed) * 1000 / 3600
-        #print('wind_speed: ', wind_speed, "(m/sec)")
-        #print('wind direction: ', wind_direction)
+            # convert wind_speed from km/h to m/s
+            wind_speed = float(wind_speed) * 1000 / 3600
+            #print('wind_speed: ', wind_speed, "(m/sec)")
+            #print('wind direction: ', wind_direction)
 
-        # calculate wind effect
-        f.apply_wind_effect(city, wind_direction, wind_speed)
+            # calculate wind effect
+            f.apply_wind_effect(city, wind_direction, wind_speed)
         
-        # apply trees effect
-        #f.apply_trees_effect(city)
+            # apply trees effect
+            f.apply_trees_effect(city)
 
         # apply dispersion
         #f.apply_co2_dispersion()
 
-        # iterate over the entire grid
-        #f.calculate_co2()
-
         if hour == 6:
             simulation_flag = False
 
+    # calculate and print the total co2 in the city
+    total_co2 = f.calculate_co2(city)
+    print("Total accumulated co2 in the city:", total_co2, "grams")
+
     # after the simulation is done, visualize the co2 in the city
-    #pre.visualize_co2(city)
+    pre.visualize_co2(city)
 
     return 0
-
-    
 
 if __name__ == "__main__":
     main()

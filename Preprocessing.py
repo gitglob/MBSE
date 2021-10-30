@@ -7,7 +7,7 @@ import numpy as np
 import os
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-from pylab import *
+from matplotlib import cm
 
 # read map png file
 def read_png_file():
@@ -134,7 +134,7 @@ def visualize_co2(city):
     z = []
     for i in range(180):
         for j in range(180):
-            for k in range(3):
+            for k in range(1):
                 x.append(i)
                 y.append(j)
                 z.append(k)
@@ -143,7 +143,7 @@ def visualize_co2(city):
     co2 = []
     for i in range(city.rows):
         for j in range(city.cols):
-            for k in range(city.height):
+            for k in range(1):
                 co2.append(city.grid3d[i][j][k].co2)
     
     # creating figures
@@ -155,9 +155,8 @@ def visualize_co2(city):
     color_map.set_array(co2)
     
     # creating the heatmap
-    img = ax.scatter(x, y, z, marker='s',
-                    s=5, color='grey')
-    plt.colorbar(color_map)
+    img = ax.scatter(x, y, z, marker='s', s=1, c=co2)
+    #plt.colorbar(color_map)
     
     # adding title and labels
     ax.set_title("3D Heatmap")
