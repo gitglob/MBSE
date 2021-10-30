@@ -1,7 +1,7 @@
 import random
 import Classes
 
-def generate_cars(city_size, grid, time, max_cars):
+def generate_cars(grid, city_size, time, max_cars):
     # list of car objects
     cars = []
 
