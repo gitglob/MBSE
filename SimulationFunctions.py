@@ -17,7 +17,7 @@ def generate_cars(city, time, max_cars):
     """
     
     """
-    print("Generating cars... lol")
+    print("Generating cars...")
     city_size = city.rows
 
     # list of car objects
@@ -78,10 +78,6 @@ def generate_cars(city, time, max_cars):
                         else:
                             car = Diesel_Car([x, y, 0], city.grid3d[x][y][0].road_type)
                         cars.append(car)
-
-    for car in cars:
-        print(car.x, car.y, car.z, car.co2)
-
 
     return cars
 
@@ -198,9 +194,9 @@ def apply_wind_effect(city, direction, speed):
     """
 
     # iterate over the entire grid
-    for i in city.rows:
-        for j in city.cols:
-            for k in city.height:
+    for i in range(city.rows):
+        for j in range(city.cols):
+            for k in range(city.height):
                 cell = city.grid3d[i][j][k]
                 # check if the current cell has co2
                 if cell.co2 > 0:

@@ -47,7 +47,7 @@ class GridCell():
         self.contains = None
 
     # method that checks if the current cell is free
-    def is_free():
+    def is_free(self):
         if (self.contains == "vehicle") or (self.contains == "empty") or (self.contains == "road"):
             return True
         else:
@@ -62,6 +62,7 @@ class GridCell():
 # building objects
 class Building(GridCell):
     def __init__(self, cell):
+        super().__init__(cell)
         self.contains = 'building'
 
 # road object
@@ -70,10 +71,12 @@ class Road(GridCell):
         super().__init__(cell)
         self.contains = 'road'
         self.road_type = road_type
+        self.get_speed()
 
-        if road_type == "high road":
+    def get_speed(self):
+        if self.road_type == "high road":
             self.speed = 19.44 #70 km/h = 19.44 m/s
-        elif road_type == "inner road":
+        elif self.road_type == "inner road":
             self.speed = 8.33 #30 km/h = 8.33 m/s
 
 # car objects

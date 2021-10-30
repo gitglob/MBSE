@@ -141,9 +141,9 @@ def visualize_co2(city):
 
     # extract the co2 levels from the grid 
     co2 = []
-    for i in city.rows:
-        for j in city.cols:
-            for k in city.height:
+    for i in range(city.rows):
+        for j in range(city.cols):
+            for k in range(city.height):
                 co2.append(city.grid3d[i][j][k].co2)
     
     # creating figures
@@ -156,7 +156,7 @@ def visualize_co2(city):
     
     # creating the heatmap
     img = ax.scatter(x, y, z, marker='s',
-                    s=20, color='grey')
+                    s=5, color='grey')
     plt.colorbar(color_map)
     
     # adding title and labels

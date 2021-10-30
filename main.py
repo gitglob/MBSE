@@ -33,7 +33,6 @@ def main():
         minute = iteration // 60
         sec = iteration
         
-
         # calculate date starting from 1/1/1
         current_year = year + 1
         current_month = month%12 + 1
@@ -42,36 +41,42 @@ def main():
         if iteration%86400 == 0:
             print("Date: ", current_day, "/", current_month, "/", current_year)
 
-        # calculate wind speed
-        wind_speed = f.calculate_wind_speed(current_month, sec)
-        wind_direction = f.calculate_wind_directions(wind_speed)
-        # convert km/h to m/s
-        wind_speed = float(wind_speed) * 1000 / 3600
-        #print('wind_speed: ', wind_speed, "(m/sec)")
-        #print('wind direction: ', wind_direction)
-
         # every 6 hours generate new positions for cars
         if sec%21600 == 0:
             print("Hour: ", current_hour)
             cars = f.generate_cars(city, time=1, max_cars=500)
 
-        # generate co2
+        # cars generate co2
         f.generate_co2(cars, city)
+
+        # calculate wind speed
+        wind_speed = f.calculate_wind_speed(current_month, sec)
+
+        # calculate wind direction
+        wind_direction = f.calculate_wind_directions(wind_speed)
+
+        # convert wind_speed from km/h to m/s
+        wind_speed = float(wind_speed) * 1000 / 3600
+        #print('wind_speed: ', wind_speed, "(m/sec)")
+        #print('wind direction: ', wind_direction)
+
+        # calculate wind effect
+        f.apply_wind_effect(city, wind_direction, wind_speed)
         
         # apply trees effect
         #f.apply_trees_effect(city)
 
-        # calculate wind effect
-        #f.apply_wind_effect(city, wind_direction, wind_speed)
-        
         # apply dispersion
         #f.apply_co2_dispersion()
 
         # iterate over the entire grid
         #f.calculate_co2()
 
-        if hour == 30:
+        if hour == 6:
             simulation_flag = False
+
+    # after the simulation is done, visualize the co2 in the city
+    #pre.visualize_co2(city)
 
     return 0
 
