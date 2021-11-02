@@ -44,7 +44,6 @@ class SensorManager:
         values = np.zeros(shape=(map.rows, map.cols, map.height)) # TODO: CHECK
         for d in self.devices:
             value = d.measure(map.grid3d[d.x][d.y][d.z].co2)
-            print(value)
             if value is not None:
                 values[d.x][d.y][d.z] = value
         return values
