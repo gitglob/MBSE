@@ -13,11 +13,11 @@ def main():
     map_1d = pre.read_png_file()
     map_2d, rows, cols, height = pre.convert_1d_grid_to_2d(map_1d)
     map_3d, rows, cols, height = pre.convert_2d_grid_to_3d(map_2d, rows, cols, height)
-    #vis.visualize_3d_grid(map_3d, rows, cols, height)
 
     # initialize our 3d grid
     city = Grid(map_3d)
     print ("Our city is a: {} grid".format([len(city.grid3d), len(city.grid3d[0]), len(city.grid3d[0][0])]))
+    #vis.visualize_3d_grid(city)
 
     # extract the tree cells
     trees, roads, emptys = h.extract_trees_roads_empty_blocks(city)
@@ -52,6 +52,7 @@ def main():
         if sec%21600 == 0:
             print("Hour: ", current_hour)
             cars = f.generate_cars(city, roads, time=1, max_cars=5000)
+            #vis.visualize_cars(city, cars)
 
         # cars generate co2
         f.generate_co2(cars, city)
