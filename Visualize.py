@@ -176,3 +176,43 @@ def visualize_co2(city, mesh=False):
     
     # displaying plot
     plt.show()
+
+def visualize_co2_measures(values):
+    # create the grid
+    x = []
+    y = []
+    z = []
+    for i in range(len(values)):
+        for j in range(len(values[0])):
+            for k in range(len(values[0][0])):
+                x.append(i)
+                y.append(j)
+                z.append(k)
+    co2 = []
+    for i in range(len(values)):
+        for j in range(len(values[0])):
+            for k in range(len(values[0][0])):
+                co2.append(values[i][j][k])
+    colmap = cm.ScalarMappable(cmap=cm.Greys)
+    colmap.set_array(co2)
+
+    # creating figures
+    fig = plt.figure(figsize=(10, 10))
+    ax = fig.add_subplot(111, projection='3d')
+    
+    # setting color bar
+    color_map = cm.ScalarMappable(cmap=cm.Greys)
+    color_map.set_array(co2)
+    
+    # creating the heatmap
+    ax.scatter(x, y, z, marker='s', s = 5, c=co2, cmap='Greys')
+    cb = fig.colorbar(colmap)
+    
+    # adding title and labels
+    ax.set_title("3D Heatmap of CO2 measures")
+    ax.set_xlabel('X-axis')
+    ax.set_ylabel('Y-axis')
+    ax.set_zlabel('Z-axis')
+    
+    # displaying plot
+    plt.show()
