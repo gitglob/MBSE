@@ -4,21 +4,27 @@ This is the main file, that executes the core loop of our simulation.
 
 import Preprocessing as pre
 import SimulationFunctions as f
+import HelperFunctions as h
+import Visualize as vis
 from Classes import *
 
 def main():
     map_1d = pre.read_png_file()
     map_2d, rows, cols, height = pre.convert_1d_grid_to_2d(map_1d)
     map_3d, rows, cols, height = pre.convert_2d_grid_to_3d(map_2d, rows, cols, height)
-    #pre.visualize_3d_grid(map_3d, rows, cols, height)
+    #vis.visualize_3d_grid(map_3d, rows, cols, height)
 
     # initialize our 3d grid
     city = Grid(map_3d)
     print ("Our city is a: {} grid".format([len(city.grid3d), len(city.grid3d[0]), len(city.grid3d[0][0])]))
 
+    # extract the tree cells
+    trees, roads, emptys = h.extract_trees_roads_empty_blocks(city)
+
     # run the simulation - Note: Every iteration is 1 second
     simulation_flag = True
     iteration = -1
+    wind_speed_duration = 0
 
     while (simulation_flag):
         iteration +=1
@@ -44,7 +50,7 @@ def main():
         # every 6 hours generate new positions for cars
         if sec%21600 == 0:
             print("Hour: ", current_hour)
-            cars = f.generate_cars(city, time=1, max_cars=5000)
+            cars = f.generate_cars(city, roads, time=1, max_cars=5000)
 
         # cars generate co2
         f.generate_co2(cars, city)
@@ -52,21 +58,22 @@ def main():
         # every hour apply the wind effect and the trees effect
         if sec%3600 == 0:
             # calculate wind speed
-            wind_speed = f.calculate_wind_speed(current_month, sec)
+            if wind_speed_duration == 0 or sec%wind_speed_duration == 0:
+                wind_speed_km, wind_speed_duration = f.calculate_wind_speed(current_month, sec)
 
             # calculate wind direction
-            wind_direction = f.calculate_wind_directions(wind_speed)
+            wind_direction = f.calculate_wind_directions(wind_speed_km)
 
             # convert wind_speed from km/h to m/s
-            wind_speed = float(wind_speed) * 1000 / 3600
+            wind_speed = float(wind_speed_km) * 1000 / 3600
             #print('wind_speed: ', wind_speed, "(m/sec)")
             #print('wind direction: ', wind_direction)
 
             # calculate wind effect
-            f.apply_wind_effect(city, wind_direction, wind_speed)
+            f.apply_wind_effect(city, emptys, wind_direction, wind_speed)
         
             # apply trees effect
-            f.apply_trees_effect(city)
+            f.apply_trees_effect(city, trees)
 
         # apply dispersion
         #f.apply_co2_dispersion()
@@ -79,7 +86,7 @@ def main():
     print("Total accumulated co2 in the city:", total_co2, "grams")
 
     # after the simulation is done, visualize the co2 in the city
-    pre.visualize_co2(city)
+    vis.visualize_co2(city)
 
     return 0
 
