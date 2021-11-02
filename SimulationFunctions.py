@@ -203,7 +203,7 @@ def apply_wind_effect(city, emptys, direction, speed):
     Output:
         none, changes the city object
     """
-
+    print("Applying wind effect...")
     # check if there is any wind at all
     if speed != 0:
         # iterate over the empty cells of the city (these are the only ones that can hold co2)
