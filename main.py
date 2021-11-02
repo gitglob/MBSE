@@ -7,6 +7,12 @@ import SimulationFunctions as f
 import HelperFunctions as h
 import Visualize as vis
 from Classes import *
+from iot.battery import BatteryList
+from iot.device import Device
+from iot.network import Network
+from iot.sensor import Sensor
+from iot.sensor_manager import SensorManager
+from random import randint
 
 def main():
     # reading our model file and creating the object structure
@@ -26,6 +32,28 @@ def main():
     simulation_flag = True
     iteration = -1
     wind_speed_duration = 0
+
+    sensor_manager: SensorManager = SensorManager()
+    #place sensors in random positions
+    for i in range(30):
+        sensor: Sensor = Sensor(0.3, 1, 1.5, 0.5)
+        network: Network = Network()
+        device: Device = Device(sensor, network, BatteryList.CR2032, i)
+        x = randint(0, rows-1)
+        y = randint(0, cols-1)
+        #z = randint(0, height-1)
+        z = 0
+        while(not city.grid3d[x][y][z].is_free()):
+            x = randint(0, rows-1)
+            y = randint(0, cols-1)
+            #z = randint(0, height-1)
+            z = 0
+        device.set_position(x, y, z)
+        sensor_manager.place_sensor(x, y, z, device)
+
+    print("Placed " + str(sensor_manager.get_sensors_count()) + " sensors")
+
+    
 
     while (simulation_flag):
         iteration +=1
@@ -79,6 +107,13 @@ def main():
 
         # apply dispersion
         #f.apply_co2_dispersion()
+
+        #get a measure
+        if sec % sensor_manager.MEASURE_PERIOD == 0:
+            print("Taking a measure")
+            measures = sensor_manager.measure(city)
+            vis.visualize_co2_measures(measures)
+
 
         if hour == 6:
             simulation_flag = False
