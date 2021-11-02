@@ -13,11 +13,11 @@ dir_path = os.path.dirname(os.path.realpath('wind_months.csv'))
 wind_month_day_df = pd.read_csv(dir_path + '\wind_months.csv', header=0)
 wind_directions_distribution_df = pd.read_csv(dir_path + '\wind_directions_distribution.csv', header=0)
 
+# generate cars inside the city
 def generate_cars(city, roads, time, max_cars):
     """
     
     """
-    print("Generating cars...")
     city_size = city.rows
 
     # list of car objects
@@ -31,6 +31,7 @@ def generate_cars(city, roads, time, max_cars):
 
     # calculate number of cars based on time
     max_cars *= time_zone_car_percentage
+    print("Generating {} cars...".format(max_cars))
 
     # city zones
     city_zone1 = {'bound': city_size/6, 'probability': 0.3, 'roads': 0} 
@@ -62,26 +63,31 @@ def generate_cars(city, roads, time, max_cars):
         if x < city_zone1['bound'] or x > city_size - city_zone1['bound'] and y < city_zone1['bound'] or y > city_size - city_zone1['bound']:
             if random.random() < city_zone1['probability']:
                 if random.random() < 0.5:
-                    car = Gasolin_Car([x, y, 0], city.grid3d[x][y][0].road_type)
+                    car = Gasolin_Car([x, y, 0], city.grid3d[x][y][z].road_type)
                 else:
-                    car = Diesel_Car([x, y, 0], city.grid3d[x][y][0].road_type)
+                    car = Diesel_Car([x, y, 0], city.grid3d[x][y][z].road_type)
                 cars.append(car)
         elif x < city_zone2['bound'] or x > city_size - city_zone2['bound'] and y < city_zone2['bound'] or y > city_size - city_zone2['bound']:
             if random.random() < city_zone2['probability']:
                 if random.random() < 0.5:
-                    car = Gasolin_Car([x, y, 0], city.grid3d[x][y][0].road_type)
+                    car = Gasolin_Car([x, y, 0], city.grid3d[x][y][z].road_type)
                 else:
-                    car = Diesel_Car([x, y, 0], city.grid3d[x][y][0].road_type)
+                    car = Diesel_Car([x, y, 0], city.grid3d[x][y][z].road_type)
                 cars.append(car)
         else:
             if random.random() < city_zone3['probability']:
                 if random.random() < 0.5:
-                    car = Gasolin_Car([x, y, 0], city.grid3d[x][y][0].road_type)
+                    car = Gasolin_Car([x, y, 0], city.grid3d[x][y][z].road_type)
                 else:
-                    car = Diesel_Car([x, y, 0], city.grid3d[x][y][0].road_type)
+                    car = Diesel_Car([x, y, 0], city.grid3d[x][y][z].road_type)
                 cars.append(car)
 
     return cars
+
+# generate co2 where there is a car in the city
+def generate_co2(cars, city):
+    for car in cars:
+        car.generate_co2(city.grid3d[car.x][car.y][car.z])
 
 # calculate the CO2 for the entire grid
 def calculate_co2(city):
@@ -346,10 +352,6 @@ def apply_co2_dispersion():
             for k in city.height:
                 if city.grid3d[i][j][k].co2:
                     pass
-                    
-def generate_co2(cars, city):
-    for car in cars:
-        car.generate_co2(city.grid3d[car.x][car.y][car.z])
 
 # apply trees effect on co2 levels
 def apply_trees_effect(city, trees):
