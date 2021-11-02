@@ -39,13 +39,16 @@ class SensorManager:
     def __init__(self):
         self.devices = []
         self.periodic_manager = PeriodicExecManager()
+        self.latest_measure = None
 
     def measure(self, map: Grid):
         values = np.zeros(shape=(map.rows, map.cols, map.height)) # TODO: CHECK
         for d in self.devices:
             value = d.measure(map.grid3d[d.x][d.y][d.z].co2)
+            print("measured", str(value),"with", str(map.grid3d[d.x][d.y][d.z].co2))
             if value is not None:
                 values[d.x][d.y][d.z] = value
+        self.latest_measure = values
         return values
 
     def start(self):
@@ -61,4 +64,17 @@ class SensorManager:
     
     def get_sensors_count(self):
         return len(self.devices)
+    
+    def get_total_co2(self):
+        if self.latest_measure is None:
+            print("Take a measure first")
+            return 0
+        val = 0
+        for x in range(len(self.latest_measure)):
+            for y in range(len(self.latest_measure[0])):
+                for z in range(len(self.latest_measure[0][0])):
+                    #print(self.latest_measure[x][y][z])
+                    val = val + self.latest_measure[x][y][z]
+        return val
+        
 

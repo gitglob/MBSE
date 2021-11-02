@@ -113,6 +113,10 @@ def main():
             print("Taking a measure")
             measures = sensor_manager.measure(city)
             vis.visualize_co2_measures(measures)
+            total_co2 = f.calculate_co2(city)
+            print("Total accumulated co2 in the city:", total_co2, "grams")
+            total_measured_co2 = sensor_manager.get_total_co2()
+            print("Total measured co2:", str(total_measured_co2), "grams")
 
 
         if hour == 6:
