@@ -9,6 +9,7 @@ import Visualize as vis
 from Classes import *
 
 def main():
+    # reading our model file and creating the object structure
     map_1d = pre.read_png_file()
     map_2d, rows, cols, height = pre.convert_1d_grid_to_2d(map_1d)
     map_3d, rows, cols, height = pre.convert_2d_grid_to_3d(map_2d, rows, cols, height)
