@@ -108,7 +108,7 @@ def visualize_cars(city, cars):
     plt.show()
 
 # Visualize CO2 levels in 3d grid
-def visualize_co2(city):
+def visualize_co2(city, mesh=False):
     print("Visualizing real co2...")
     # create the grid
     x = []
@@ -141,11 +141,35 @@ def visualize_co2(city):
     color_map.set_array(co2)
     
     # creating the heatmap
-    ax.scatter(x, y, z, marker='s', s = 5, c=co2, cmap='Greys')
+    ax.scatter(x, y, z, marker='s', s = 5, c=co2, alpha=0.2, cmap='Greys')
     cb = fig.colorbar(colmap)
+
+    # if mesh==True then mesh the co2 plot with the city plot
+    if mesh:
+        x1 = []
+        x2 = []
+        y1 = []
+        y2 = []
+        z1 = []
+        z2 = []
+
+        for i in range(city.rows):
+            for j in range(city.cols):
+                for k in range(city.height):
+                    if city.grid3d[i][j][k].contains == "tree":
+                        x1.append(i)
+                        y1.append(j)
+                        z1.append(k)
+                    elif city.grid3d[i][j][k].contains == "building":
+                        x2.append(i)
+                        y2.append(j)
+                        z2.append(k)
+
+        ax.scatter(x1, y1, z1, s=0.5, c='green', alpha=1)
+        ax.scatter(x2, y2, z2, s=0.5, c='blue', alpha=1)
     
     # adding title and labels
-    ax.set_title("3D Heatmap")
+    ax.set_title("City 3D CO2 Heatmap")
     ax.set_xlabel('X-axis')
     ax.set_ylabel('Y-axis')
     ax.set_zlabel('Z-axis')
