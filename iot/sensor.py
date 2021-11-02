@@ -9,5 +9,5 @@ class Sensor:
         self.power = power
 
     def measure(self, co2_value):
-        error = self.error*random.random(-1.0, 1.0)
+        error = self.error*random.randrange(-1.0, 1.0)
         return co2_value*(1 + error)
