@@ -88,7 +88,7 @@ def main():
     print("Total accumulated co2 in the city:", total_co2, "grams")
 
     # after the simulation is done, visualize the co2 in the city
-    vis.visualize_co2(city)
+    vis.visualize_co2(city, mesh=True)
 
     return 0
 
