@@ -1,6 +1,7 @@
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
+from pylab import *
 
 # Visualize 3d grid
 def visualize_3d_grid(map_3d, rows, cols, height):
@@ -53,9 +54,9 @@ def visualize_co2(city):
     x = []
     y = []
     z = []
-    for i in range(180):
-        for j in range(180):
-            for k in range(1):
+    for i in range(city.rows):
+        for j in range(city.cols):
+            for k in range(city.height):
                 x.append(i)
                 y.append(j)
                 z.append(k)
@@ -64,9 +65,13 @@ def visualize_co2(city):
     co2 = []
     for i in range(city.rows):
         for j in range(city.cols):
-            for k in range(1):
+            for k in range(city.height):
                 co2.append(city.grid3d[i][j][k].co2)
     
+    # create a color map based on the co2
+    colmap = cm.ScalarMappable(cmap=cm.Greys)
+    colmap.set_array(co2)
+
     # creating figures
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(111, projection='3d')
@@ -76,8 +81,8 @@ def visualize_co2(city):
     color_map.set_array(co2)
     
     # creating the heatmap
-    img = ax.scatter(x, y, z, marker='s', s=1, c=co2)
-    #plt.colorbar(color_map)
+    ax.scatter(x, y, z, marker='s', s = 140, c=co2, cmap='Greys')
+    cb = fig.colorbar(colmap)
     
     # adding title and labels
     ax.set_title("3D Heatmap")
