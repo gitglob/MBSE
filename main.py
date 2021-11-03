@@ -20,23 +20,14 @@ def main():
     # extract the tree cells
     trees, roads, emptys = pre.extract_trees_roads_empty_blocks(city)
 
+    sensor_manager = SensorManager(city)
+    sensor_manager.distribute_sensors(2)
+    print("Placed " + str(sensor_manager.get_sensors_count()) + " sensors")
+    
+
     # run the simulation - Note: Every iteration is 1 second
     iteration = -1
     wind_speed_duration = 0
-
-    sensor_manager = SensorManager()
-    #place sensors in random positions
-    n = 0
-    for i in range(city.rows):
-        for j in range(city.cols):
-            if city.grid3d[i][j][0].contains == "road":
-                n += 1
-                sensor_manager.create_sensor(i, j, 0)
-
-    print("Placed " + str(sensor_manager.get_sensors_count()) + " sensors")
-
-    
-
     while True:
         iteration += 1
         #print("iteration # ", iteration)

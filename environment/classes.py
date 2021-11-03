@@ -14,10 +14,10 @@ class Grid():
     NOTHING = 765 # sum of white rgb color
 
     def __init__(self):
-        city_model = self.load_from_png()
-        self.rows = city_model.shape[0]
-        self.cols = city_model.shape[1]
-        self.height = city_model.shape[2]
+        self.city_model = self.load_from_png()
+        self.rows = self.city_model.shape[0]
+        self.cols = self.city_model.shape[1]
+        self.height = self.city_model.shape[2]
         
         # initialize all the grid cells
         self.grid3d = []
@@ -26,17 +26,17 @@ class Grid():
             for j in range(0,self.cols):
                 self.grid3d[i].append([])
                 for k in range(0,self.height):
-                    if city_model[i][j][k] == self.ROAD:
+                    if self.city_model[i][j][k] == self.ROAD:
                         if i in [0, 1, self.rows-2, self.rows-1] or j in [0, 1, self.cols-2, self.cols-1]:
                             road_type = "high road"
                         else:
                             road_type = "inner road"
                         item = Road([i,j,k], road_type)
-                    elif city_model[i][j][k] == self.TREE:
+                    elif self.city_model[i][j][k] == self.TREE:
                         item = Tree([i,j,k])
-                    elif city_model[i][j][k] == self.BUILDING:
+                    elif self.city_model[i][j][k] == self.BUILDING:
                         item = Building([i,j,k])
-                    elif city_model[i][j][k] == self.NOTHING:
+                    elif self.city_model[i][j][k] == self.NOTHING:
                         item = Empty([i,j,k])
                         
                     self.grid3d[i][j].append(item)

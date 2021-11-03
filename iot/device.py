@@ -25,7 +25,7 @@ class Device:
 
     def measure(self, real_co2):
         if self.battery.is_empty():
-            print("Device", self.sensor_id, "ran out of battery")
+            #print("Device", self.sensor_id, "ran out of battery")
             return 0
         self.processor.start()
         value = self.sensor.measure(real_co2)
@@ -36,6 +36,6 @@ class Device:
         power_consumed = power_consumed + self.processor.get_power_consumed()
         power_consumed = power_consumed + self.network.get_power_consumed()
         self.battery.discharge(power_consumed)
-        print(self.sensor_id, "battery left:", self.battery.get_battery_level())
+        #print(self.sensor_id, "battery left:", self.battery.get_battery_level())
         return value
 
