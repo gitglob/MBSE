@@ -23,9 +23,9 @@ class Device:
         return self.sensor.cost + self.battery.cost + self.network.cost
 
     def measure(self, real_co2):
-        return self.sensor.measure(real_co2)
         # Inside sensor we should add error
-        if not self.battery.is_empty():
+        if self.battery.is_empty():
+            print("Device", self.sensor_id, "ran out of battery")
             return 0
         power_consumed = self.sensor.power
         #power_consumed += network.power
