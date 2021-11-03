@@ -6,6 +6,7 @@ import Preprocessing as pre
 import SimulationFunctions as f
 import HelperFunctions as h
 import Visualize as vis
+import numpy as np
 from Classes import *
 from iot.battery import BatteryList
 from iot.device import Device
@@ -29,34 +30,27 @@ def main():
     trees, roads, emptys = h.extract_trees_roads_empty_blocks(city)
 
     # run the simulation - Note: Every iteration is 1 second
-    simulation_flag = True
     iteration = -1
     wind_speed_duration = 0
 
-    sensor_manager: SensorManager = SensorManager()
+    sensor_manager = SensorManager()
     #place sensors in random positions
-    for i in range(30):
-        sensor: Sensor = Sensor(0.3, 1, 1.5, 0.5)
-        network: Network = Network()
-        device: Device = Device(sensor, network, BatteryList.CR2032, i)
-        x = randint(0, rows-1)
-        y = randint(0, cols-1)
-        #z = randint(0, height-1)
-        z = 0
-        while(not city.grid3d[x][y][z].is_free()):
-            x = randint(0, rows-1)
-            y = randint(0, cols-1)
-            #z = randint(0, height-1)
-            z = 0
-        device.set_position(x, y, z)
-        sensor_manager.place_sensor(x, y, z, device)
+    n = 0
+    for i in range(rows):
+        for j in range(cols):
+            if city.grid3d[i][j][0].contains == "road":
+                sensor = Sensor(0.03, 1, 1.5, 0.5)
+                network = Network()
+                device = Device(sensor, network, BatteryList.CR2032, n)
+                n += 1
+                sensor_manager.place_sensor(i, j, 0, device)
 
     print("Placed " + str(sensor_manager.get_sensors_count()) + " sensors")
 
     
 
-    while (simulation_flag):
-        iteration +=1
+    while True:
+        iteration += 1
         #print("iteration # ", iteration)
         
         # update the date
@@ -112,19 +106,15 @@ def main():
         if sec % sensor_manager.MEASURE_PERIOD == 0:
             print("Taking a measure")
             measures = sensor_manager.measure(city)
-            vis.visualize_co2_measures(measures)
-            total_co2 = f.calculate_co2(city)
-            print("Total accumulated co2 in the city:", total_co2, "grams")
-            total_measured_co2 = sensor_manager.get_total_co2()
-            print("Total measured co2:", str(total_measured_co2), "grams")
 
-
-        if hour == 6:
-            simulation_flag = False
+        if sec == 600:
+            break
 
     # calculate and print the total co2 in the city
     total_co2 = f.calculate_co2(city)
     print("Total accumulated co2 in the city:", total_co2, "grams")
+    total_measured_co2 = sensor_manager.get_total_co2()
+    print("Total measured co2:", str(total_measured_co2), "grams")
 
     # after the simulation is done, visualize the co2 in the city
     vis.visualize_co2(city, mesh=True)

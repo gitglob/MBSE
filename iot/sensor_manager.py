@@ -2,79 +2,27 @@ import numpy as np
 from Classes import Grid
 
 from iot.device import Device
-class PeriodicExecTask:
-    LOOP_PERIOD = 1 # in seconds
 
-    def __init__(self, period, function, *args, **kwargs):
-        self.period = period
-        self.function = function
-        self.args = args
-        self.kwargs = kwargs
-        self.counter = 0
-
-    def trigger(self):
-        if self.counter % self.period == 0:
-            self.function(*self.args, **self.kwargs)
-        else:
-            self.counter += self.LOOP_PERIOD
-
-
-class PeriodicExecManager:
-    def __init__(self):
-        self.tasks = []
-
-    def add(self, period, function, *args, **kwargs):
-        self.task.append(PeriodicExecTask(period, function, args, kwargs))
-
-    def run(self):
-        for task in self.tasks:
-            task.trigger()
-
-
-class Gateway: #Or receiver or whatever
-    pass
 
 class SensorManager:
     MEASURE_PERIOD = 600 # 10 mins
     def __init__(self):
         self.devices = []
-        self.periodic_manager = PeriodicExecManager()
-        self.latest_measure = None
+        self.latest_measure = np.zeros(1)
 
-    def measure(self, map: Grid):
-        values = np.zeros(shape=(map.rows, map.cols, map.height)) # TODO: CHECK
+    def measure(self, city):
+        values = np.zeros(shape=(city.rows, city.cols))
         for d in self.devices:
-            value = d.measure(map.grid3d[d.x][d.y][d.z].co2)
-            print("measured", str(value),"with", str(map.grid3d[d.x][d.y][d.z].co2))
-            if value is not None:
-                values[d.x][d.y][d.z] = value
+            values[d.x][d.y] = d.measure(city.grid3d[d.x][d.y][d.z].co2)
         self.latest_measure = values
         return values
-
-    def start(self):
-        self.periodic_manager.add(self.MEASURE_PERIOD, self.measure)
-
-    def run(self):
-        self.periodic_manager.run()
 
     def place_sensor(self, x, y, z, device: Device):
         device.set_position(x, y, z)
         self.devices.append(device)
-        print("placing sensor " + str(device.sensor_id) + " in " + str(x) + ", " + str(y) + ", " + str(z))
     
     def get_sensors_count(self):
         return len(self.devices)
     
     def get_total_co2(self):
-        if self.latest_measure is None:
-            print("Take a measure first")
-            return 0
-        val = 0
-        for x in range(len(self.latest_measure)):
-            for y in range(len(self.latest_measure[0])):
-                for z in range(len(self.latest_measure[0][0])):
-                    #print(self.latest_measure[x][y][z])
-                    val = val + self.latest_measure[x][y][z]
-        return val
-        
-
+            return np.sum(self.latest_measure)

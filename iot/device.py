@@ -23,6 +23,7 @@ class Device:
         return self.sensor.cost + self.battery.cost + self.network.cost
 
     def measure(self, real_co2):
+        return self.sensor.measure(real_co2)
         # Inside sensor we should add error
         if not self.battery.is_empty():
             return 0
