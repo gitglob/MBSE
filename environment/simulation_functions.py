@@ -194,12 +194,14 @@ def match_month(m):
         return "December"
         
 # apply wind effect
-def apply_wind_effect(city, emptys, direction, speed):
+def apply_wind_effect(city, roads, emptys, direction, speed):
     """
     Function that applies the effect of wind to the co2 inside a 3d city model.
 
     Input:
         city -> the 3d grid of the model of our city as a 3d list with objects of grid_cell inside
+        roads -> list with all the cells of type "road"
+        emptys -> list with all the cells of type "empty"
         direction -> the wind direction ('w', 'wnw', 'nw', 'nnw', 'n', 'nne', 'ne', 'ene', 'e', 'ese',	'se', 'sse', 's', 'ssw', 'sw', 'wsw')
         speed -> the wind speed (m/sec)
     Output:
@@ -209,7 +211,7 @@ def apply_wind_effect(city, emptys, direction, speed):
     # check if there is any wind at all
     if speed != 0:
         # iterate over the empty cells of the city (these are the only ones that can hold co2)
-        for cell in emptys:
+        for cell in roads+emptys:
             # check if the current cell has co2
             if cell.co2 > 0:
                 # find how many and which adjacent grid cells are free for the current cell
