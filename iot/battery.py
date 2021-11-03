@@ -11,3 +11,4 @@ class Battery:
 
 class BatteryList:
     CR2032 = Battery(1.1, 210)
+    TestBattery = Battery(10, 2100)
