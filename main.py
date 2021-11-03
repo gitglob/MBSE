@@ -13,14 +13,9 @@ from environment.classes import *
 from iot import SensorManager
 
 def main():
-    # reading our model file and creating the object structure
-    map_1d = pre.read_png_file()
-    map_2d, rows, cols, height = pre.convert_1d_grid_to_2d(map_1d)
-    map_3d, rows, cols, height = pre.convert_2d_grid_to_3d(map_2d, rows, cols, height)
-
-    # initialize our 3d grid
-    city = Grid(map_3d)
-    print ("Our city is a: {} grid".format([len(city.grid3d), len(city.grid3d[0]), len(city.grid3d[0][0])]))
+    city = Grid()
+    print("Our city is a {} grid".format([len(city.grid3d), len(city.grid3d[0]),
+        len(city.grid3d[0][0])]))
     #vis.visualize_3d_grid(city)
 
     # extract the tree cells
@@ -33,8 +28,8 @@ def main():
     sensor_manager = SensorManager()
     #place sensors in random positions
     n = 0
-    for i in range(rows):
-        for j in range(cols):
+    for i in range(city.rows):
+        for j in range(city.cols):
             if city.grid3d[i][j][0].contains == "road":
                 n += 1
                 sensor_manager.create_sensor(i, j, 0)

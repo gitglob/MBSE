@@ -1,13 +1,23 @@
 '''
 This file initializes the classes that we will use throughout the simulation.
 '''
+import os
+
+import numpy as np
+from PIL import Image
 
 # class for the entire grid
 class Grid():
-    def __init__(self, city_model):
-        self.rows = len(city_model)
-        self.cols = len(city_model[0])
-        self.height = len(city_model[0][0])
+    ROAD = 278 # sum of brown rgb color
+    TREE = 331 # sum of green rgb color
+    BUILDING = 416 # sum of blue rgb color
+    NOTHING = 765 # sum of white rgb color
+
+    def __init__(self):
+        city_model = self.load_from_png()
+        self.rows = city_model.shape[0]
+        self.cols = city_model.shape[1]
+        self.height = city_model.shape[2]
         
         # initialize all the grid cells
         self.grid3d = []
@@ -16,20 +26,39 @@ class Grid():
             for j in range(0,self.cols):
                 self.grid3d[i].append([])
                 for k in range(0,self.height):
-                    if city_model[i][j][k] == 't':
+                    if city_model[i][j][k] == self.ROAD:
                         if i in [0, 1, self.rows-2, self.rows-1] or j in [0, 1, self.cols-2, self.cols-1]:
                             road_type = "high road"
                         else:
                             road_type = "inner road"
                         item = Road([i,j,k], road_type)
-                    elif city_model[i][j][k] == 'g':
+                    elif city_model[i][j][k] == self.TREE:
                         item = Tree([i,j,k])
-                    elif city_model[i][j][k] == 'b':
+                    elif city_model[i][j][k] == self.BUILDING:
                         item = Building([i,j,k])
-                    elif city_model[i][j][k] == 'w':
+                    elif city_model[i][j][k] == self.NOTHING:
                         item = Empty([i,j,k])
                         
                     self.grid3d[i][j].append(item)
+
+    def load_from_png(self):
+        im_frame = Image.open(os.path.join("model_data", "city.png"))
+        data = np.array(im_frame.getdata())
+        data = np.delete(data, -1, axis=1)
+        data = np.reshape(data, (60, 60, 3))
+        data = np.sum(data, axis=2)
+        aux = np.empty((180, 180, 3), dtype=np.uint16)
+        for i in range(aux.shape[0]):
+            for j in range(aux.shape[1]):
+                v = data[i//3][j//3]
+                aux[i][j][0] = v
+                if v == self.ROAD:
+                    aux[i][j][1] = self.NOTHING
+                    aux[i][j][2] = self.NOTHING
+                else:
+                    aux[i][j][1] = v
+                    aux[i][j][2] = v
+        return aux
 
 # class that contains all the grid cells
 class GridCell():
