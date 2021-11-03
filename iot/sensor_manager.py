@@ -32,7 +32,8 @@ class SensorManager:
 
     def add_sensor(self, x, y, z):
         sensor = Sensor(0.03, 1, 1.5, 0.5)
-        device = Device(sensor, NetworkList.LORA, BatteryList.TestBattery, ProcessorList.ESP32, len(self.devices)+1)
+        device = Device(sensor, NetworkList.LORA, BatteryList.INFINITE,
+                ProcessorList.ESP32, len(self.devices)+1)
         device.set_position(x, y, z)
         self.devices.append(device)
 
