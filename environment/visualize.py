@@ -181,18 +181,14 @@ def visualize_co2_measures(values):
     # create the grid
     x = []
     y = []
-    z = []
     for i in range(len(values)):
         for j in range(len(values[0])):
-            for k in range(len(values[0][0])):
-                x.append(i)
-                y.append(j)
-                z.append(k)
+            x.append(i)
+            y.append(j)
     co2 = []
     for i in range(len(values)):
         for j in range(len(values[0])):
-            for k in range(len(values[0][0])):
-                co2.append(values[i][j][k])
+            co2.append(values[i][j])
     colmap = cm.ScalarMappable(cmap=cm.Greys)
     colmap.set_array(co2)
 
@@ -205,7 +201,7 @@ def visualize_co2_measures(values):
     color_map.set_array(co2)
     
     # creating the heatmap
-    ax.scatter(x, y, z, marker='s', s = 5, c=co2, cmap='Greys')
+    ax.scatter(x, y, marker='s', s = 5, c=co2, cmap='Greys')
     cb = fig.colorbar(colmap)
     
     # adding title and labels
