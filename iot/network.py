@@ -1,9 +1,10 @@
 class Network:
-    def __init__(self, power_usage, time_per_msg):
+    def __init__(self, cost, power_usage, time_per_msg):
         self.power_usage = power_usage
         self.recv_buffer = []
         self.time_per_msg = time_per_msg
         self.power_consumed = 0.0
+        self.cost = cost
 
     def receive_data(self, msg):
         self.recv_buffer.append(msg)
@@ -23,4 +24,5 @@ class Network:
         return value
 
 class NetworkList:
-    LORA = Network(60, 2.8*10**-6) #mAh
+    LOWRA = Network(10, 60, 2.8*10**-6) #mAh
+
