@@ -8,6 +8,9 @@ class Battery:
 
     def is_empty(self):
         return self.mAh <= 0
+    
+    def get_battery_level(self):
+        return self.mAh
 
 class BatteryList:
     CR2032 = Battery(1.1, 210)
