@@ -7,7 +7,6 @@ import numpy as np
 
 import environment.preprocessing as pre
 import environment.simulation_functions as f
-import environment.helper_functions as h
 import environment.visualize as vis
 from environment.classes import *
 from iot import SensorManager
@@ -19,7 +18,7 @@ def main():
     #vis.visualize_3d_grid(city)
 
     # extract the tree cells
-    trees, roads, emptys = h.extract_trees_roads_empty_blocks(city)
+    trees, roads, emptys = pre.extract_trees_roads_empty_blocks(city)
 
     # run the simulation - Note: Every iteration is 1 second
     iteration = -1
