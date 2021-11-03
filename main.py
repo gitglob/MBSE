@@ -1,19 +1,16 @@
 '''
 This is the main file, that executes the core loop of our simulation.
 '''
+from random import randint
+
+import numpy as np
 
 import preprocessing as pre
 import simulation_functions as f
 import helper_functions as h
 import visualize as vis
-import numpy as np
 from classes import *
-from iot.battery import BatteryList
-from iot.device import Device
-from iot.network import Network
-from iot.sensor import Sensor
-from iot.sensor_manager import SensorManager
-from random import randint
+from iot import SensorManager
 
 def main():
     # reading our model file and creating the object structure
@@ -39,11 +36,8 @@ def main():
     for i in range(rows):
         for j in range(cols):
             if city.grid3d[i][j][0].contains == "road":
-                sensor = Sensor(0.03, 1, 1.5, 0.5)
-                network = Network()
-                device = Device(sensor, network, BatteryList.CR2032, n)
                 n += 1
-                sensor_manager.place_sensor(i, j, 0, device)
+                sensor_manager.create_sensor(i, j, 0)
 
     print("Placed " + str(sensor_manager.get_sensors_count()) + " sensors")
 

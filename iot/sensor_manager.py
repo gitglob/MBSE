@@ -1,7 +1,9 @@
 import numpy as np
 
-from iot.device import Device
-
+from .device import Device
+from .battery import BatteryList
+from .network import Network
+from .sensor import Sensor
 
 class SensorManager:
     MEASURE_PERIOD = 600 # 10 mins
@@ -16,7 +18,10 @@ class SensorManager:
         self.latest_measure = values
         return values
 
-    def place_sensor(self, x, y, z, device: Device):
+    def create_sensor(self, x, y, z):
+        sensor = Sensor(0.03, 1, 1.5, 0.5)
+        network = Network()
+        device = Device(sensor, network, BatteryList.CR2032, len(self.devices)+1)
         device.set_position(x, y, z)
         self.devices.append(device)
     
