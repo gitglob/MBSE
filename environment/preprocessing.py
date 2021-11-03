@@ -8,7 +8,7 @@ from PIL import Image
 
 # read map png file
 def read_png_file():
-    dir_path = os.path.dirname(os.path.realpath('city.png'))
+    dir_path = os.path.dirname(os.path.realpath('model_data/city.png'))
     im_frame = Image.open(dir_path + os.path.sep +'city.png')
     map_1d = np.array(im_frame.getdata())
 

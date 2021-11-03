@@ -11,7 +11,7 @@ import pandas as pd
 from .classes import *
 
 # here we read once the necessary csv files with the information about wind in Copenhagen
-dir_path = os.path.dirname(os.path.realpath('wind_months.csv'))
+dir_path = os.path.dirname(os.path.realpath('model_data/wind_months.csv'))
 wind_month_day_df = pd.read_csv(dir_path + os.path.sep +'wind_months.csv', header=0)
 wind_directions_distribution_df = pd.read_csv(dir_path + os.path.sep+'wind_directions_distribution.csv', header=0)
 
