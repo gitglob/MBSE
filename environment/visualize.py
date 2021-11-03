@@ -1,6 +1,6 @@
 from matplotlib import pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
+from mpl_toolkits.mplot3d import Axes3D
 from pylab import *
 
 # Visualize 3d grid

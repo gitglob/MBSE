@@ -5,11 +5,11 @@ from random import randint
 
 import numpy as np
 
-import preprocessing as pre
-import simulation_functions as f
-import helper_functions as h
-import visualize as vis
-from classes import *
+import environment.preprocessing as pre
+import environment.simulation_functions as f
+import environment.helper_functions as h
+import environment.visualize as vis
+from environment.classes import *
 from iot import SensorManager
 
 def main():

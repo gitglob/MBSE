@@ -2,11 +2,13 @@
 This file contains all the necessary functions that will be called during the main loop of the simulation 
 in order to execute certain tasks.
 """
-import pandas as pd
 import os
 import random
-from classes import *
 from math import sqrt
+
+import pandas as pd
+
+from .classes import *
 
 # here we read once the necessary csv files with the information about wind in Copenhagen
 dir_path = os.path.dirname(os.path.realpath('wind_months.csv'))

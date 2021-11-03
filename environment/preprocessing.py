@@ -1,10 +1,10 @@
 '''
 This is the preprocessing file, which creates the 3d grid of the city we are simulating.
 '''
-
-from PIL import Image
-import numpy as np
 import os
+
+import numpy as np
+from PIL import Image
 
 # read map png file
 def read_png_file():
