@@ -4,7 +4,6 @@ This is the main file, that executes the core loop of our simulation.
 
 import Preprocessing as pre
 import SimulationFunctions as f
-import HelperFunctions as h
 import Visualize as vis
 from Classes import *
 
@@ -20,7 +19,7 @@ def main():
     #vis.visualize_3d_grid(city)
 
     # extract the tree cells
-    trees, roads, emptys = h.extract_trees_roads_empty_blocks(city)
+    trees, roads, emptys = pre.extract_trees_roads_empty_blocks(city)
 
     # run the simulation - Note: Every iteration is 1 second
     simulation_flag = True
@@ -53,6 +52,7 @@ def main():
             print("Hour: ", current_hour)
             cars = f.generate_cars(city, roads, time=1, max_cars=5000)
             #vis.visualize_cars(city, cars)
+            vis.visualize_co2(city, mesh=False, d=0)
 
         # cars generate co2
         f.generate_co2(cars, city)
@@ -72,7 +72,7 @@ def main():
             #print('wind direction: ', wind_direction)
 
             # calculate wind effect
-            f.apply_wind_effect(city, emptys, wind_direction, wind_speed)
+            f.apply_wind_effect(city, roads, emptys, wind_direction, wind_speed)
         
             # apply trees effect
             f.apply_trees_effect(city, trees)
@@ -80,7 +80,7 @@ def main():
         # apply dispersion
         #f.apply_co2_dispersion()
 
-        if hour == 6:
+        if day == 10:
             simulation_flag = False
 
     # calculate and print the total co2 in the city
@@ -88,7 +88,7 @@ def main():
     print("Total accumulated co2 in the city:", total_co2, "grams")
 
     # after the simulation is done, visualize the co2 in the city
-    vis.visualize_co2(city, mesh=True)
+    vis.visualize_co2(city, mesh=True, d=3)
 
     return 0
 
