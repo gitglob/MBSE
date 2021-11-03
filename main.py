@@ -2,6 +2,7 @@
 This is the main file, that executes the core loop of our simulation.
 '''
 from random import randint
+import math
 
 import numpy as np
 
@@ -10,6 +11,17 @@ import environment.simulation_functions as f
 import environment.visualize as vis
 from environment.classes import *
 from iot import SensorManager
+
+
+SENSOR_DISTANCE = 1
+TIME_TO_RUN = 3600*24
+DEBUG = False
+
+
+def debug(*args):
+    if DEBUG:
+        print(*args)
+
 
 def main():
     city = Grid()
@@ -21,13 +33,15 @@ def main():
     trees, roads, emptys = pre.extract_trees_roads_empty_blocks(city)
 
     sensor_manager = SensorManager(city)
-    sensor_manager.distribute_sensors(2)
-    print("Placed " + str(sensor_manager.get_sensors_count()) + " sensors")
+    sensor_manager.distribute_sensors(SENSOR_DISTANCE)
+    sensor_number = sensor_manager.get_sensors_count()
+    print("Placed " + str(sensor_number) + " sensors")
     
 
     # run the simulation - Note: Every iteration is 1 second
     iteration = -1
     wind_speed_duration = 0
+    score_values = []
     while True:
         iteration += 1
         #print("iteration # ", iteration)
@@ -43,15 +57,15 @@ def main():
         
         # calculate date starting from 1/1/1
         current_year = year + 1
-        current_month = month%12 + 1
+        current_month = month%12 + 2
         current_day = day%30 + 1
         current_hour = hour%24
         if iteration%86400 == 0:
-            print("Date: ", current_day, "/", current_month, "/", current_year)
+            debug("Date: ", current_day, "/", current_month, "/", current_year)
 
         # every 6 hours generate new positions for cars
         if sec%21600 == 0:
-            print("Hour: ", current_hour)
+            debug("Hour: ", current_hour)
             cars = f.generate_cars(city, roads, time=1, max_cars=5000)
             #vis.visualize_cars(city, cars)
 
@@ -83,11 +97,24 @@ def main():
 
         #get a measure
         if sec % sensor_manager.MEASURE_PERIOD == 0:
-            print("Taking a measure")
+            debug("Taking a measure")
             measures = sensor_manager.measure(city)
+            co2_per_sensor = np.sum(measures) / sensor_number
+            co2_per_road_cell = f.calculate_co2(city) / len(roads)
+            score_values.append(co2_per_sensor/co2_per_road_cell)
 
-        if sec == 600:
+
+        if sec == TIME_TO_RUN:
+            print()
             break
+        else:
+            step = TIME_TO_RUN // 100
+            for i in range(100):
+                if sec == step*i:
+                    if DEBUG:
+                        print(f"Simulation running... ({i}%)")
+                    else:
+                        print(f"Simulation running... ({i}%)", end="\r")
 
     # calculate and print the total co2 in the city
     total_co2 = f.calculate_co2(city)
@@ -95,10 +122,15 @@ def main():
     total_measured_co2 = sensor_manager.get_total_co2()
     print("Total measured co2:", str(total_measured_co2), "grams")
 
-    # after the simulation is done, visualize the co2 in the city
-    vis.visualize_co2(city, mesh=True)
+    score = 0
+    for s in score_values:
+        score += 1 - abs(s-1)
+    score = score * 100 / len(score_values)
 
-    return 0
+    print(f"Average score of {round(score, 2)}% over {len(score_values)} samples")
+
+    # after the simulation is done, visualize the co2 in the city
+    #vis.visualize_co2(city, mesh=True)
 
 if __name__ == "__main__":
     main()

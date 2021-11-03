@@ -7,7 +7,7 @@ from .sensor import Sensor
 from .processor import ProcessorList
 
 class SensorManager:
-    MEASURE_PERIOD = 600 # 10 mins
+    MEASURE_PERIOD = 3600 # 10 mins
 
     def __init__(self, city):
         self.devices = []
