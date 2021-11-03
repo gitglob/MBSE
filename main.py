@@ -2,12 +2,12 @@
 This is the main file, that executes the core loop of our simulation.
 '''
 
-import Preprocessing as pre
-import SimulationFunctions as f
-import HelperFunctions as h
-import Visualize as vis
+import preprocessing as pre
+import simulation_functions as f
+import helper_functions as h
+import visualize as vis
 import numpy as np
-from Classes import *
+from classes import *
 from iot.battery import BatteryList
 from iot.device import Device
 from iot.network import Network

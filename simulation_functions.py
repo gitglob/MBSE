@@ -5,7 +5,7 @@ in order to execute certain tasks.
 import pandas as pd
 import os
 import random
-from Classes import *
+from classes import *
 from math import sqrt
 
 # here we read once the necessary csv files with the information about wind in Copenhagen

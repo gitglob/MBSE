@@ -1,5 +1,4 @@
 import numpy as np
-from Classes import Grid
 
 from iot.device import Device
 
