@@ -2,7 +2,7 @@ import numpy as np
 
 from .device import Device
 from .battery import BatteryList
-from .network import Network
+from .network import Network, NetworkList
 from .sensor import Sensor
 from .processor import ProcessorList
 
@@ -21,8 +21,7 @@ class SensorManager:
 
     def create_sensor(self, x, y, z):
         sensor = Sensor(0.03, 1, 1.5, 0.5)
-        network = Network()
-        device = Device(sensor, network, BatteryList.TestBattery, ProcessorList.ESP32, len(self.devices)+1)
+        device = Device(sensor, NetworkList.LOWRA, BatteryList.TestBattery, ProcessorList.ESP32, len(self.devices)+1)
         device.set_position(x, y, z)
         self.devices.append(device)
     

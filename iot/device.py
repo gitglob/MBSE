@@ -30,9 +30,11 @@ class Device:
         self.processor.start()
         value = self.sensor.measure(real_co2)
         power_consumed = self.sensor.power
+        self.network.send_msg(value)
+        self.network.empty_buffer()
         self.processor.stop()
         power_consumed = power_consumed + self.processor.get_power_consumed()
-        #power_consumed += network.power
+        power_consumed = power_consumed + self.network.get_power_consumed()
         self.battery.discharge(power_consumed)
         print(self.sensor_id, "battery left:", self.battery.get_battery_level())
         return value
