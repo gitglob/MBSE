@@ -84,7 +84,7 @@ def main():
             #print('wind direction: ', wind_direction)
 
             # calculate wind effect
-            f.apply_wind_effect(city, emptys, wind_direction, wind_speed)
+            f.apply_wind_effect(city, roads, emptys, wind_direction, wind_speed)
         
             # apply trees effect
             f.apply_trees_effect(city, trees)
