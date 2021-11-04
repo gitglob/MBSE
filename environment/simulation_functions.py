@@ -18,7 +18,15 @@ wind_directions_distribution_df = pd.read_csv(dir_path + os.path.sep+'wind_direc
 # generate cars inside the city
 def generate_cars(city, roads, time, max_cars):
     """
-    
+    Function that generates cars on roads based on the time of the date and the zones specified.
+
+    Input: 
+        1. cells of city
+        2. roads
+        3. time of the day
+        4. maximum number of cars
+
+    Output: List of car objects that were generated. 
     """
     print("Generating cars...")
     city_size = city.rows
@@ -442,4 +450,19 @@ def find_free_adj_cells(city, x, y, z, d):
 
     return num_free_cells, adj_cells
 
+def rain(city):
+    """ 
+    Function that simulates rain and makes all the CO2 accumulate in the bottom layer of the city.
 
+    Input: City cells
+    """
+
+    for i in range(city.rows):
+        for j in range(city.cols):
+            # sum column co2 to the bottom cell
+            if city.grid3d[i][j][1].co2 > 0: 
+                city.grid3d[i][j][0].add_co2(city.grid3d[i][j][1].co2)
+                city.grid3d[i][j][1].empty_block()
+            if city.grid3d[i][j][2].co2 > 0: 
+                city.grid3d[i][j][0].add_co2(city.grid3d[i][j][2].co2)
+                city.grid3d[i][j][2].empty_block()

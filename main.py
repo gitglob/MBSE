@@ -21,7 +21,7 @@ def main():
     city = Grid()
     print("Our city is a {} grid".format([len(city.grid3d), len(city.grid3d[0]),
         len(city.grid3d[0][0])]))
-    vis.visualize_3d_grid(city)
+    # vis.visualize_3d_grid(city)
 
     # extract the tree cells
     trees, roads, emptys = pre.extract_trees_roads_empty_blocks(city)
@@ -61,8 +61,9 @@ def main():
         if sec%21600 == 0:
             debug("Hour: ", current_hour)
             cars = f.generate_cars(city, roads, time=1, max_cars=5000)
-            vis.visualize_cars(city, cars)
-            vis.visualize_co2(city, mesh=False, d=0)
+            f.rain(city)
+            # vis.visualize_cars(city, cars)
+            # vis.visualize_co2(city, mesh=False, d=0)
 
         # cars generate co2
         f.generate_co2(cars, city)

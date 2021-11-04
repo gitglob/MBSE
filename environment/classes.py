@@ -87,6 +87,12 @@ class GridCell():
     def remove_co2(self, co2):
         self.co2 -= co2
 
+    def empty_block(self):
+        self.co2 = 0
+
+    def display_co2(self):
+        print(self.co2)
+
 # building objects
 class Building(GridCell):
     def __init__(self, cell):
