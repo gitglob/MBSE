@@ -9,16 +9,13 @@ import environment.visualize as vis
 from environment.classes import *
 from iot import SensorManager
 
-
 SENSOR_DISTANCE = 1
 TIME_TO_RUN = 3600*24
 DEBUG = False
 
-
 def debug(*args):
     if DEBUG:
         print(*args)
-
 
 def main():
     city = Grid()
@@ -65,6 +62,7 @@ def main():
             debug("Hour: ", current_hour)
             cars = f.generate_cars(city, roads, time=1, max_cars=5000)
             #vis.visualize_cars(city, cars)
+            #vis.visualize_co2(city, mesh=False, d=0)
 
         # cars generate co2
         f.generate_co2(cars, city)
