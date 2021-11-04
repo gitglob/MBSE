@@ -3,9 +3,6 @@ This is the main file, that executes the core loop of our simulation.
 '''
 from random import randint
 import math
-
-import numpy as np
-
 import environment.preprocessing as pre
 import environment.simulation_functions as f
 import environment.visualize as vis
