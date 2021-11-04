@@ -127,7 +127,7 @@ def main():
     print(f"Average score of {round(score, 2)}% over {len(score_values)} samples")
 
     # after the simulation is done, visualize the co2 in the city
-    #vis.visualize_co2(city, mesh=True)
+    #vis.visualize_co2(city, mesh=True, d=3)
 
 if __name__ == "__main__":
     main()
