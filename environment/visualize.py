@@ -104,10 +104,10 @@ def visualize_cars(city, cars):
     ax.scatter(x2, y2, z2, c='green', s=0.5, alpha=1)
     ax.scatter(x3, y3, z3, c='blue', s=0.5, alpha=1)
     ax.scatter(x4, y4, z4, c='white', s=0.5, alpha=1)
-    ax.scatter(x5, y5, z5, c='black', s=0.5, alpha=1)
+    ax.scatter(x5, y5, z5, c='black', s=0.75, alpha=1)
     plt.show()
 
-# Visualize CO2 levels in 3d grid or just one floor (d=[0,1,2] -> show this floow, d=3 -> show a 3d visualization)
+# Visualize CO2 levels in 3d grid or just one floor (d=[0,1,2] -> show this floor, d=3 -> show a 3d visualization)
 def visualize_co2(city, mesh=False, d = 3):
     print("Visualizing real co2...")
 
@@ -235,6 +235,8 @@ def visualize_co2(city, mesh=False, d = 3):
         plt.show()
 
 def visualize_co2_measures(values):
+    print("Visualizing real co2...")
+
     # create the grid
     x = []
     y = []

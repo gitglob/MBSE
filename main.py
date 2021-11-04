@@ -10,8 +10,8 @@ from environment.classes import *
 from iot import SensorManager
 
 SENSOR_DISTANCE = 1
-TIME_TO_RUN = 3600*24
-DEBUG = False
+TIME_TO_RUN = 3600*24*2
+DEBUG = True
 
 def debug(*args):
     if DEBUG:
@@ -21,7 +21,7 @@ def main():
     city = Grid()
     print("Our city is a {} grid".format([len(city.grid3d), len(city.grid3d[0]),
         len(city.grid3d[0][0])]))
-    #vis.visualize_3d_grid(city)
+    vis.visualize_3d_grid(city)
 
     # extract the tree cells
     trees, roads, emptys = pre.extract_trees_roads_empty_blocks(city)
@@ -51,7 +51,7 @@ def main():
         
         # calculate date starting from 1/1/1
         current_year = year + 1
-        current_month = month%12 + 2
+        current_month = month%12 + 1
         current_day = day%30 + 1
         current_hour = hour%24
         if iteration%86400 == 0:
@@ -61,8 +61,8 @@ def main():
         if sec%21600 == 0:
             debug("Hour: ", current_hour)
             cars = f.generate_cars(city, roads, time=1, max_cars=5000)
-            #vis.visualize_cars(city, cars)
-            #vis.visualize_co2(city, mesh=False, d=0)
+            vis.visualize_cars(city, cars)
+            vis.visualize_co2(city, mesh=False, d=0)
 
         # cars generate co2
         f.generate_co2(cars, city)
@@ -92,24 +92,24 @@ def main():
 
         #get a measure
         if sec % sensor_manager.MEASURE_PERIOD == 0:
-            debug("Taking a measure")
+            debug("Taking a measurement...")
             measures = sensor_manager.measure(city)
             co2_per_sensor = np.sum(measures) / sensor_number
-            co2_per_road_cell = f.calculate_co2(city) / len(roads)
-            score_values.append(co2_per_sensor/co2_per_road_cell)
-
+            co2_per_cell = f.calculate_co2(city) / (len(roads)+len(emptys))
+            score_values.append(co2_per_sensor/co2_per_cell)
 
         if sec == TIME_TO_RUN:
             print()
             break
-        else:
-            step = TIME_TO_RUN // 100
-            for i in range(100):
-                if sec == step*i:
-                    if DEBUG:
-                        print(f"Simulation running... ({i}%)")
-                    else:
-                        print(f"Simulation running... ({i}%)", end="\r")
+        # Is this efficient? It runs every second and does 100 iterations and 3 if statements
+        # else:
+        #     step = TIME_TO_RUN // 100
+        #     for i in range(100):
+        #         if sec == step*i:
+        #             if DEBUG:
+        #                 print(f"Simulation running... ({i}%)")
+        #             else:
+        #                 print(f"Simulation running... ({i}%)", end="\r")
 
     # calculate and print the total co2 in the city
     total_co2 = f.calculate_co2(city)
@@ -125,7 +125,7 @@ def main():
     print(f"Average score of {round(score, 2)}% over {len(score_values)} samples")
 
     # after the simulation is done, visualize the co2 in the city
-    #vis.visualize_co2(city, mesh=True, d=3)
+    vis.visualize_co2(city, mesh=True, d=3)
 
 if __name__ == "__main__":
     main()

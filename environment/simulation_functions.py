@@ -20,6 +20,7 @@ def generate_cars(city, roads, time, max_cars):
     """
     
     """
+    print("Generating cars...")
     city_size = city.rows
 
     # list of car objects
@@ -115,7 +116,7 @@ def calculate_wind_speed(month, secs):
         wind_speed -> speed of wind (km/h)
         num_secs -> the number of seconds that this wind speed will apply for, before moving to the next row of the table, which corresponds to a different wind speed
     """
-    #print("Calculating wind speed...")
+    print("Calculating wind speed...")
     secs = secs % 2628000
     month_name = match_month(month)
     col = wind_month_day_df[month_name]
@@ -143,7 +144,7 @@ def calculate_wind_directions(wind_speed):
     Output:
         wind_direction[0] -> a string that shows the direction of the wind (i.e. 'n', or "nne", or "ne", or "ene" ...)
     """
-    #print("Calculating wind direction...")
+    print("Calculating wind direction...")
     # possible wind directions
     directions = ['w', 'wnw', 'nw', 'nnw', 'n', 'nne', 'ne', 'ene', 'e', 'ese',	'se', 'sse', 's', 'ssw', 'sw', 'wsw']
     
@@ -205,7 +206,7 @@ def apply_wind_effect(city, roads, emptys, direction, speed):
     Output:
         none, changes the city object
     """
-    #print("Applying wind effect...")
+    print("Applying wind effect...")
     # check if there is any wind at all
     if speed != 0:
         # iterate over the empty cells of the city (these are the only ones that can hold co2)
@@ -365,7 +366,7 @@ def apply_trees_effect(city, trees):
     Output:
         none, changes the city object
     """
-    #print("Applying trees effect...")
+    print("Applying trees effect...")
     # a tree roughly absorbs 48 pounds of co2 per year (21,7724 kg)
     year_absorbtion = 15 # we will consider a mature tree, but not a huge one, because we are in a city, so ~15kg/year 
     hour_absorbtion = year_absorbtion/(12*30*24)
