@@ -11,10 +11,12 @@ class SensorManager:
     MEASURE_PERIOD = 3600 # 10 mins
 
     def __init__(self, city):
-        self.devices = []
-        self.latest_measure = np.zeros(1)
+        self.devices = {}
+        for n in range(60):
+            self.devices[n] = []
         self.city = city
-
+        self.measures = np.zeros(shape=(city.rows, city.cols))
+        self.measure_history = []
 
     def distribute_sensors(self, distance):
         for i in range(self.city.rows):
@@ -36,7 +38,8 @@ class SensorManager:
         device = Device(sensor, NetworkList.LOWRA, BatteryList.INFINITE,
                 ProcessorList.ESP32, len(self.devices)+1)
         device.set_position(x, y, z)
-        self.devices.append(device)
+        r = random.randint(0, 59)
+        self.devices[r].append(device)
 
     def shuffle_sensors(self, roads):
         aux = roads.copy()
@@ -44,12 +47,14 @@ class SensorManager:
         for n, d in enumerate(self.devices):
             d.set_position(aux[n].x, aux[n].y, 0)
 
-    def measure(self, city):
-        values = np.zeros(shape=(city.rows, city.cols))
-        for d in self.devices:
-            values[d.x][d.y] = d.measure(city.grid3d[d.x][d.y][d.z].co2)
-        self.latest_measure = values
-        return values
+
+    def measure(self, city, minute):
+        for d in self.devices[minutes]:
+            self.measures[d.x][d.y] = d.measures(city.grid3d[d.x][d.y][d.z].co2)
+
+    def gateway(self):
+        self.measure_history.append(self.measures)
+        return self.measures
     
     def get_sensors_count(self):
         return len(self.devices)
