@@ -104,13 +104,16 @@ def main():
 
         a4 = time.time()
 
+        if sec % 60:
+            m = (sec/60) % 60
+            if not SENSOR_STATIC:
+                sensor_manager.shuffle_sensors(roads, m)
+            sensor_manager.measure(city, m)
+
         #get a measure
         if sec % sensor_manager.MEASURE_PERIOD == 0:
-            if not SENSOR_STATIC:
-                debug("Moving sensors...")
-                sensor_manager.shuffle_sensors(roads)
-            debug("Taking a measurement...")
-            measures = sensor_manager.measure(city)
+            debug("Taking gateway measurement...")
+            measures = sensor_manager.gateway()
             co2_per_sensor = np.sum(measures) / sensor_number
             co2_per_cell = f.calculate_co2(roads, emptys) / (len(roads)+len(emptys))
             score_values.append(co2_per_sensor/co2_per_cell)
