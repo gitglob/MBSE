@@ -20,7 +20,6 @@ def generate_cars(city, roads, time, max_cars):
     """
     
     """
-    print("Generating cars...")
     city_size = city.rows
 
     # list of car objects
@@ -34,7 +33,7 @@ def generate_cars(city, roads, time, max_cars):
 
     # calculate number of cars based on time
     max_cars *= time_zone_car_percentage
-    #print("Generating {} cars...".format(max_cars))
+    print("Generating {} cars...".format(max_cars))
 
     # city zones
     city_zone1 = {'bound': city_size/6, 'probability': 0.3, 'roads': 0} 
@@ -93,14 +92,11 @@ def generate_co2(cars, city):
         car.generate_co2(city.grid3d[car.x][car.y][car.z])
 
 # calculate the CO2 for the entire grid
-def calculate_co2(city):
+def calculate_co2(roads, emptys):
     # calculate car emissions
     co2_sum = 0
-    for i in range(city.rows):
-        for j in range(city.cols):
-            for k in range(city.height):
-                if city.grid3d[i][j][k].is_free():
-                    co2_sum += city.grid3d[i][j][k].co2
+    for cell in roads+emptys:
+        co2_sum += cell.co2
                     
     return(co2_sum)
 
@@ -276,7 +272,6 @@ def apply_wind_effect(city, roads, emptys, direction, speed):
         for cell in roads+emptys:
             if cell.stashed_co2:
                 cell.merge_stashed_co2()
-
 
 # find the closest free cells
 def find_closest_free_cells(cell, adj_cells):
@@ -468,3 +463,24 @@ def sec_to(iteration, x):
     elif x == "minute":
         minute = iteration // 60
         return minute
+
+#Calculating the mass flow of CO2 between blocks (per hour)
+def flow_calc(conc1, conc2):
+    diffrate = 1.6e-5
+    area = 25
+    distance = 5
+    flow = diffrate*((conc1-conc2)/distance)*area*3600
+    return flow
+
+#Applying diffusion effect: The CO2 spreads vertically
+def apply_diffusion_effect(city):
+    for i in city.grid3d:
+        for j in i:
+            if j[0].co2>0:
+                flow = flow_calc(j[0].co2, j[1].co2)
+                j[0].co2 -= flow
+                j[1].co2 += flow
+                flow = flow_calc(j[1].co2, j[2].co2)
+                j[1].co2 -= flow
+                j[2].co2 += flow
+    return 0
