@@ -235,18 +235,18 @@ def apply_wind_effect(city, roads, emptys, direction, speed):
                         # check if that cell is free
                         if city.grid3d[flow_cells[0][0]][flow_cells[0][1]][flow_cells[0][2]].is_free():
                             # and give it all the co2 this cell contains
-                            city.grid3d[flow_cells[0][0]][flow_cells[0][1]][flow_cells[0][2]].add_co2(cell.co2)
+                            city.grid3d[flow_cells[0][0]][flow_cells[0][1]][flow_cells[0][2]].stash_co2(cell.co2)
                         # if the flow cell is not free
                         else:
                             # find the closest free cells to it
                             closest_free_cells = find_closest_free_cells(flow_cells[0], adj_cells)
                             # if there is exactly 1 free cell closest to the flow cell
                             if len(closest_free_cells) == 1:
-                                city.grid3d[closest_free_cells[0][0]][closest_free_cells[0][1]][closest_free_cells[0][2]].add_co2(cell.co2)
+                                city.grid3d[closest_free_cells[0][0]][closest_free_cells[0][1]][closest_free_cells[0][2]].stash_co2(cell.co2)
                             else:
                                 # if there are 2 adjacent free cells that are the closest to the flow cell
                                 for free_cell in closest_free_cells:
-                                    city.grid3d[free_cell[0]][free_cell[1]][free_cell[2]].add_co2(0.5*cell.co2)
+                                    city.grid3d[free_cell[0]][free_cell[1]][free_cell[2]].stash_co2(0.5*cell.co2)
                 # else, if the wind flows to 2 cells
                 elif len(flow_cells) == 2:
                     # for every flow cell
@@ -256,21 +256,27 @@ def apply_wind_effect(city, roads, emptys, direction, speed):
                             # check if the cell is free
                             if city.grid3d[flow_cell[0]][flow_cell[1]][flow_cell[2]].is_free():
                                 # and give it half the co2 this cell contains if it is
-                                city.grid3d[flow_cell[0]][flow_cell[1]][flow_cell[2]].add_co2(0.5*cell.co2)
+                                city.grid3d[flow_cell[0]][flow_cell[1]][flow_cell[2]].stash_co2(0.5*cell.co2)
                             else:
                                 # if it isn't free, check which is the closest free cell to it
                                 closest_free_cells = find_closest_free_cells(flow_cell, adj_cells)
                                 # if there is exactly 1 free cell closest to the flow cell give it 50% of the co2
                                 if len(closest_free_cells) == 1:
-                                    city.grid3d[closest_free_cells[0][0]][closest_free_cells[0][1]][closest_free_cells[0][2]].add_co2(0.5*cell.co2)
+                                    city.grid3d[closest_free_cells[0][0]][closest_free_cells[0][1]][closest_free_cells[0][2]].stash_co2(0.5*cell.co2)
                                 # else there are 2 free cells that are the closest to the flow cell
                                 else:
                                     # give 25% of co2 to each
                                     for free_cell in closest_free_cells:
-                                        city.grid3d[free_cell[0]][free_cell[1]][free_cell[2]].add_co2(0.25*cell.co2)
+                                        city.grid3d[free_cell[0]][free_cell[1]][free_cell[2]].stash_co2(0.25*cell.co2)
 
             # since the co2 moved to nearby cells, this cell has now 0 co2 again
             cell.co2 = 0
+
+        # iterate over the empty cells of the city (these are the only ones that can hold co2)
+        for cell in roads+emptys:
+            if cell.stashed_co2:
+                cell.merge_stashed_co2()
+
 
 # find the closest free cells
 def find_closest_free_cells(cell, adj_cells):
@@ -442,4 +448,23 @@ def find_free_adj_cells(city, x, y, z, d):
 
     return num_free_cells, adj_cells
 
-
+# transform seconds to years/months/days/hours
+def sec_to(iteration, x):
+    if x == "year":
+        year = iteration // (86400*30*12)
+        return year
+    elif x == "month":
+        month = iteration // (86400*30)
+        return month
+    elif x == "week":
+        week = iteration // (86400*7)
+        return week
+    elif x == "day":
+        day = iteration // (86400)
+        return day
+    elif x == "hour":
+        hour = iteration // 3600
+        return hour
+    elif x == "minute":
+        minute = iteration // 60
+        return minute

@@ -31,35 +31,23 @@ def main():
     sensor_number = sensor_manager.get_sensors_count()
     print("Placed " + str(sensor_number) + " sensors")
     
-
     # run the simulation - Note: Every iteration is 1 second
     iteration = -1
     wind_speed_duration = 0
     score_values = []
+    print("Running simulation for {} days (this might take a while) ... ".format(TIME_TO_RUN/3600))
     while True:
         iteration += 1
+        sec = iteration
         #print("iteration # ", iteration)
         
-        # update the date
-        year = iteration // (86400*30*12)
-        month = iteration // (86400*30)
-        week = iteration // (86400*7)
-        day = iteration // (86400)
-        hour = iteration // 3600
-        minute = iteration // 60
-        sec = iteration
-        
-        # calculate date starting from 1/1/1
-        current_year = year + 1
-        current_month = month%12 + 1
-        current_day = day%30 + 1
-        current_hour = hour%24
+        # print the date every day        
         if iteration%86400 == 0:
-            debug("Date: ", current_day, "/", current_month, "/", current_year)
+            debug("Date: ", f.sec_to(iteration, "day")%30 + 1, "/", f.sec_to(iteration, "month")%12 + 1, "/", f.sec_to(iteration, "day")%24)
 
         # every 6 hours generate new positions for cars
         if sec%21600 == 0:
-            debug("Hour: ", current_hour)
+            debug("Hour: ", f.sec_to(iteration, "hour")%24)
             cars = f.generate_cars(city, roads, time=1, max_cars=5000)
             vis.visualize_cars(city, cars)
             vis.visualize_co2(city, mesh=False, d=0)
@@ -71,7 +59,7 @@ def main():
         if sec%3600 == 0:
             # calculate wind speed
             if wind_speed_duration == 0 or sec%wind_speed_duration == 0:
-                wind_speed_km, wind_speed_duration = f.calculate_wind_speed(current_month, sec)
+                wind_speed_km, wind_speed_duration = f.calculate_wind_speed(f.sec_to(iteration, "month")%12 + 1, sec)
 
             # calculate wind direction
             wind_direction = f.calculate_wind_directions(wind_speed_km)
