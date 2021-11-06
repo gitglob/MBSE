@@ -181,7 +181,6 @@ def visualize_co2(city, mesh=False, d = 3):
 
     # 2d visualization
     else:
-        plt.clf()
         # extract the co2 levels from the grid 
         co2 = []
         for i in range(city.rows):
@@ -240,7 +239,7 @@ def visualize_co2(city, mesh=False, d = 3):
         # plt.show()
         now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
         plt.savefig(os.path.join('figures', 'co2_timeseries', f'{now}.png'))
-        # plt.close()
+        plt.close()
 
 
 def visualize_co2_measures(values):
