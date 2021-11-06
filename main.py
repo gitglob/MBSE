@@ -29,7 +29,7 @@ def main(argv):
     city = Grid()
     print("Our city is a {} grid".format([len(city.grid3d), len(city.grid3d[0]),
         len(city.grid3d[0][0])]))
-    # vis.visualize_3d_grid(city)
+    vis.visualize_3d_grid(city)
 
     # extract the tree cells
     trees, roads, emptys = pre.extract_trees_roads_empty_blocks(city)
@@ -54,12 +54,15 @@ def main(argv):
             debug("Date: ", f.sec_to(iteration, "day")%30 + 1, "/", f.sec_to(iteration, "month")%12 + 1, "/", f.sec_to(iteration, "day")%24)
 
         # every hour generate new positions for cars
-        if sec%3600 == 0:#21600 == 0:
+        if sec%21600 == 0:#21600 == 0:
             debug("Hour: ", f.sec_to(iteration, "hour")%24)
-            cars = f.generate_cars(city, roads, time=1, max_cars=5000)
-            f.rain(city)
+            time = f.calculate_tz(f.sec_to(iteration, "hour")%24)
+            cars = f.generate_cars(city, roads, time=time, max_cars=5000)
             # vis.visualize_cars(city, cars)
-            # vis.visualize_co2(city, mesh=False, d=0)
+
+        #every onw hour visualize co2
+        if sec%3600 == 0:
+            vis.visualize_co2(city, mesh=False, d=0)
 
         # cars generate co2
         f.generate_co2(cars, city)

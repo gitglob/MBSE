@@ -509,3 +509,14 @@ def apply_diffusion_effect(city):
                 j[1].co2 -= flow
                 j[2].co2 += flow
     return 0
+
+def calculate_tz(hour):
+    print(hour)
+    if hour >=0 and hour < 6:
+        return 1
+    if hour >=6 and hour < 12:
+        return 2
+    if hour >=12 and hour < 18:
+        return 3
+    if hour >=18 and hour < 24:
+        return 4

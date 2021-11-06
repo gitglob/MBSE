@@ -2,6 +2,8 @@ from matplotlib import pyplot as plt
 from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
 from pylab import *
+import os
+import datetime
 
 # Visualize 3d grid
 def visualize_3d_grid(city):
@@ -48,6 +50,7 @@ def visualize_3d_grid(city):
     ax.scatter(x3, y3, z3, s=0.5, c='blue', alpha=1)
     ax.scatter(x4, y4, z4, s=0.5, c='white', alpha=1)
     plt.show()
+
 
 # Visualize cards
 def visualize_cars(city, cars):
@@ -175,8 +178,10 @@ def visualize_co2(city, mesh=False, d = 3):
         
         # displaying plot
         plt.show()
+
     # 2d visualization
     else:
+        plt.clf()
         # extract the co2 levels from the grid 
         co2 = []
         for i in range(city.rows):
@@ -232,7 +237,11 @@ def visualize_co2(city, mesh=False, d = 3):
         ax.set_ylabel('Y-axis')
         
         # displaying plot
-        plt.show()
+        # plt.show()
+        now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        plt.savefig(os.path.join('figures', 'co2_timeseries', f'{now}.png'))
+        # plt.close()
+
 
 def visualize_co2_measures(values):
     print("Visualizing real co2...")
