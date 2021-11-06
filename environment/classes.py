@@ -74,6 +74,9 @@ class GridCell():
         # variable that defines what is inside the cell
         self.contains = None
 
+        # here we save the co2 that is to be added due to the wind effect
+        self.stashed_co2 = None
+
     # method that checks if the current cell is free
     def is_free(self):
         if (self.contains == "vehicle") or (self.contains == "empty") or (self.contains == "road"):
@@ -87,11 +90,18 @@ class GridCell():
     def remove_co2(self, co2):
         self.co2 -= co2
 
-    def empty_block(self):
-        self.co2 = 0
+    def stash_co2(self, co2):
+        self.stashed_co2 = co2
 
-    def display_co2(self):
-        print(self.co2)
+    def merge_stashed_co2(self):
+        self.co2 += self.stashed_co2
+        self.reset_stash()
+
+    def reset_stash(self):
+        self.stashed_co2 = 0
+
+    def empty_blick(self):
+        self.co2 = 0
 
 # building objects
 class Building(GridCell):
