@@ -43,41 +43,51 @@ def main(argv):
     print("Placed " + str(sensor_number) + " sensors")
     
     # run the simulation - Note: Every iteration is 1 second
-    iteration = -1
+    sec = -1
     wind_speed_duration = 0
     score_values = []
     print("Running simulation for {} days (this might take a while) ... ".format(int(TIME_TO_RUN/3600)))
 
+    # Profiling times
+    t0 = 0
+    t1 = 0
+    t2 = 0
+    t3 = 0
+    t4 = 0
+
     while True:
-        t_init = time.time()
-        iteration += 1
-        sec = iteration
-        #print("iteration # ", iteration)
-        # print the date every day        
-        if iteration%86400 == 0:
-            debug("Date: ", f.sec_to(iteration, "day")%30 + 1, "/", f.sec_to(iteration, "month")%12 + 1, "/", f.sec_to(iteration, "day")%24)
+        sec += 1
+
+        a0 = time.time()
+        # print the date every day       
+        if sec%86400 == 0:
+            debug("Date: ", f.sec_to(sec, "day")%30 + 1, "/", f.sec_to(sec, "month")%12 + 1, "/", f.sec_to(sec, "day")%24)
 
         # every hour generate new positions for cars
         if sec%21600 == 0:#21600 == 0:
-            debug("Hour: ", f.sec_to(iteration, "hour")%24)
-            current_time = f.calculate_tz(f.sec_to(iteration, "hour")%24)
+            debug("Hour: ", f.sec_to(sec, "hour")%24)
+            current_time = f.calculate_tz(f.sec_to(sec, "hour")%24)
             cars = f.generate_cars(city, roads, time=current_time, max_cars=5000)
             # vis.visualize_cars(city, cars)
+
+        a1 = time.time()
 
         #every onw hour visualize co2
         if sec%3600 == 0:
             vis.visualize_co2(city, mesh=False, d=0)
 
+        a2 = time.time()
+
         # cars generate co2
         f.generate_co2(cars, city)
 
-        t_2 = time.time()
+        a3 = time.time()
 
         # every hour apply the wind effect and the trees effect
         if sec%3600 == 0:
             # calculate wind speed
             if wind_speed_duration == 0 or sec%wind_speed_duration == 0:
-                wind_speed_km, wind_speed_duration = f.calculate_wind_speed(f.sec_to(iteration, "month")%12 + 1, sec)
+                wind_speed_km, wind_speed_duration = f.calculate_wind_speed(f.sec_to(sec, "month")%12 + 1, sec)
 
             # calculate wind direction
             wind_direction = f.calculate_wind_directions(wind_speed_km)
@@ -96,7 +106,7 @@ def main(argv):
             # apply dispersion
             f.apply_diffusion_effect(city)
 
-        t_3 = time.time()
+        a4 = time.time()
 
         #get a measure
         if sec % sensor_manager.MEASURE_PERIOD == 0:
@@ -109,10 +119,12 @@ def main(argv):
             co2_per_cell = f.calculate_co2(roads, emptys) / (len(roads)+len(emptys))
             score_values.append(co2_per_sensor/co2_per_cell)
 
-        t_4 = time.time()
-
-        if sec % 3600 == 0:
-            debug(f"Times : {t_2-t_init}, {t_3-t_init}, {t_4-t_init}")
+        a5 = time.time()
+        t0 += a1 - a0
+        t1 += a2 - a1
+        t2 += a3 - a2
+        t3 += a4 - a3
+        t4 += a5 - a4
 
         if sec == TIME_TO_RUN:
             print()
@@ -126,6 +138,10 @@ def main(argv):
         #                 print(f"Simulation running... ({i}%)")
         #             else:
         #                 print(f"Simulation running... ({i}%)", end="\r")
+
+    # Print accumulated time
+    print(f"Times: {round(t0, 2)} {round(t1, 2)}, {round(t2, 2)}, "
+        + f"{round(t3, 2)}, {round(t4, 2)}")
 
     # calculate and print the total co2 in the city
     total_co2 = f.calculate_co2(roads, emptys)
