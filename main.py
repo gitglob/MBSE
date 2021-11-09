@@ -42,7 +42,7 @@ def main():
     sec = -1
     wind_speed_duration = 0
     score_values = []
-    print("Running simulation for {} days (this might take a while) ... ".format(int(TIME_TO_RUN/3600)))
+    print("Running simulation for {} days (this might take a while) ... ".format(int(TIME_TO_RUN/3600/24)))
 
     # Profiling times
     t0 = 0
