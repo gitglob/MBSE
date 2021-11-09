@@ -14,6 +14,7 @@ from iot import SensorManager
 
 DEBUG = False
 SENSOR_DISTANCE = 1
+STATIC = False
 
 def debug(*args):
     if DEBUG:
@@ -25,6 +26,7 @@ def main(argv):
     argv[1]: True/False or nonzero/0 - whether to produce debug messages
     """
     TIME_TO_RUN = int(argv[0])*3600*24
+    global DEBUG
     DEBUG = bool(argv[1])
     
     city = Grid()
@@ -98,6 +100,9 @@ def main(argv):
 
         #get a measure
         if sec % sensor_manager.MEASURE_PERIOD == 0:
+            if not STATIC:
+                debug("Moving sensors...")
+                sensor_manager.shuffle_sensors(roads)
             debug("Taking a measurement...")
             measures = sensor_manager.measure(city)
             co2_per_sensor = np.sum(measures) / sensor_number

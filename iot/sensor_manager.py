@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 from .device import Device
 from .battery import BatteryList
@@ -36,6 +37,12 @@ class SensorManager:
                 ProcessorList.ESP32, len(self.devices)+1)
         device.set_position(x, y, z)
         self.devices.append(device)
+
+    def shuffle_sensors(self, roads):
+        aux = roads.copy()
+        random.shuffle(aux)
+        for n, d in enumerate(self.devices):
+            d.set_position(aux[n].x, aux[n].y, 0)
 
     def measure(self, city):
         values = np.zeros(shape=(city.rows, city.cols))
