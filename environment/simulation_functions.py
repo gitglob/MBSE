@@ -95,9 +95,9 @@ def generate_cars(city, roads, time, max_cars):
     return cars
 
 # generate co2 where there is a car in the city
-def generate_co2(cars, city):
+def generate_co2(cars, city, seconds):
     for car in cars:
-        car.generate_co2(city.grid3d[car.x][car.y][car.z])
+        car.generate_co2(city.grid3d[car.x][car.y][car.z], seconds)
 
 # calculate the CO2 for the entire grid
 def calculate_co2(roads, emptys):

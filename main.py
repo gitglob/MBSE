@@ -77,7 +77,7 @@ def main():
 
         # cars generate co2
         if sec % 60 == 0:
-            f.generate_co2(cars, city)
+            f.generate_co2(cars, city, 60)
 
         a3 = time.time()
 
