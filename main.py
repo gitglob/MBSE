@@ -104,8 +104,8 @@ def main():
 
         a4 = time.time()
 
-        if sec % 60:
-            m = (sec/60) % 60
+        if sec % 60 == 0:
+            m = (sec//60) % 60
             if not SENSOR_STATIC:
                 sensor_manager.shuffle_sensors(roads, m)
             sensor_manager.measure(city, m)

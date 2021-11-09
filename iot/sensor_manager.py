@@ -8,7 +8,7 @@ from .sensor import Sensor
 from .processor import ProcessorList
 
 class SensorManager:
-    MEASURE_PERIOD = 3600 # 10 mins
+    MEASURE_PERIOD = 3600
 
     def __init__(self, city):
         self.devices = {}
@@ -51,7 +51,6 @@ class SensorManager:
         for n, d in enumerate(self.devices[minute]):
             d.set_position(aux[n].x, aux[n].y, 0)
 
-
     def measure(self, city, minute):
         for d in self.devices[minute]:
             self.m[d.x][d.y] = d.measure(city.grid3d[d.x][d.y][d.z].co2)
@@ -61,7 +60,10 @@ class SensorManager:
         return self.m
     
     def get_sensors_count(self):
-        return len(self.devices)
+        total = 0
+        for l in self.devices.values():
+            total += len(l)
+        return total
     
     def get_total_co2(self):
         return np.sum(self.measure_history[:-1])
