@@ -31,7 +31,7 @@ class SensorManager:
         return False
 
     def add_sensor(self, x, y, z):
-        sensor = Sensor(0.03, 1, 1.5, 0.5)
+        sensor = Sensor(0.10, 1, 1.5, 0.5)
         device = Device(sensor, NetworkList.LOWRA, BatteryList.INFINITE,
                 ProcessorList.ESP32, len(self.devices), self.period)
 
@@ -43,6 +43,7 @@ class SensorManager:
         random.shuffle(aux)
         for n, d in enumerate(self.devices):
             d.set_position(aux[n].x, aux[n].y, 0)
+        self.m = np.zeros(shape=(self.city.rows, self.city.cols))
 
     def measure(self, city, minute):
         for d in self.devices:
