@@ -1,10 +1,10 @@
 '''
 This is the main file, that executes the core loop of our simulation.
 '''
-import sys
 from random import randint
 import math
 import time
+import argparse
 
 import environment.preprocessing as pre
 import environment.simulation_functions as f
@@ -12,23 +12,18 @@ import environment.visualize as vis
 from environment.classes import *
 from iot import SensorManager
 
-DEBUG = False
+
+# DEFAULT VALUES
+TIME_TO_RUN     = 3600*24 # 1 day
+DEBUG           = False
 SENSOR_DISTANCE = 1
-STATIC = False
+SENSOR_STATIC   = True
 
 def debug(*args):
     if DEBUG:
         print(*args)
 
-def main(argv):
-    """
-    argv[0]: Int - time to run the simulation, in days
-    argv[1]: True/False or nonzero/0 - whether to produce debug messages
-    """
-    TIME_TO_RUN = int(argv[0])*3600*24
-    global DEBUG
-    DEBUG = bool(argv[1])
-    
+def main():
     city = Grid()
     print("Our city is a {} grid".format([len(city.grid3d), len(city.grid3d[0]),
         len(city.grid3d[0][0])]))
@@ -110,7 +105,7 @@ def main(argv):
 
         #get a measure
         if sec % sensor_manager.MEASURE_PERIOD == 0:
-            if not STATIC:
+            if not SENSOR_STATIC:
                 debug("Moving sensors...")
                 sensor_manager.shuffle_sensors(roads)
             debug("Taking a measurement...")
@@ -126,7 +121,7 @@ def main(argv):
         t3 += a4 - a3
         t4 += a5 - a4
 
-        if sec == TIME_TO_RUN:
+        if sec >= TIME_TO_RUN:
             print()
             break
         # Is this efficient? It runs every second and does 100 iterations and 3 if statements
@@ -159,5 +154,23 @@ def main(argv):
     # after the simulation is done, visualize the co2 in the city
     vis.visualize_co2(city, mesh=True, d=3)
 
+
+parser = argparse.ArgumentParser(description='CO2 Monitoring simulator.')
+parser.add_argument('-d', '--days', type=float, default=1,
+        help='Number of days to run.')
+parser.add_argument('-n', '--sensor-distance', type=int, default=1,
+        help='Cell distance between sensors')
+parser.add_argument('-m', '--sensor-movement', type=str, default='static',
+        choices=['static', 'random'], help='Sensors movement type.')
+parser.add_argument('-v', '--verbose', action='store_true',
+        help='Activate debug logs.')
+
+
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    args = parser.parse_args()
+    TIME_TO_RUN = int(args.days * 3600 * 24)
+    DEBUG = args.verbose
+    SENSOR_STATIC = bool(args.sensor_movement == "static")
+    SENSOR_DISTANCE = args.sensor_distance
+
+    main()
