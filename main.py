@@ -15,10 +15,11 @@ from iot import SensorManager
 
 # DEFAULT VALUES
 TIME_TO_RUN     = 3600*24 # 1 day
-DEBUG           = False
 SENSOR_DISTANCE = 1
+SENSOR_PERIOD   = 3600
 SENSOR_STATIC   = True
 SAVE_PLOTS      = False
+DEBUG           = False
 
 def debug(*args):
     if DEBUG:
@@ -33,7 +34,7 @@ def main():
     # extract the tree cells
     trees, roads, emptys = pre.extract_trees_roads_empty_blocks(city)
 
-    sensor_manager = SensorManager(city)
+    sensor_manager = SensorManager(city, SENSOR_PERIOD)
     sensor_manager.distribute_sensors(SENSOR_DISTANCE)
     sensor_number = sensor_manager.get_sensors_count()
     print("Placed " + str(sensor_number) + " sensors")
@@ -105,13 +106,13 @@ def main():
         a4 = time.time()
 
         if sec % 60 == 0:
-            m = (sec//60) % 60
-            if not SENSOR_STATIC:
-                sensor_manager.shuffle_sensors(roads, m)
-            sensor_manager.measure(city, m)
+            sensor_manager.measure(city, sec//60)
 
         #get a measure
-        if sec % sensor_manager.MEASURE_PERIOD == 0:
+        if sec % SENSOR_PERIOD == 0:
+            if not SENSOR_STATIC:
+                debug("Moving sensors...")
+                sensor_manager.shuffle_sensors(roads)
             debug("Taking gateway measurement...")
             measures = sensor_manager.gateway()
             co2_per_sensor = np.sum(measures) / sensor_number
@@ -154,16 +155,19 @@ def main():
     score = score * 100 / len(score_values)
 
     print(f"Average score of {round(score, 2)}% over {len(score_values)} samples")
+    print(f"Sensors: {sensor_number}")
 
     # after the simulation is done, visualize the co2 in the city
     vis.visualize_co2(city, mesh=True, d=3)
 
 
 parser = argparse.ArgumentParser(description='CO2 Monitoring simulator.')
-parser.add_argument('-d', '--days', type=float, default=1,
+parser.add_argument('-d', '--days', type=float, default=TIME_TO_RUN/3600/24,
         help='Number of days to run.')
-parser.add_argument('-n', '--sensor-distance', type=int, default=1,
+parser.add_argument('-n', '--sensor-distance', type=int, default=SENSOR_DISTANCE,
         help='Cell distance between sensors')
+parser.add_argument('-p', '--sensor-period', type=int, default=SENSOR_PERIOD,
+        help='Sensor measurement period.')
 parser.add_argument('-m', '--sensor-movement', type=str, default='static',
         choices=['static', 'random'], help='Sensors movement type.')
 parser.add_argument('-s', '--save-plots', action='store_true',
@@ -176,9 +180,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
     TIME_TO_RUN = int(args.days * 3600 * 24)
     DEBUG = args.verbose
+    SENSOR_DISTANCE = args.sensor_distance
+    SENSOR_PERIOD = args.sensor_period
     SENSOR_STATIC = bool(args.sensor_movement == "static")
     SAVE_PLOTS = args.save_plots
-    SENSOR_DISTANCE = args.sensor_distance
 
     if SAVE_PLOTS:
         os.makedirs(os.path.join('figures', 'co2_timeseries'), exist_ok=True)
