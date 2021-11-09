@@ -4,6 +4,7 @@ This is the main file, that executes the core loop of our simulation.
 import sys
 from random import randint
 import math
+import time
 
 import environment.preprocessing as pre
 import environment.simulation_functions as f
@@ -44,11 +45,12 @@ def main(argv):
     wind_speed_duration = 0
     score_values = []
     print("Running simulation for {} days (this might take a while) ... ".format(int(TIME_TO_RUN/3600)))
+
     while True:
+        t_init = time.time()
         iteration += 1
         sec = iteration
         #print("iteration # ", iteration)
-        
         # print the date every day        
         if iteration%86400 == 0:
             debug("Date: ", f.sec_to(iteration, "day")%30 + 1, "/", f.sec_to(iteration, "month")%12 + 1, "/", f.sec_to(iteration, "day")%24)
@@ -56,8 +58,8 @@ def main(argv):
         # every hour generate new positions for cars
         if sec%21600 == 0:#21600 == 0:
             debug("Hour: ", f.sec_to(iteration, "hour")%24)
-            time = f.calculate_tz(f.sec_to(iteration, "hour")%24)
-            cars = f.generate_cars(city, roads, time=time, max_cars=5000)
+            current_time = f.calculate_tz(f.sec_to(iteration, "hour")%24)
+            cars = f.generate_cars(city, roads, time=current_time, max_cars=5000)
             # vis.visualize_cars(city, cars)
 
         #every onw hour visualize co2
@@ -66,6 +68,8 @@ def main(argv):
 
         # cars generate co2
         f.generate_co2(cars, city)
+
+        t_2 = time.time()
 
         # every hour apply the wind effect and the trees effect
         if sec%3600 == 0:
@@ -90,6 +94,8 @@ def main(argv):
             # apply dispersion
             f.apply_diffusion_effect(city)
 
+        t_3 = time.time()
+
         #get a measure
         if sec % sensor_manager.MEASURE_PERIOD == 0:
             debug("Taking a measurement...")
@@ -97,6 +103,11 @@ def main(argv):
             co2_per_sensor = np.sum(measures) / sensor_number
             co2_per_cell = f.calculate_co2(roads, emptys) / (len(roads)+len(emptys))
             score_values.append(co2_per_sensor/co2_per_cell)
+
+        t_4 = time.time()
+
+        if sec % 3600 == 0:
+            debug(f"Times : {t_2-t_init}, {t_3-t_init}, {t_4-t_init}")
 
         if sec == TIME_TO_RUN:
             print()
