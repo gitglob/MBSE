@@ -18,6 +18,7 @@ TIME_TO_RUN     = 3600*24 # 1 day
 DEBUG           = False
 SENSOR_DISTANCE = 1
 SENSOR_STATIC   = True
+SAVE_PLOTS      = False
 
 def debug(*args):
     if DEBUG:
@@ -68,7 +69,7 @@ def main():
         a1 = time.time()
 
         #every onw hour visualize co2
-        if sec%3600 == 0:
+        if sec%3600 == 0 and SAVE_PLOTS:
             vis.visualize_co2(city, mesh=False, d=0)
 
         a2 = time.time()
@@ -162,6 +163,8 @@ parser.add_argument('-n', '--sensor-distance', type=int, default=1,
         help='Cell distance between sensors')
 parser.add_argument('-m', '--sensor-movement', type=str, default='static',
         choices=['static', 'random'], help='Sensors movement type.')
+parser.add_argument('-s', '--save-plots', action='store_true',
+        help='Save intermediate plots.')
 parser.add_argument('-v', '--verbose', action='store_true',
         help='Activate debug logs.')
 
@@ -171,6 +174,10 @@ if __name__ == "__main__":
     TIME_TO_RUN = int(args.days * 3600 * 24)
     DEBUG = args.verbose
     SENSOR_STATIC = bool(args.sensor_movement == "static")
+    SAVE_PLOTS = args.save_plots
     SENSOR_DISTANCE = args.sensor_distance
+
+    if SAVE_PLOTS:
+        os.makedirs(os.path.join('figures', 'co2_timeseries'), exist_ok=True)
 
     main()
