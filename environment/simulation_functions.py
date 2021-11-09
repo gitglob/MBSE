@@ -357,13 +357,37 @@ def match_direction(d, i, j, k):
 
     return c
 
-# apply air dispersion dynamics
-def apply_co2_dispersion():
-    for i in city.rows:
-        for j in city.cols:
-            for k in city.height:
-                if city.grid3d[i][j][k].co2:
-                    pass
+#Applying diffusion effect: The CO2 spreads vertically
+def apply_diffusion_effect(city):
+    for i in range(len(city.grid3d)-1):
+        for j in range(len(city.grid3d[i])-1):
+            if city.grid3d[i][j][0].co2>0:
+
+                #Vertical diffusion
+                flow_z1 = flow_calc(city.grid3d[i][j][0].co2, city.grid3d[i][j][1].co2)
+                flow_z2 = flow_calc(city.grid3d[i][j][1].co2, city.grid3d[i][j][2].co2)
+
+                #Horizontal diffusion
+                if city.grid3d[i][j+1][0].contains == "road":
+                    flow_x = flow_calc(city.grid3d[i][j][0].co2, city.grid3d[i][j+1][0].co2)
+                else:
+                    flow_x = 0
+                if city.grid3d[i+1][j][0].contains == "road":
+                    flow_y = flow_calc(city.grid3d[i][j][0].co2, city.grid3d[i+1][j][0].co2)
+                else:
+                    flow_y = 0
+
+
+                city.grid3d[i][j][0].co2 -= flow_z1
+                city.grid3d[i][j][1].co2 += flow_z1
+                city.grid3d[i][j][1].co2 -= flow_z2
+                city.grid3d[i][j][2].co2 += flow_z2
+                city.grid3d[i][j][0].co2 -= flow_x
+                city.grid3d[i][j+1][0].co2 += flow_x
+                city.grid3d[i][j][0].co2 -= flow_y
+                city.grid3d[i+1][j][0].co2 += flow_y
+    return 0
+
 
 # apply trees effect on co2 levels
 def apply_trees_effect(city, trees):
@@ -496,19 +520,6 @@ def flow_calc(conc1, conc2):
     distance = 5
     flow = diffrate*((conc1-conc2)/distance)*area*3600
     return flow
-
-#Applying diffusion effect: The CO2 spreads vertically
-def apply_diffusion_effect(city):
-    for i in city.grid3d:
-        for j in i:
-            if j[0].co2>0:
-                flow = flow_calc(j[0].co2, j[1].co2)
-                j[0].co2 -= flow
-                j[1].co2 += flow
-                flow = flow_calc(j[1].co2, j[2].co2)
-                j[1].co2 -= flow
-                j[2].co2 += flow
-    return 0
 
 def calculate_tz(hour):
     print(hour)
