@@ -67,5 +67,4 @@ class SensorManager:
         return len(self.devices)
     
     def get_total_co2(self):
-        print(self.measure_history[-1])
         return np.sum(self.measure_history[-1])
