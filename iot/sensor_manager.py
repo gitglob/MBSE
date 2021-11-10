@@ -68,3 +68,6 @@ class SensorManager:
     
     def get_total_co2(self):
         return np.sum(self.measure_history[-1])
+    
+    def get_sensor_cost(self):
+        return self.devices[0].get_total_cost()
