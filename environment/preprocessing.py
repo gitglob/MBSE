@@ -16,8 +16,8 @@ def extract_trees_roads_empty_blocks(city):
                     trees_list.append(city.grid3d[i][j][k])
                 if city.grid3d[i][j][k].contains == "road":
                     roads_list.append(city.grid3d[i][j][k])
-                    if city.grid3d[i][j][k].contains == "empty":
-                        empty_blocks_list.append(city.grid3d[i][j][k])
+                if city.grid3d[i][j][k].contains == "empty":
+                    empty_blocks_list.append(city.grid3d[i][j][k])
 
     return (trees_list, roads_list, empty_blocks_list)
 
