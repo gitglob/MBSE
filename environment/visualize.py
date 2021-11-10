@@ -116,13 +116,13 @@ def visualize_co2(city, mesh=False, d = 3):
 
     # 3d visualization
     if d == 3:
-        # extract the co2 levels from the grid 
+        # extract the co2 levels from the grid
         co2 = []
         for i in range(city.rows):
             for j in range(city.cols):
                 for k in range(city.height):
                     co2.append(city.grid3d[i][j][k].co2)
-        
+
         # creating figures
         fig = plt.figure(figsize=(10, 10))
         ax = fig.add_subplot(111, projection="3d")
@@ -169,25 +169,25 @@ def visualize_co2(city, mesh=False, d = 3):
 
             ax.scatter(x1, y1, z1, s=0.5, c='green', alpha=1)
             ax.scatter(x2, y2, z2, s=0.5, c='blue', alpha=1)
-        
+
         # adding title and labels
         ax.set_title("City 3D CO2 Heatmap")
         ax.set_xlabel('X-axis')
         ax.set_ylabel('Y-axis')
         ax.set_zlabel('Z-axis')
-        
+
         # displaying plot
         plt.show()
 
     # 2d visualization
     else:
-        # extract the co2 levels from the grid 
+        # extract the co2 levels from the grid
         co2 = []
         for i in range(city.rows):
             for j in range(city.cols):
                 k = d
                 co2.append(city.grid3d[i][j][k].co2)
-        
+
         # creating figures
         fig = plt.figure(figsize=(10, 10))
         ax = fig.add_subplot(111)
@@ -229,18 +229,66 @@ def visualize_co2(city, mesh=False, d = 3):
 
             ax.scatter(x1, y1, s=0.5, c='green', alpha=1)
             ax.scatter(x2, y2, s=0.5, c='blue', alpha=1)
-        
+
         # adding title and labels
         ax.set_title("City 2d CO2 Heatmap")
         ax.set_xlabel('X-axis')
         ax.set_ylabel('Y-axis')
-        
+
         # displaying plot
         # plt.show()
         now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
         plt.savefig(os.path.join('figures', 'co2_timeseries', f'{now}.png'))
         plt.close()
 
+
+
+def visualize_sensor(city, sensors):
+    # creating figures
+    fig = plt.figure(figsize=(10, 10))
+    ax = fig.add_subplot(111)
+
+    x1 = []
+    x2 = []
+    x3 = []
+    y1 = []
+    y2 = []
+    y3 = []
+
+    for i in range(city.rows):
+        for j in range(city.cols):
+            if city.grid3d[i][j][0].contains == "tree":
+                x1.append(i)
+                y1.append(j)
+            elif city.grid3d[i][j][0].contains == "building":
+                x2.append(i)
+                y2.append(j)
+            elif city.grid3d[i][j][0].contains == "road":
+                x3.append(i)
+                y3.append(j)
+
+    size = 8
+    ax.scatter(x1, y1, s=size, marker='s', c='green', alpha=1)
+    ax.scatter(x2, y2, s=size, marker='s', c='blue', alpha=1)
+    ax.scatter(x3, y3, s=size, marker='s', c='#919191', alpha=1)
+
+    s_x = []
+    s_y = []
+    for s in sensors:
+        s_x.append(s.x)
+        s_y.append(s.y)
+    ax.scatter(s_x, s_y, s=4, marker='o', c='#a10000', alpha=1)
+
+    # adding title and labels
+    ax.set_title("City 2d Sensor location")
+    ax.set_xlabel('X-axis')
+    ax.set_ylabel('Y-axis')
+
+    # displaying plot
+    plt.show()
+    #now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+    #plt.savefig(os.path.join('figures', 'co2_timeseries', f'{now}.png'))
+    #plt.close()
 
 def visualize_co2_measures(values):
     print("Visualizing real co2...")
@@ -262,20 +310,20 @@ def visualize_co2_measures(values):
     # creating figures
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(111, projection='3d')
-    
+
     # setting color bar
     color_map = cm.ScalarMappable(cmap=cm.Greys)
     color_map.set_array(co2)
-    
+
     # creating the heatmap
     ax.scatter(x, y, marker='s', s = 5, c=co2, cmap='Greys')
     cb = fig.colorbar(colmap)
-    
+
     # adding title and labels
     ax.set_title("3D Heatmap of CO2 measures")
     ax.set_xlabel('X-axis')
     ax.set_ylabel('Y-axis')
     ax.set_zlabel('Z-axis')
-    
+
     # displaying plot
     plt.show()

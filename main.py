@@ -29,6 +29,7 @@ def main():
     city = Grid()
     print("Our city is a {} grid".format([len(city.grid3d), len(city.grid3d[0]),
         len(city.grid3d[0][0])]))
+
     vis.visualize_3d_grid(city)
 
     # extract the tree cells
@@ -38,7 +39,9 @@ def main():
     sensor_manager.distribute_sensors(SENSOR_DISTANCE)
     sensor_number = sensor_manager.get_sensors_count()
     print("Placed " + str(sensor_number) + " sensors")
-    
+
+    vis.visualize_sensor(city, sensor_manager.devices)
+
     # run the simulation - Note: Every iteration is 1 second
     sec = -1
     wind_speed_duration = 0
@@ -56,7 +59,7 @@ def main():
         sec += 1
 
         a0 = time.time()
-        # print the date every day       
+        # print the date every day
         if sec%86400 == 0:
             debug("Date: ", f.sec_to(sec, "day")%30 + 1, "/", f.sec_to(sec, "month")%12 + 1, "/", f.sec_to(sec, "day")%24)
 
