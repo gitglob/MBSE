@@ -16,11 +16,19 @@ class SensorManager:
         self.measure_history = []
 
     def distribute_sensors(self, distance):
+        valid_pos = np.ones(shape=(self.city.rows, self.city.cols))
         for i in range(self.city.rows):
             for j in range(self.city.cols):
-                if (self.city.city_model[i][j][0] == self.city.ROAD
-                        and not self.check_sensor_near(i, j, distance)):
+                if (self.city.city_model[i][j][0] == self.city.ROAD and valid_pos[i][j] == 1):
                     self.add_sensor(i, j, 0)
+                    #mark positions around as invalid
+                    bottom_x = max(0, j-distance-1)
+                    bottom_y = max(0, i-distance-1)
+                    top_x = min(self.city.cols, j + distance+1)
+                    top_y = min(self.city.rows, i + distance+1)
+                    for y in range(bottom_y, top_y):
+                        for x in range(bottom_x, top_x):
+                            valid_pos[y][x] = 0
 
     def check_sensor_near(self, row, col, distance):
         for d in self.devices:
@@ -59,4 +67,5 @@ class SensorManager:
         return len(self.devices)
     
     def get_total_co2(self):
+        print(self.measure_history[-1])
         return np.sum(self.measure_history[-1])
