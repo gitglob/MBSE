@@ -171,7 +171,7 @@ parser.add_argument('-d', '--days', type=float, default=TIME_TO_RUN/3600/24,
 parser.add_argument('-n', '--sensor-distance', type=int, default=SENSOR_DISTANCE,
         help='Cell distance between sensors')
 parser.add_argument('-p', '--sensor-period', type=int, default=SENSOR_PERIOD,
-        help='Sensor measurement period.')
+        help='Sensor measurement period in secs.')
 parser.add_argument('-m', '--sensor-movement', type=str, default='static',
         choices=['static', 'random'], help='Sensors movement type.')
 parser.add_argument('-s', '--save-plots', action='store_true',
