@@ -161,6 +161,9 @@ def main():
     print(f"Average score of {round(score, 2)}% over {len(score_values)} samples")
     print(f"Sensors: {sensor_number}")
 
+    print("Cost per device:", str(sensor_manager.get_sensor_cost()))
+    print("Total system cost:", str(sensor_manager.get_sensor_cost()*sensor_number))
+
     # after the simulation is done, visualize the co2 in the city
     vis.visualize_co2(city, mesh=True, d=3)
 
