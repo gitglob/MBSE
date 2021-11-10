@@ -117,7 +117,7 @@ def main():
             debug("Taking gateway measurement...")
             measures = sensor_manager.gateway()
             co2_per_sensor = np.sum(measures) / sensor_number
-            co2_per_cell = f.calculate_co2(roads, emptys) / (len(roads)+len(emptys))
+            co2_per_cell = f.calculate_co2(roads, []) / (len(roads))
             score_values.append(co2_per_sensor/co2_per_cell)
             if not SENSOR_STATIC:
                 debug("Moving sensors...")
