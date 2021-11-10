@@ -16,8 +16,8 @@ class Device:
         self.x = 0
         self.y = 0
         self.z = 0
-        self.period = period//60
-        self.min = random.randint(0, self.period)
+        self.period = max(1, period//60)
+        self.min = random.randint(1, max(self.period, 2))
 
     def set_position(self, x, y, z):
         self.x = x
