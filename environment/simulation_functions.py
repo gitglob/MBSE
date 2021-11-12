@@ -399,14 +399,15 @@ def apply_trees_effect(city, trees):
     print("Applying trees effect...")
     # a tree roughly absorbs 48 pounds of co2 per year (21,7724 kg)
     year_absorbtion = 15 # we will consider a mature tree, but not a huge one, because we are in a city, so ~15kg/year 
-    #year_absorbtion = 1000000*year_absorbtion # WARNING: Only uncomment this line if you want to debug and demonstrate the trees effect. It makes the effect in the plots clear!
+    year_absorbtion = year_absorbtion/3 # however, an entire tree is 3 blocks stacked, so each block absorbs 1/3 of it from its surrounding blocks in 2d
+    #year_absorbtion = 100000*year_absorbtion # WARNING: Only uncomment this line if you want to debug and demonstrate the trees effect. It makes the effect in the plots clear!
     hour_absorbtion = year_absorbtion/(12*30*24)
     #sec_absorbtion = year_absorbtion/(86400*30*12)
 
     # iterate over the trees
     for tree in trees:
-        # find how many adjacent grid cells are free for every tree
-        num_free_cells, adj_cells = find_free_adj_cells(city, tree.x, tree.y, tree.z, "3d")
+        # find the closest free cells, from which the tree will absorb co2
+        num_free_cells, free_cells = find_nearby_free_cells(city, tree.x, tree.y, tree.z)
 
         # if there are any free adjacent cells
         if num_free_cells > 0:
@@ -414,11 +415,48 @@ def apply_trees_effect(city, trees):
             adj_cells_co2_absorbtion = hour_absorbtion/num_free_cells
 
             # subtract the absorbed co2 from the free adjacent cells
-            for adj_cell in adj_cells:
-                ii = adj_cell[0]
-                jj = adj_cell[1]
-                kk = adj_cell[2]
+            for free_cell in free_cells:
+                ii = free_cell[0]
+                jj = free_cell[1]
+                kk = free_cell[2]
+                #print("block: [", ii, " , ", jj, " , ", kk, "]")
+                #print("Before tree effect:", city.grid3d[ii][jj][kk].co2)
                 city.grid3d[ii][jj][kk].remove_co2(adj_cells_co2_absorbtion)
+                #print("After tree effect:", city.grid3d[ii][jj][kk].co2)
+
+# search for the closest cell that is free
+def find_nearby_free_cells(city, x, y, z): 
+    """
+    Function that finds the closest cells to a specified one that are free.
+    
+    Input:
+        city -> 3d grid of model of a city in the form of 3d list with grid_cell objects as elements
+        x, y, z -> position of cell in 3d grid
+    Output:
+        num_free_cells -> number that shows how many free cells nearby are the closest to the investigated one
+        free_cells -> 2d integer list of the closest free cell(s) based on euclidean distance ([[i+1, j, k], [i, j+1, k], ...])
+    """
+
+    # search for free nearby cells in 3d and as soon as you find one or more in a neighborhood, return them
+    num_free_cells = 0
+    near_cells = []
+    l=0
+    # in every iteration of the while loop, we search inside the closest neighborhood
+    while num_free_cells == 0:
+        l+=1
+        for i in [x, x-l, x+l]:
+            for j in [y, y-l, y+l]:
+                if (i==x and j==y):
+                    continue
+                if i>=180 or j>=180 or i<0 or j<0:
+                    continue
+                index = [i, j, z]
+                cell = city.grid3d[i][j][z]
+                if cell.is_free():
+                    num_free_cells += 1
+                    near_cells.append(index)
+
+    return num_free_cells, near_cells
 
 # Check for free adjacent cells in either 2d or 3d
 def find_free_adj_cells(city, x, y, z, d): 
