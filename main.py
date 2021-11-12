@@ -45,6 +45,8 @@ def main():
     # run the simulation - Note: Every iteration is 1 second
     sec = -1
     wind_speed_duration = 0
+    wind_speed = 0
+    wind_direction = None
     score_values = []
     print("Running simulation for {} days (this might take a while) ... ".format(int(TIME_TO_RUN/3600/24)))
 
@@ -59,9 +61,10 @@ def main():
         sec += 1
 
         a0 = time.time()
+        date = str((f.sec_to(sec, "hour")%24)) + ":" + str(f.sec_to(sec, "minute")%60) + ":" + str(sec%60) + " - " + str(f.sec_to(sec, "day")%30 + 1) + "/" + str(f.sec_to(sec, "month")%12 + 1) + "/" + str(f.sec_to(sec, "year") + 1)
         # print the date every day
         if sec%86400 == 0:
-            debug("Date: ", f.sec_to(sec, "day")%30 + 1, "/", f.sec_to(sec, "month")%12 + 1, "/", f.sec_to(sec, "day")%24)
+            debug("Date: ", date)
 
         # every hour generate new positions for cars
         if sec%21600 == 0:#21600 == 0:
@@ -72,9 +75,9 @@ def main():
 
         a1 = time.time()
 
-        #every onw hour visualize co2
+        #every one hour visualize co2
         if sec%3600 == 0 and SAVE_PLOTS:
-            vis.visualize_co2(city, mesh=False, d=0)
+            vis.visualize_co2(city, mesh=False, d=0, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
 
         a2 = time.time()
 
@@ -99,10 +102,18 @@ def main():
             #print('wind direction: ', wind_direction)
 
             # calculate wind effect
+            if SAVE_PLOTS:
+                vis.visualize_wind_effect(city, wind_direction, wind_speed, date)
             f.apply_wind_effect(city, roads, emptys, wind_direction, wind_speed)
-        
+            if SAVE_PLOTS:
+                vis.visualize_wind_effect(city, wind_direction, wind_speed, date)
+
             # apply trees effect
+            if SAVE_PLOTS:
+                vis.visualize_trees_effect(city, date)
             f.apply_trees_effect(city, trees)
+            if SAVE_PLOTS:
+                vis.visualize_trees_effect(city, date)
 
             # apply dispersion
             f.apply_diffusion_effect(city)
@@ -165,7 +176,7 @@ def main():
     print("Total system cost:", str(sensor_manager.get_sensor_cost()*sensor_number))
 
     # after the simulation is done, visualize the co2 in the city
-    vis.visualize_co2(city, mesh=True, d=3)
+    vis.visualize_co2(city, mesh=True, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
 
 
 parser = argparse.ArgumentParser(description='CO2 Monitoring simulator.')

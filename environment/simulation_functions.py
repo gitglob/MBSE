@@ -5,9 +5,7 @@ in order to execute certain tasks.
 import os
 import random
 from math import sqrt
-
 import pandas as pd
-
 from .classes import *
 
 # here we read once the necessary csv files with the information about wind in Copenhagen
@@ -388,7 +386,6 @@ def apply_diffusion_effect(city):
                 city.grid3d[i+1][j][0].co2 += flow_y
     return 0
 
-
 # apply trees effect on co2 levels
 def apply_trees_effect(city, trees):
     """
@@ -402,6 +399,7 @@ def apply_trees_effect(city, trees):
     print("Applying trees effect...")
     # a tree roughly absorbs 48 pounds of co2 per year (21,7724 kg)
     year_absorbtion = 15 # we will consider a mature tree, but not a huge one, because we are in a city, so ~15kg/year 
+    #year_absorbtion = 1000000*year_absorbtion # WARNING: Only uncomment this line if you want to debug and demonstrate the trees effect. It makes the effect in the plots clear!
     hour_absorbtion = year_absorbtion/(12*30*24)
     #sec_absorbtion = year_absorbtion/(86400*30*12)
 
@@ -475,6 +473,7 @@ def find_free_adj_cells(city, x, y, z, d):
 
     return num_free_cells, adj_cells
 
+# apply rain effect on co2 levels
 def rain(city):
     """ 
     Function that simulates rain and makes all the CO2 accumulate in the bottom layer of the city.
@@ -493,27 +492,27 @@ def rain(city):
                 city.grid3d[i][j][2].empty_block()
                 
 # transform seconds to years/months/days/hours
-def sec_to(iteration, x):
+def sec_to(sec, x):
     if x == "year":
-        year = iteration // (86400*30*12)
+        year = sec // (86400*30*12)
         return year
     elif x == "month":
-        month = iteration // (86400*30)
+        month = sec // (86400*30)
         return month
     elif x == "week":
-        week = iteration // (86400*7)
+        week = sec // (86400*7)
         return week
     elif x == "day":
-        day = iteration // (86400)
+        day = sec // (86400)
         return day
     elif x == "hour":
-        hour = iteration // 3600
+        hour = sec // 3600
         return hour
     elif x == "minute":
-        minute = iteration // 60
+        minute = sec // 60
         return minute
 
-#Calculating the mass flow of CO2 between blocks (per hour)
+# calculating the mass flow of CO2 between blocks (per hour)
 def flow_calc(conc1, conc2):
     diffrate = 1.6e-5
     area = 25
@@ -521,8 +520,8 @@ def flow_calc(conc1, conc2):
     flow = diffrate*((conc1-conc2)/distance)*area*3600
     return flow
 
+# calculate time zone (1,2,3,4) based on the current hour
 def calculate_tz(hour):
-    print(hour)
     if hour >=0 and hour < 6:
         return 1
     if hour >=6 and hour < 12:

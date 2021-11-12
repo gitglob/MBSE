@@ -88,7 +88,11 @@ class GridCell():
         self.co2 += co2
 
     def remove_co2(self, co2):
-        self.co2 -= co2
+        if self.co2>0:
+            if self.co2 > co2:
+                self.co2 -= co2
+            else:
+                self.co2 = 0
 
     def stash_co2(self, co2):
         self.stashed_co2 = co2

@@ -2,6 +2,7 @@ from matplotlib import pyplot as plt
 from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
 from pylab import *
+import seaborn as sns
 import os
 import datetime
 
@@ -49,8 +50,8 @@ def visualize_3d_grid(city):
     ax.scatter(x2, y2, z2, s=0.5, c='green', alpha=1)
     ax.scatter(x3, y3, z3, s=0.5, c='blue', alpha=1)
     ax.scatter(x4, y4, z4, s=0.5, c='white', alpha=1)
+    plt.title("3d CITY MODEL \n\nBlue: buildings \nGreen: trees \nRed: roads \n White: empty (air)")
     plt.show()
-
 
 # Visualize cards
 def visualize_cars(city, cars):
@@ -111,7 +112,7 @@ def visualize_cars(city, cars):
     plt.show()
 
 # Visualize CO2 levels in 3d grid or just one floor (d=[0,1,2] -> show this floor, d=3 -> show a 3d visualization)
-def visualize_co2(city, mesh=False, d = 3):
+def visualize_co2(city, mesh=False, d = 3, wind_direction=None, wind_speed=0, date=None):
     print("Visualizing real co2...")
 
     # 3d visualization
@@ -171,7 +172,7 @@ def visualize_co2(city, mesh=False, d = 3):
             ax.scatter(x2, y2, z2, s=0.5, c='blue', alpha=1)
 
         # adding title and labels
-        ax.set_title("City 3D CO2 Heatmap")
+        ax.set_title(date+"\n\nCity 3D CO2 Heatmap. \n\nWind speed: {} (m/s) \nWind direction: {}".format(wind_speed, wind_direction))
         ax.set_xlabel('X-axis')
         ax.set_ylabel('Y-axis')
         ax.set_zlabel('Z-axis')
@@ -231,7 +232,7 @@ def visualize_co2(city, mesh=False, d = 3):
             ax.scatter(x2, y2, s=0.5, c='blue', alpha=1)
 
         # adding title and labels
-        ax.set_title("City 2d CO2 Heatmap")
+        ax.set_title(date + "\n\nCity 3D CO2 Heatmap. \n\nWind speed: {} (m/s) \nWind direction: {}".format(wind_speed, wind_direction))
         ax.set_xlabel('X-axis')
         ax.set_ylabel('Y-axis')
 
@@ -240,8 +241,6 @@ def visualize_co2(city, mesh=False, d = 3):
         now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
         plt.savefig(os.path.join('figures', 'co2_timeseries', f'{now}.png'))
         plt.close()
-
-
 
 def visualize_sensor(city, sensors):
     # creating figures
@@ -327,3 +326,117 @@ def visualize_co2_measures(values):
 
     # displaying plot
     plt.show()
+
+# Visualize CO2 levels in 3d grid or just one floor (d=[0,1,2] -> show this floor, d=3 -> show a 3d visualization)
+def visualize_trees_effect(city, date):
+    print("Visualizing trees effect...")
+
+    # extract the co2 levels from the grid
+    co2 = []
+    for i in range(city.rows):
+        for j in range(city.cols):
+            k = 0
+            co2.append(city.grid3d[i][j][k].co2)
+
+    # creating figures
+    fig = plt.figure(figsize=(10, 10))
+    ax = fig.add_subplot(111)
+
+    # create a color map based on the co2
+    colmap = cm.ScalarMappable(cmap=cm.Greys)
+    colmap.set_array(co2)
+
+    # create the grid
+    x = []
+    y = []
+    for i in range(city.rows):
+        for j in range(city.cols):
+            x.append(i)
+            y.append(j)
+
+    # creating the heatmap
+    ax.scatter(x, y, marker='s', s = 5, c=co2, alpha=0.5, cmap='Greys')
+    cb = fig.colorbar(colmap)
+
+    x1 = []
+    y1 = []
+
+    for i in range(city.rows):
+        for j in range(city.cols):
+            k = 2
+            if city.grid3d[i][j][k].contains == "tree":
+                x1.append(i)
+                y1.append(j)
+
+    ax.scatter(x1, y1, s=0.5, c='green', alpha=1)
+
+    # adding title and labels
+    ax.set_title(date + "\n\nCity 2d CO2 Heatmap - trees effect")
+    ax.set_xlabel('X-axis')
+    ax.set_ylabel('Y-axis')
+
+    # displaying plot
+    # plt.show()
+    now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+    plt.savefig(os.path.join('figures', 'co2_trees_effect', f'{now}.png'))
+    plt.close()
+
+def visualize_wind_effect(city, wind_speed, wind_direction, date):
+    print("Visualizing wind_effect...")
+
+    # extract the co2 levels from the grid
+    co2 = []
+    for i in range(city.rows):
+        for j in range(city.cols):
+            k = 0
+            co2.append(city.grid3d[i][j][k].co2)
+
+    # creating figures
+    fig = plt.figure(figsize=(10, 10))
+    ax = fig.add_subplot(111)
+
+    # create a color map based on the co2
+    colmap = cm.ScalarMappable(cmap=cm.Greys)
+    colmap.set_array(co2)
+
+    # create the grid
+    x = []
+    y = []
+    for i in range(city.rows):
+        for j in range(city.cols):
+            x.append(i)
+            y.append(j)
+
+    # creating the heatmap
+    ax.scatter(x, y, marker='s', s = 5, c=co2, alpha=0.5, cmap='Greys')
+    cb = fig.colorbar(colmap)
+
+    x1 = []
+    x2 = []
+    y1 = []
+    y2 = []
+
+    for i in range(city.rows):
+        for j in range(city.cols):
+            k = 2
+            if city.grid3d[i][j][k].contains == "tree":
+                x1.append(i)
+                y1.append(j)
+            elif city.grid3d[i][j][k].contains == "building":
+                x2.append(i)
+                y2.append(j)
+
+    ax.scatter(x1, y1, s=0.5, c='green', alpha=1)
+    ax.scatter(x2, y2, s=0.5, c='blue', alpha=1)
+
+    # adding title and labels
+    ax.set_title(date + "\n\nCity 2d CO2 heatmap - wind effect. \n\nWind speed: {} (m/s) \nWind direction: {}".format(wind_speed, wind_direction))
+    ax.set_xlabel('X-axis')
+    ax.set_ylabel('Y-axis')
+
+    # displaying plot
+    # plt.show()
+    now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+    plt.savefig(os.path.join('figures', 'co2_wind_effect', f'{now}.png'))
+    plt.close()
+
