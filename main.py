@@ -11,13 +11,14 @@ import environment.simulation_functions as f
 import environment.visualize as vis
 from environment.classes import *
 from iot import SensorManager
+import matplotlib.pyplot as plt
 
 
 # DEFAULT VALUES
 TIME_TO_RUN     = 3600*24 # 1 day
-SENSOR_DISTANCE = 1
+SENSOR_DISTANCE = 20
 SENSOR_PERIOD   = 3600
-SENSOR_STATIC   = True
+SENSOR_STATIC   = False
 SAVE_PLOTS      = False
 DEBUG           = False
 
@@ -30,7 +31,7 @@ def main():
     print("Our city is a {} grid".format([len(city.grid3d), len(city.grid3d[0]),
         len(city.grid3d[0][0])]))
 
-    vis.visualize_3d_grid(city)
+    #vis.visualize_3d_grid(city)
 
     # extract the tree cells
     trees, roads, emptys = pre.extract_trees_roads_empty_blocks(city)
@@ -48,6 +49,7 @@ def main():
     wind_speed = 0
     wind_direction = None
     score_values = []
+    real_values = []
     print("Running simulation for {} days (this might take a while) ... ".format(int(TIME_TO_RUN/3600/24)))
 
     # Profiling times
@@ -128,8 +130,9 @@ def main():
             debug("Taking gateway measurement...")
             measures = sensor_manager.gateway()
             co2_per_sensor = np.sum(measures) / sensor_number
-            co2_per_cell = f.calculate_co2(roads, []) / (len(roads))
-            score_values.append(co2_per_sensor/co2_per_cell)
+            co2_per_cell = f.calculate_co2(roads) / (len(roads))
+            score_values.append(1 - (abs(co2_per_sensor - co2_per_cell) /co2_per_cell))
+            real_values.append(co2_per_cell)
             if not SENSOR_STATIC:
                 debug("Moving sensors...")
                 sensor_manager.shuffle_sensors(roads)
@@ -159,15 +162,24 @@ def main():
         + f"{round(t3, 2)}, {round(t4, 2)}")
 
     # calculate and print the total co2 in the city
-    total_co2 = f.calculate_co2(roads, emptys)
+    total_co2 = f.calculate_co2(roads)
     print("Total accumulated co2 in the city:", total_co2, "grams")
     total_measured_co2 = sensor_manager.get_total_co2()
     print("Total measured co2:", str(total_measured_co2), "grams")
 
     score = 0
+    real_normalized = []
     for s in score_values:
-        score += 1 - abs(s-1)
+        score += s
     score = score * 100 / len(score_values)
+    real_min = min(real_values)
+    real_max = max(real_values)
+    for r in real_values:
+        real_normalized.append((r - real_min) / (real_max - real_min))
+    plt.figure()
+    plt.plot(range(len(score_values)), score_values, real_normalized)
+    plt.legend(["Error", "Normalized CO2 amount"])
+    plt.show()
 
     print(f"Average score of {round(score, 2)}% over {len(score_values)} samples")
     print(f"Sensors: {sensor_number}")

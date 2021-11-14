@@ -98,10 +98,10 @@ def generate_co2(cars, city, seconds):
         car.generate_co2(city.grid3d[car.x][car.y][car.z], seconds)
 
 # calculate the CO2 for the entire grid
-def calculate_co2(roads, emptys):
+def calculate_co2(roads):
     # calculate car emissions
     co2_sum = 0
-    for cell in roads+emptys:
+    for cell in roads:
         co2_sum += cell.co2
                     
     return(co2_sum)
