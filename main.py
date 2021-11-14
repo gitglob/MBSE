@@ -5,6 +5,7 @@ from random import randint
 import math
 import time
 import argparse
+import csv
 
 import environment.preprocessing as pre
 import environment.simulation_functions as f
@@ -21,6 +22,8 @@ SENSOR_PERIOD   = 3600
 SENSOR_STATIC   = False
 SAVE_PLOTS      = False
 DEBUG           = False
+
+results_path = "figures\\results\\results.csv"
 
 def debug(*args):
     if DEBUG:
@@ -178,8 +181,17 @@ def main():
         real_normalized.append((r - real_min) / (real_max - real_min))
     plt.figure()
     plt.plot(range(len(score_values)), score_values, real_normalized)
-    plt.legend(["Error", "Normalized CO2 amount"])
+    plt.legend(["Accuracy", "Normalized CO2 amount"])
     plt.show()
+    
+    #Save results in csv file
+    with open(results_path, 'a+', newline = "") as file:
+        writer = csv.writer(file, delimiter = ";")
+        newline =  [str(sensor_manager.get_sensor_cost()*sensor_number), str(SENSOR_DISTANCE), str(SENSOR_PERIOD), str(TIME_TO_RUN), str(round(score/100, 2))]
+        writer.writerow(newline)
+    file.close()
+
+
 
     print(f"Average score of {round(score, 2)}% over {len(score_values)} samples")
     print(f"Sensors: {sensor_number}")
