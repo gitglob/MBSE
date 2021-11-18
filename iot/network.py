@@ -24,5 +24,5 @@ class Network:
         return value
 
 class NetworkList:
-    LOWRA = Network(10, 60, 2.8*10**-6) #mAh
+    LORA = Network(10, 60, 2.8*10**-6) #mAh
 
