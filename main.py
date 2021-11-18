@@ -44,6 +44,8 @@ def main():
     sensor_manager.distribute_sensors(SENSOR_DISTANCE)
     sensor_number = sensor_manager.get_sensors_count()
     print("Placed " + str(sensor_number) + " sensors")
+    if not SENSOR_STATIC:
+        sensor_manager.shuffle_sensors(roads)
 
     vis.visualize_sensor(city, sensor_manager.devices)
 
