@@ -212,7 +212,7 @@ def apply_wind_effect(city, roads, emptys, direction, speed):
     # check if there is any wind at all
     if speed != 0:
         # iterate over the empty cells of the city (these are the only ones that can hold co2)
-        for cell in roads:
+        for cell in roads+emptys:
             # check if the current cell has co2
             if cell.co2 > 0:
                 # find how many and which adjacent grid cells are free for the current cell
@@ -279,7 +279,6 @@ def apply_wind_effect(city, roads, emptys, direction, speed):
             if cell.stashed_co2:
                 cell.merge_stashed_co2()
             
-
 # find the closest free cells
 def find_closest_free_cells(cell, adj_cells):
     """
@@ -520,15 +519,25 @@ def rain(city):
     Input: City cells
     """
 
-    for i in range(city.rows):
-        for j in range(city.cols):
-            # sum column co2 to the bottom cell
-            if city.grid3d[i][j][1].co2 > 0: 
-                city.grid3d[i][j][0].add_co2(city.grid3d[i][j][1].co2)
-                city.grid3d[i][j][1].empty_block()
-            if city.grid3d[i][j][2].co2 > 0: 
-                city.grid3d[i][j][0].add_co2(city.grid3d[i][j][2].co2)
-                city.grid3d[i][j][2].empty_block()
+    # in CPH, it rains 153.3 days/year, according to "https://www.meteoblue.com/en/weather/historyclimate/climatemodelled/copenhagen_denmark_2618425"
+    # this means 12.775 days/month
+    # this means that on any given time, there is a 42% chance that it will rain, any given day (there is a small variation from month to month, not very significant)
+
+    rain_flag = random.random() < 0.42
+
+    if rain_flag:
+        print("It is raining/snowing/hailing... !!")
+        for i in range(city.rows):
+            for j in range(city.cols):
+                # sum column co2 to the bottom cell
+                if city.grid3d[i][j][1].co2 > 0: 
+                    city.grid3d[i][j][0].add_co2(city.grid3d[i][j][1].co2)
+                    city.grid3d[i][j][1].empty_block()
+                if city.grid3d[i][j][2].co2 > 0: 
+                    city.grid3d[i][j][0].add_co2(city.grid3d[i][j][2].co2)
+                    city.grid3d[i][j][2].empty_block()
+
+    return rain_flag
                 
 # transform seconds to years/months/days/hours
 def sec_to(sec, x):

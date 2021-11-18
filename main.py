@@ -124,6 +124,13 @@ def main():
             # apply dispersion
             f.apply_diffusion_effect(city)
 
+            # calculate rain effect
+            if SAVE_PLOTS:
+                vis.visualize_rain_effect(city, date)
+            rain_flag = f.rain(city)
+            if SAVE_PLOTS and rain_flag:
+                vis.visualize_rain_effect(city, date)
+
         a4 = time.time()
 
         if sec % 60 == 0:
@@ -151,15 +158,6 @@ def main():
         if sec >= TIME_TO_RUN:
             print()
             break
-        # Is this efficient? It runs every second and does 100 iterations and 3 if statements
-        # else:
-        #     step = TIME_TO_RUN // 100
-        #     for i in range(100):
-        #         if sec == step*i:
-        #             if DEBUG:
-        #                 print(f"Simulation running... ({i}%)")
-        #             else:
-        #                 print(f"Simulation running... ({i}%)", end="\r")
 
     # Print accumulated time
     print(f"Times: {round(t0, 2)} {round(t1, 2)}, {round(t2, 2)}, "

@@ -104,7 +104,7 @@ class GridCell():
     def reset_stash(self):
         self.stashed_co2 = 0
 
-    def empty_blick(self):
+    def empty_block(self):
         self.co2 = 0
 
 # building objects
