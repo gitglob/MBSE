@@ -12,14 +12,15 @@ import environment.simulation_functions as f
 import environment.visualize as vis
 from environment.classes import *
 from iot import SensorManager
+from iot import calculation
 import matplotlib.pyplot as plt
 
 
 # DEFAULT VALUES
-TIME_TO_RUN     = 3600*24 # 1 day
-SENSOR_DISTANCE = 20
-SENSOR_PERIOD   = 3600
-SENSOR_STATIC   = False
+TIME_TO_RUN     = 3600*24*3 # 1 day
+SENSOR_DISTANCE = 30
+SENSOR_PERIOD   = 1800
+SENSOR_STATIC   = True
 SAVE_PLOTS      = False
 DEBUG           = False
 
@@ -163,34 +164,22 @@ def main():
     # Print accumulated time
     print(f"Times: {round(t0, 2)} {round(t1, 2)}, {round(t2, 2)}, "
         + f"{round(t3, 2)}, {round(t4, 2)}")
-
+    
     # calculate and print the total co2 in the city
     total_co2 = f.calculate_co2(roads)
     print("Total accumulated co2 in the city:", total_co2, "grams")
     total_measured_co2 = sensor_manager.get_total_co2()
     print("Total measured co2:", str(total_measured_co2), "grams")
-
-    score = 0
-    real_normalized = []
-    for s in score_values:
-        score += s
-    score = score * 100 / len(score_values)
-    real_min = min(real_values)
-    real_max = max(real_values)
-    for r in real_values:
-        real_normalized.append((r - real_min) / (real_max - real_min))
-    plt.figure()
-    plt.plot(range(len(score_values)), score_values, real_normalized)
-    plt.legend(["Accuracy", "Normalized CO2 amount"])
-    plt.show()
+    
+    score = calculation.calculate_accuracy(score_values, real_values)
     
     #Save results in csv file
     with open(results_path, 'a+', newline = "") as file:
         writer = csv.writer(file, delimiter = ";")
-        newline =  [str(sensor_manager.get_sensor_cost()*sensor_number), str(SENSOR_DISTANCE), str(SENSOR_PERIOD), str(TIME_TO_RUN), str(round(score/100, 2))]
+        newline =  [str(sensor_manager.get_sensor_cost()*sensor_number), str(SENSOR_DISTANCE), str(SENSOR_STATIC), str(SENSOR_PERIOD), str(TIME_TO_RUN), str(round(score/100, 2))]
         writer.writerow(newline)
     file.close()
-
+    
 
 
     print(f"Average score of {round(score, 2)}% over {len(score_values)} samples")
@@ -216,6 +205,7 @@ parser.add_argument('-s', '--save-plots', action='store_true',
         help='Save intermediate plots.')
 parser.add_argument('-v', '--verbose', action='store_true',
         help='Activate debug logs.')
+
 
 
 if __name__ == "__main__":

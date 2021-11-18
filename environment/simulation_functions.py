@@ -212,7 +212,7 @@ def apply_wind_effect(city, roads, emptys, direction, speed):
     # check if there is any wind at all
     if speed != 0:
         # iterate over the empty cells of the city (these are the only ones that can hold co2)
-        for cell in roads+emptys:
+        for cell in roads:
             # check if the current cell has co2
             if cell.co2 > 0:
                 # find how many and which adjacent grid cells are free for the current cell
@@ -275,9 +275,10 @@ def apply_wind_effect(city, roads, emptys, direction, speed):
             cell.co2 = 0
 
         # iterate over the empty cells of the city (these are the only ones that can hold co2)
-        for cell in roads+emptys:
+        for cell in roads:
             if cell.stashed_co2:
                 cell.merge_stashed_co2()
+            
 
 # find the closest free cells
 def find_closest_free_cells(cell, adj_cells):
