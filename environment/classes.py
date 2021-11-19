@@ -75,7 +75,7 @@ class GridCell():
         self.contains = None
 
         # here we save the co2 that is to be added due to the wind effect
-        self.stashed_co2 = None
+        self.stashed_co2 = 0
 
     # method that checks if the current cell is free
     def is_free(self):
@@ -95,10 +95,12 @@ class GridCell():
                 self.co2 = 0
 
     def stash_co2(self, co2):
-        self.stashed_co2 = co2
+        self.stashed_co2 += co2
 
     def merge_stashed_co2(self):
         self.co2 += self.stashed_co2
+        if self.co2 < 0:
+            self.co2 = 0
         self.reset_stash()
 
     def reset_stash(self):

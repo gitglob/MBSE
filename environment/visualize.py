@@ -507,3 +507,106 @@ def visualize_rain_effect(city, date):
     plt.savefig(os.path.join('figures', 'co2_rain_effect', f'{now}.png'))
     plt.close()
 
+def visualize_diffusion(city, date):
+    print("Visualizing diffusion...")
+
+    # extract the co2 levels from the grid
+    co2 = []
+    for i in range(city.rows):
+        for j in range(city.cols):
+            for k in range(city.height):
+                co2.append(city.grid3d[i][j][k].co2)
+
+    # creating figures
+    fig = plt.figure(figsize=(10, 10))
+    ax = fig.add_subplot(111, projection="3d")
+
+    # create a color map based on the co2
+    colmap = cm.ScalarMappable(cmap=cm.Greys)
+    colmap.set_array(co2)
+
+    # create the grid
+    x = []
+    y = []
+    z = []
+    for i in range(city.rows):
+        for j in range(city.cols):
+            for k in range(city.height):
+                x.append(i)
+                y.append(j)
+                z.append(k)
+
+    # creating the heatmap
+    ax.scatter(x, y, z, marker='s', s = 5, c=co2, alpha=0.2, cmap='Greys')
+    cb = fig.colorbar(colmap)
+
+    # x1 = []
+    # x2 = []
+    # y1 = []
+    # y2 = []
+    # z1 = []
+    # z2 = []
+
+    # for i in range(city.rows):
+    #     for j in range(city.cols):
+    #         for k in range(city.height):
+    #             if city.grid3d[i][j][k].contains == "tree":
+    #                 x1.append(i)
+    #                 y1.append(j)
+    #                 z1.append(k)
+    #             elif city.grid3d[i][j][k].contains == "building":
+    #                 x2.append(i)
+    #                 y2.append(j)
+    #                 z2.append(k)
+
+    # ax.scatter(x1, y1, z1, s=0.5, c='green', alpha=1)
+    # ax.scatter(x2, y2, z2, s=0.5, c='blue', alpha=1)
+
+    # adding title and labels
+    ax.set_title(date + "\n\nCity 3D CO2 Heatmap - Diffusion \n\n")
+    ax.set_xlabel('X-axis')
+    ax.set_ylabel('Y-axis')
+    ax.set_zlabel('Z-axis')
+
+    # displaying plot
+    #plt.show()
+    now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+    plt.savefig(os.path.join('figures', 'co2_diffusion', f'{now}.png'))
+    plt.close()
+
+def visualize_co2_comparison(co2, co2_measured, duration, frequency):
+    fig = plt.figure(figsize=(10, 10))
+    ax = fig.add_subplot(111)
+
+    plt.plot(np.arange(len(co2))*frequency/3600, co2, '--r', label="real co2")
+    plt.plot(np.arange(len(co2_measured))*frequency/3600, co2_measured, '-b', label="measured co2")
+
+    # adding title and labels
+    ax.legend(loc='upper left')
+    ax.set_title("\n\nReal co2 vs Measured co2\n\n Simulation duration: " + str(duration/(60*60*24)) + "days.\n")
+    ax.set_xlabel('time (hour)')
+    ax.set_ylabel('co2 quantity (grams)')
+
+    # displaying plot
+    #plt.show()
+    now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+    plt.savefig(os.path.join('figures', 'co2_comparison', f'{now}.png'))
+    plt.close()
+
+def visualize_norm_co2(score_values, real_normalized, duration, frequency):
+    fig = plt.figure(figsize=(10, 10))
+    ax = fig.add_subplot(111)    
+    
+    plt.plot(np.arange(len(score_values))*frequency/3600, score_values, '-g', label="accuracy")
+    plt.plot(np.arange(len(real_normalized))*frequency/3600, real_normalized, '-b', label="normalized co2")
+    
+    ax.set_title("Sensing accuracy per cell / Normalized co2 amount per cell\n\n Simulation duration: " + str(duration/(60*60*24)) + " days.\n")
+    ax.legend()
+    ax.set_xlabel('time (hour)')
+    ax.set_ylabel('accuracy / normalized co2')
+
+    # displaying plot
+    #plt.show()
+    now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+    plt.savefig(os.path.join('figures', 'co2_normalized_acc', f'{now}.png'))
+    plt.close()
