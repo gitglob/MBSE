@@ -18,8 +18,8 @@ import matplotlib.pyplot as plt
 
 # DEFAULT VALUES
 TIME_TO_RUN     = 3600*24 # 1 day
-SENSOR_DISTANCE = 30
-SENSOR_PERIOD   = 1800
+SENSOR_DISTANCE = 15
+SENSOR_PERIOD   = 7200
 SENSOR_STATIC   = True
 SAVE_PLOTS      = False
 DEBUG           = False
@@ -46,7 +46,7 @@ def main():
     if not SENSOR_STATIC:
         sensor_manager.shuffle_sensors(roads)
 
-    vis.visualize_sensor(city, sensor_manager.devices)
+    #vis.visualize_sensor(city, sensor_manager.devices)
 
     # run the simulation - Note: Every iteration is 1 second
     sec = -1
@@ -161,15 +161,15 @@ def main():
             print()
             break
 
-    # Print accumulated time
-    print(f"Times: {round(t0, 2)} {round(t1, 2)}, {round(t2, 2)}, "
-        + f"{round(t3, 2)}, {round(t4, 2)}")
+    # # Print accumulated time
+    # print(f"Times: {round(t0, 2)} {round(t1, 2)}, {round(t2, 2)}, "
+    #     + f"{round(t3, 2)}, {round(t4, 2)}")
     
-    # calculate and print the total co2 in the city
-    total_co2 = f.calculate_co2(roads)
-    print("Total accumulated co2 in the city:", total_co2, "grams")
-    total_measured_co2 = sensor_manager.get_total_co2()
-    print("Total measured co2:", str(total_measured_co2), "grams")
+    # # calculate and print the total co2 in the city
+    # total_co2 = f.calculate_co2(roads)
+    # print("Total accumulated co2 in the city:", total_co2, "grams")
+    # total_measured_co2 = sensor_manager.get_total_co2()
+    # print("Total measured co2:", str(total_measured_co2), "grams")
     
     score = calculation.calculate_error(real_values, measured_values)
     vis.visualize_accuracy(real_values, measured_values)
@@ -180,15 +180,15 @@ def main():
     
 
 
-    print(f"Root-Mean-Square Error is {round(score, 2)} over {len(measured_values)} samples")
+    print(f"Root-Mean-Square Error: {round(score, 2)}")
     print(f"Sensors: {sensor_number}")
 
     print("Cost per device:", str(sensor_manager.get_sensor_cost()))
     print("Total system cost:", str(sensor_manager.get_sensor_cost()*sensor_number))
 
     # after the simulation is done, visualize the co2 in the city
-    vis.visualize_co2(city, mesh=True, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
-
+    #vis.visualize_co2(city, mesh=True, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
+    calculation.evaluate()
 
 parser = argparse.ArgumentParser(description='CO2 Monitoring simulator.')
 parser.add_argument('-d', '--days', type=float, default=TIME_TO_RUN/3600/24,
