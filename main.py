@@ -17,14 +17,13 @@ import matplotlib.pyplot as plt
 
 
 # DEFAULT VALUES
-TIME_TO_RUN     = 3600*24*3 # 1 day
+TIME_TO_RUN     = 3600*24 # 1 day
 SENSOR_DISTANCE = 30
 SENSOR_PERIOD   = 1800
 SENSOR_STATIC   = True
 SAVE_PLOTS      = False
 DEBUG           = False
 
-results_path = "figures\\results\\results.csv"
 
 def debug(*args):
     if DEBUG:
@@ -55,6 +54,7 @@ def main():
     wind_speed = 0
     wind_direction = None
     score_values = []
+    measured_values = []
     real_values = []
     print("Running simulation for {} days (this might take a while) ... ".format(int(TIME_TO_RUN/3600/24)))
 
@@ -143,8 +143,8 @@ def main():
             debug("Taking gateway measurement...")
             measures = sensor_manager.gateway()
             co2_per_sensor = np.sum(measures) / sensor_number
-            co2_per_cell = f.calculate_co2(roads) / (len(roads))
-            score_values.append(1 - (abs(co2_per_sensor - co2_per_cell) /co2_per_cell))
+            measured_values.append(co2_per_sensor)
+            co2_per_cell = f.calculate_co2(roads) / (len(roads))            
             real_values.append(co2_per_cell)
             if not SENSOR_STATIC:
                 debug("Moving sensors...")
@@ -171,18 +171,16 @@ def main():
     total_measured_co2 = sensor_manager.get_total_co2()
     print("Total measured co2:", str(total_measured_co2), "grams")
     
-    score = calculation.calculate_accuracy(score_values, real_values)
+    score = calculation.calculate_error(real_values, measured_values)
+    vis.visualize_accuracy(real_values, measured_values)
     
     #Save results in csv file
-    with open(results_path, 'a+', newline = "") as file:
-        writer = csv.writer(file, delimiter = ";")
-        newline =  [str(sensor_manager.get_sensor_cost()*sensor_number), str(SENSOR_DISTANCE), str(SENSOR_STATIC), str(SENSOR_PERIOD), str(TIME_TO_RUN), str(round(score/100, 2))]
-        writer.writerow(newline)
-    file.close()
+    newline =  [str(sensor_manager.get_sensor_cost()*sensor_number), str(SENSOR_DISTANCE), str(SENSOR_STATIC), str(SENSOR_PERIOD), str(TIME_TO_RUN), str(round(score, 2))]
+    calculation.save_results(newline)
     
 
 
-    print(f"Average score of {round(score, 2)}% over {len(score_values)} samples")
+    print(f"Root-Mean-Square Error is {round(score, 2)} over {len(measured_values)} samples")
     print(f"Sensors: {sensor_number}")
 
     print("Cost per device:", str(sensor_manager.get_sensor_cost()))

@@ -506,4 +506,12 @@ def visualize_rain_effect(city, date):
     now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
     plt.savefig(os.path.join('figures', 'co2_rain_effect', f'{now}.png'))
     plt.close()
+    
+    
+def visualize_accuracy (real, measured):
+    plt.figure()
+    plt.plot(range(len(real)), real, measured)
+    plt.legend(["Real", "Measured"])
+    plt.ylabel("CO2 amount [g/m3]")
+    plt.show()
 
