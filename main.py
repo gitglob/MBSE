@@ -149,6 +149,7 @@ def main():
             if not SENSOR_STATIC:
                 debug("Moving sensors...")
                 sensor_manager.shuffle_sensors(roads)
+        
 
         a5 = time.time()
         t0 += a1 - a0
