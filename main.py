@@ -121,7 +121,7 @@ def main():
             if SAVE_PLOTS and rain_flag:
                 vis.visualize_rain_effect(city, date)
 
-            print("Generated co2: ", f.calculate_co2(roads, emptys) - total_co2)
+            print("co2 generated: ", f.calculate_co2(roads, emptys) - total_co2)
             total_co2 = f.calculate_co2(roads, emptys)
             print("Total co2:", total_co2, "\n")
 
