@@ -513,5 +513,7 @@ def visualize_accuracy (real, measured):
     plt.plot(range(len(real)), real, measured)
     plt.legend(["Real", "Measured"])
     plt.ylabel("CO2 amount [g/m3]")
+    plt.xlabel("Time [h]")
+    plt.title("CO2 level in the city")
     plt.show()
 

@@ -18,8 +18,8 @@ import matplotlib.pyplot as plt
 
 # DEFAULT VALUES
 TIME_TO_RUN     = 3600*24 # 1 day
-SENSOR_DISTANCE = 15
-SENSOR_PERIOD   = 7200
+SENSOR_DISTANCE = 30
+SENSOR_PERIOD   = 3600
 SENSOR_STATIC   = True
 SAVE_PLOTS      = False
 DEBUG           = False
@@ -34,7 +34,7 @@ def main():
     print("Our city is a {} grid".format([len(city.grid3d), len(city.grid3d[0]),
         len(city.grid3d[0][0])]))
 
-    #vis.visualize_3d_grid(city)
+    vis.visualize_3d_grid(city)
 
     # extract the tree cells
     trees, roads, emptys = pre.extract_trees_roads_empty_blocks(city)
@@ -46,7 +46,7 @@ def main():
     if not SENSOR_STATIC:
         sensor_manager.shuffle_sensors(roads)
 
-    #vis.visualize_sensor(city, sensor_manager.devices)
+    vis.visualize_sensor(city, sensor_manager.devices)
 
     # run the simulation - Note: Every iteration is 1 second
     sec = -1
@@ -188,7 +188,7 @@ def main():
     print("Total system cost:", str(sensor_manager.get_sensor_cost()*sensor_number))
 
     # after the simulation is done, visualize the co2 in the city
-    #vis.visualize_co2(city, mesh=True, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
+    vis.visualize_co2(city, mesh=True, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
     calculation.evaluate()
 
 parser = argparse.ArgumentParser(description='CO2 Monitoring simulator.')
