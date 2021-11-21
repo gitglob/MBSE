@@ -98,10 +98,10 @@ def generate_co2(cars, city, seconds):
         car.generate_co2(city.grid3d[car.x][car.y][car.z], seconds)
 
 # calculate the CO2 for the entire grid
-def calculate_co2(roads):
+def calculate_co2(roads, emptys):
     # calculate car emissions
     co2_sum = 0
-    for cell in roads:
+    for cell in roads+emptys:
         co2_sum += cell.co2
                     
     return(co2_sum)
@@ -216,7 +216,10 @@ def apply_wind_effect(city, roads, emptys, direction, speed):
             # check if the current cell has co2
             if cell.co2 > 0:
                 # find how many and which adjacent grid cells are free for the current cell
-                _, adj_cells = find_free_adj_cells(city, cell, "2d")
+                num_adj_cells, adj_cells, num_OOG_cells = find_free_adj_cells(city, cell, "2d")
+
+                # the co2 that goes out of grid gets lost
+                cell.co2 = cell.co2 * (num_adj_cells / (num_adj_cells + num_OOG_cells))
 
                 # find which cells the wind flows towards
                 flow_cells = match_direction(city, direction, cell)
@@ -319,101 +322,81 @@ def match_direction(city, d, cell):
     retval = []
 
     if len(d)<3:
+        z = k
         if d == 'e':
             x = i+1
             y = j
-            z = k
         elif d == 'w':
             x = i-1
             y = j
-            z = k
         elif d == 'n':
             x = i
             y = j+1
-            z = k
         elif d == 's':
             x = i
             y = j-1
-            z = k
 
         elif d == 'ne':
             x = i+1
             y = j+1
-            z = k
         elif d == "nw":
             x = i-1
             y = j+1
-            z = k
         elif d == "se":
             x = i+1
             y = j-1
-            z = k
         elif d == "sw":
             x = i-1
             y = j-1
-            z = k
         
         if x>=0 and x<(city.rows) and y>=0 and y<(city.cols) and z>=0 and z<(city.height):
             retval.append(city.grid3d[x][y][z])
 
     else:
+        z1 = k
+        z2 = k
         if d == "ene":
             x1 = i+1
             y1 = j
-            z1 = k
             x2 = i+1
             y2 = j+1
-            z2 = k
         elif d == "ese":
             x1 = i+1
             y1 = j
-            z1 = k
             x2 = i+1
             y2 = j-1
-            z2 = k
         elif d == "wnw":
             x1 = i-1
             y1 = j
-            z1 = k
             x2 = i-1
             y2 = j+1
-            z2 = k
         elif d == "wsw":
             x1 = i-1
             y1 = j
-            z1 = k
             x2 = i-1
             y2 = j-1
-            z2 = k
         elif d == "nne":
             x1 = i
             y1 = j+1
-            z1 = k
             x2 = i+1
             y2 = j+1
-            z2 = k
         elif d == "nnw":
             x1 = i
             y1 = j+1
-            z1 = k
             x2 = i-1
             y2 = j+1
-            z2 = k
         elif d == "sse":
             x1 = i
             y1 = j-1
-            z1 = k
             x2 = i+1
             y2 = j-1
-            z2 = k
         elif d == "ssw":
             x1 = i
             y1 = j-1
-            z1 = k
             x2 = i-1
             y2 = j-1
-            z2 = k
 
+        # check if the blocks that wind flows towards are inside the grid
         if x1>=0 and x1<(city.rows) and y1>=0 and y1<(city.cols) and z1>=0 and z1<(city.height):
             retval.append(city.grid3d[x1][y1][z1])
         if x2>=0 and x2<(city.rows) and y2>=0 and y2<(city.cols) and z2>=0 and z2<(city.height):
@@ -427,15 +410,22 @@ def apply_diffusion_effect(city, roads, emptys):
     for cell in roads+emptys:
         if cell.co2>0:
             # find the free adjacent cells
-            _, free_cells = find_free_adj_cells(city, cell, "3d")
+            num_adj_cells, free_cells, num_OOG_cells = find_free_adj_cells(city, cell, "3d")
+
+            # the co2 that goes out of grid gets lost
+            cell.co2 = cell.co2 * (num_adj_cells / (num_adj_cells + num_OOG_cells))
+
+            # diffusion doesn't go down
+            free_cells_not_below = []
+            for free_cell in free_cells:
+                if free_cell.z >= cell.z:
+                    free_cells_not_below.append(free_cell)
             
             # iterate over free adjacent cells
-            for free_cell in free_cells:
-                # diffusion doesn't go down
-                if free_cell.z >= cell.z:
-                    flow = flow_calc(cell.co2, free_cell.co2)
-                    free_cell.stash_co2(flow)
-                    cell.stash_co2(-flow)
+            for free_cell in free_cells_not_below:
+                flow = flow_calc(cell.co2/len(free_cells_not_below), free_cell.co2)
+                free_cell.stash_co2(flow)
+                cell.stash_co2(-flow)
 
     # now add all the stashed co2 in the cells
     for cell in roads+emptys:
@@ -453,7 +443,7 @@ def apply_trees_effect(city, trees):
     """
     print("Applying trees effect...")
     # a tree roughly absorbs 48 pounds of co2 per year (21,7724 kg)
-    year_absorbtion = 15 # we will consider a mature tree, but not a huge one, because we are in a city, so ~15kg/year 
+    year_absorbtion = 15000 # we will consider a mature tree, but not a huge one, because we are in a city, so ~15kg/year 
     year_absorbtion = year_absorbtion/3 # however, an entire tree is 3 blocks stacked, so each block absorbs 1/3 of it from its surrounding blocks in 2d
     #year_absorbtion = 100000*year_absorbtion # WARNING: Only uncomment this line if you want to debug and demonstrate the trees effect. It makes the effect in the plots clear!
     hour_absorbtion = year_absorbtion/(12*30*24)
@@ -514,7 +504,7 @@ def find_nearby_free_cells(city, cell):
 
     return num_free_cells, near_cells
 
-# Check for free adjacent cells in either 2d or 3d
+# Check for free adjacent cells in either 2d or 3d (inside the grid)
 def find_free_adj_cells(city, cell, d): 
     """
     Function that finds the number and the position of the free adjacent cells for a city grid block in 2d or 3d.
@@ -533,13 +523,19 @@ def find_free_adj_cells(city, cell, d):
     y = cell.y
     z = cell.z
 
+    # counter for out of grid adjacent cells
+    num_OOG_cells = 0
+
     # count the # of adjacent cells in 2d or 3d
     num_free_cells = 0
     adj_cells = []
     if d == "2d":
         for i in [x, x-1, x+1]:
             for j in [y, y-1, y+1]:
-                if (i==x and j==y) or (i>city.rows-1 or i<0) or (j>city.cols-1 or j<0):
+                if (i==x and j==y):
+                    continue
+                elif (i>city.rows-1 or i<0) or (j>city.cols-1 or j<0):
+                    num_OOG_cells +=1
                     continue
                 k = z
                 cell = city.grid3d[i][j][k]
@@ -550,14 +546,17 @@ def find_free_adj_cells(city, cell, d):
         for i in [x, x-1, x+1]:
             for j in [y, y-1, y+1]:
                 for k in [z, z-1, z+1]:
-                    if (i==x and j==y and z==k) or (i>city.rows-1 or i<0) or (j>city.cols-1 or j<0) or (k>city.height-1 or k<0):
+                    if (i==x and j==y and z==k):
+                        continue
+                    elif (i>city.rows-1 or i<0) or (j>city.cols-1 or j<0) or (k>city.height-1 or k<0):
+                        num_OOG_cells +=1
                         continue
                     cell = city.grid3d[i][j][k]
                     if cell.is_free():
                         num_free_cells += 1
                         adj_cells.append(cell)
 
-    return num_free_cells, adj_cells
+    return num_free_cells, adj_cells, num_OOG_cells
 
 # apply rain effect on co2 levels
 def rain(city):
@@ -609,11 +608,11 @@ def sec_to(sec, x):
         return minute
 
 # calculating the mass flow of CO2 between blocks (per hour)
-def flow_calc(conc1, conc2):
+def flow_calc(source, target):
     diffrate = 1.6e-5
     area = 25
     distance = 5
-    flow = diffrate*((conc1-conc2)/distance)*area*3600
+    flow = diffrate*((source-target)/distance)*area*3600
     return flow
 
 # calculate time zone (1,2,3,4) based on the current hour
