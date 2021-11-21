@@ -94,14 +94,17 @@ def generate_cars(city, roads, time, max_cars):
 
 # generate co2 where there is a car in the city
 def generate_co2(cars, city, seconds):
+    co2_sum = 0
     for car in cars:
-        car.generate_co2(city.grid3d[car.x][car.y][car.z], seconds)
+        co2 = car.generate_co2(city.grid3d[car.x][car.y][car.z], seconds)
+        co2_sum += co2
+    #print("GENERATED : ", co2_sum, " grams of co2")
 
 # calculate the CO2 for the entire grid
-def calculate_co2(roads):
+def calculate_co2(roads, emptys):
     # calculate car emissions
     co2_sum = 0
-    for cell in roads:
+    for cell in roads+emptys:
         co2_sum += cell.co2
                     
     return(co2_sum)
@@ -319,101 +322,81 @@ def match_direction(city, d, cell):
     retval = []
 
     if len(d)<3:
+        z = k
         if d == 'e':
             x = i+1
             y = j
-            z = k
         elif d == 'w':
             x = i-1
             y = j
-            z = k
         elif d == 'n':
             x = i
             y = j+1
-            z = k
         elif d == 's':
             x = i
             y = j-1
-            z = k
 
         elif d == 'ne':
             x = i+1
             y = j+1
-            z = k
         elif d == "nw":
             x = i-1
             y = j+1
-            z = k
         elif d == "se":
             x = i+1
             y = j-1
-            z = k
         elif d == "sw":
             x = i-1
             y = j-1
-            z = k
         
         if x>=0 and x<(city.rows) and y>=0 and y<(city.cols) and z>=0 and z<(city.height):
             retval.append(city.grid3d[x][y][z])
 
     else:
+        z1 = k
+        z2 = k
         if d == "ene":
             x1 = i+1
             y1 = j
-            z1 = k
             x2 = i+1
             y2 = j+1
-            z2 = k
         elif d == "ese":
             x1 = i+1
             y1 = j
-            z1 = k
             x2 = i+1
             y2 = j-1
-            z2 = k
         elif d == "wnw":
             x1 = i-1
             y1 = j
-            z1 = k
             x2 = i-1
             y2 = j+1
-            z2 = k
         elif d == "wsw":
             x1 = i-1
             y1 = j
-            z1 = k
             x2 = i-1
             y2 = j-1
-            z2 = k
         elif d == "nne":
             x1 = i
             y1 = j+1
-            z1 = k
             x2 = i+1
             y2 = j+1
-            z2 = k
         elif d == "nnw":
             x1 = i
             y1 = j+1
-            z1 = k
             x2 = i-1
             y2 = j+1
-            z2 = k
         elif d == "sse":
             x1 = i
             y1 = j-1
-            z1 = k
             x2 = i+1
             y2 = j-1
-            z2 = k
         elif d == "ssw":
             x1 = i
             y1 = j-1
-            z1 = k
             x2 = i-1
             y2 = j-1
-            z2 = k
 
+        # check if the blocks that wind flows towards are inside the grid
         if x1>=0 and x1<(city.rows) and y1>=0 and y1<(city.cols) and z1>=0 and z1<(city.height):
             retval.append(city.grid3d[x1][y1][z1])
         if x2>=0 and x2<(city.rows) and y2>=0 and y2<(city.cols) and z2>=0 and z2<(city.height):

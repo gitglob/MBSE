@@ -140,6 +140,7 @@ class Vehicle(Road):
     def generate_co2(self, cell, seconds):
         co2 = self.consumption * seconds * self.speed * self.fuel_co2_factor / 100000
         cell.add_co2(co2)
+        return co2 # DEBUG
 
 # gasolin cars
 class Gasolin_Car(Vehicle):

@@ -53,6 +53,7 @@ def main():
     score_values = []
     real_values = []
     measured_values = []
+    total_co2 = 0
     print("Running simulation for {} days (this might take a while) ... \n\n".format(TIME_TO_RUN/3600/24))
 
     while True:
@@ -61,7 +62,7 @@ def main():
         date = str((f.sec_to(sec, "hour")%24)) + ":" + str(f.sec_to(sec, "minute")%60) + ":" + str(sec%60) + " - " + str(f.sec_to(sec, "day")%30 + 1) + "/" + str(f.sec_to(sec, "month")%12 + 1) + "/" + str(f.sec_to(sec, "year") + 1)
         # print the date every day
         if sec%86400 == 0:
-            debug("Date: ", date)
+            print("\nDate: ", date)
 
         # every 6 hours generate new positions for cars
         if sec%21600 == 0:
@@ -120,6 +121,10 @@ def main():
             if SAVE_PLOTS and rain_flag:
                 vis.visualize_rain_effect(city, date)
 
+            print("Generated co2: ", f.calculate_co2(roads, emptys) - total_co2)
+            total_co2 = f.calculate_co2(roads, emptys)
+            print("Total co2:", total_co2, "\n")
+
         if sec % 60 == 0:
             sensor_manager.measure(city, sec//60)
 
@@ -128,7 +133,7 @@ def main():
             debug("Taking gateway measurement...")
             measures = sensor_manager.gateway()
             co2_per_sensor = np.sum(measures) / sensor_number
-            co2_per_cell = f.calculate_co2(roads+emptys_0) / (len(roads+emptys_0))
+            co2_per_cell = f.calculate_co2(roads, emptys_0) / (len(roads+emptys_0))
             score_values.append(1 - (abs(co2_per_sensor - co2_per_cell) / co2_per_cell))
             real_values.append(co2_per_cell)
             measured_values.append(co2_per_sensor)
@@ -153,7 +158,7 @@ def main():
     vis.visualize_co2(city, mesh=True, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
 
     # calculate and print the total co2 in the city
-    total_co2 = f.calculate_co2(roads)
+    total_co2 = f.calculate_co2(roads, emptys)
     print("Total accumulated co2 in the city:", total_co2, "grams")
     total_measured_co2 = sensor_manager.get_total_co2()
     print("Total measured co2:", str(total_measured_co2), "grams")
