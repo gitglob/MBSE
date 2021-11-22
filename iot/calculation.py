@@ -7,7 +7,7 @@ from numpy import diff
 
 
 
-results_path = "..\\figures\\results\\results.csv"
+results_path = "figures\\results\\results.csv"
 
 
 #Calculating the Root-Mean-Square Error of the measurement vs real values

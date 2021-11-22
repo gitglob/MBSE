@@ -132,9 +132,9 @@ def main():
             debug("Taking gateway measurement...")
             measures = sensor_manager.gateway()
             co2_per_sensor = np.sum(measures) / sensor_number
-            measured_values.append(co2_per_sensor)
+            measured_values.append(co2_per_sensor/125)
             co2_per_cell = f.calculate_co2(roads, emptys_0) / (len(roads+emptys_0))
-            real_values.append(co2_per_cell)
+            real_values.append(co2_per_cell/125)
             if not SENSOR_STATIC:
                 debug("Moving sensors...")
                 sensor_manager.shuffle_sensors(roads)
@@ -151,7 +151,7 @@ def main():
    
     # after the simulation is done, visualize the co2 in the city
     vis.visualize_co2(city, mesh=True, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
-
+    vis.visualize_accuracy(real_values, measured_values)
     # calculate and print the total co2 in the city
     total_co2 = f.calculate_co2(roads, emptys)
     print("Total accumulated co2 in the city:", total_co2, "grams")
@@ -164,6 +164,9 @@ def main():
 
     print("Cost per device:", str(sensor_manager.get_sensor_cost()))
     print("Total system cost:", str(sensor_manager.get_sensor_cost()*sensor_number))
+    
+    #Save results in csv file
+    newline =  [str(sensor_manager.get_sensor_cost()*sensor_number), str(SENSOR_DISTANCE), str(SENSOR_STATIC), str(SENSOR_PERIOD), str(TIME_TO_RUN), str(round(score, 2))]
     calculation.save_results(newline)
 
     # after the simulation is done, visualize the co2 in the city
