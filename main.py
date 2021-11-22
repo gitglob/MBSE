@@ -17,13 +17,6 @@ from gui.gui import GUI
 import tkinter as tk
 
 
-# DEFAULT VALUES
-TIME_TO_RUN     = 3600*24*3 # 1 day
-SENSOR_DISTANCE = 30 # 30 meters => 6 blocks
-SENSOR_PERIOD   = 1800 # every 30 minutes
-SENSOR_STATIC   = True
-SAVE_PLOTS      = False
-DEBUG           = False
 
 results_path = "figures\\results\\results.csv"
 folders = ['co2_comparison', 'co2_diffusion', 'co2_normalized_acc', 'co2_rain_effect', 'co2_timeseries', 'co2_trees_effect', 'co2_wind_effect', 'results']
