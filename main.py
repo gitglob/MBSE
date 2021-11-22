@@ -2,6 +2,7 @@
 This is the main file, that executes the core loop of our simulation.
 '''
 import sys
+import csv
 import os
 from random import randint
 import math
@@ -24,13 +25,18 @@ SENSOR_STATIC   = True
 SAVE_PLOTS      = False
 DEBUG           = False
 
-
-folders = ['co2_comparison',co2_diffusion co2_normalized_acc co2_rain_effect co2_timeseries co2_trees_effect co2_wind_effect results]
 results_path = "figures\\results\\results.csv"
+folders = ['co2_comparison', 'co2_diffusion', 'co2_normalized_acc', 'co2_rain_effect', 'co2_timeseries', 'co2_trees_effect', 'co2_wind_effect', 'results']
 try:
-    os.mkdir("figures\\results\\")
+    os.mkdir("figures")
 except FileExistsError:
-    pass
+        pass 
+    
+for folder in folders:
+    try:
+        os.mkdir("figures\\"+ folder)
+    except FileExistsError:
+        pass
 
 
 #%%
