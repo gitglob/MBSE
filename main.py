@@ -1,16 +1,18 @@
 '''
 This is the main file, that executes the core loop of our simulation.
 '''
-import argparse
-import csv
-
+import sys
+import os
+from random import randint
+import math
 import environment.preprocessing as pre
 import environment.simulation_functions as f
 import environment.visualize as vis
 from environment.classes import *
 from iot import SensorManager
-from iot import calculation
-import matplotlib.pyplot as plt
+from pprint import pprint
+from gui.gui import GUI
+import tkinter as tk
 
 
 # DEFAULT VALUES
@@ -22,7 +24,10 @@ SAVE_PLOTS      = False
 DEBUG           = False
 
 results_path = "figures\\results\\results.csv"
+os.mkdir("figures\\results\\", exist_ok = True)
 
+
+#%%
 def debug(*args):
     if DEBUG:
         print(*args)
