@@ -133,13 +133,13 @@ def main():
             debug("Taking gateway measurement...")
             measures = sensor_manager.gateway()
             co2_per_sensor = np.sum(measures) / sensor_number
-            co2_per_cell = f.calculate_co2(roads, emptys_0) / (len(roads+emptys_0))
-            score_values.append(1 - (abs(co2_per_sensor - co2_per_cell) / co2_per_cell))
-            real_values.append(co2_per_cell)
             measured_values.append(co2_per_sensor)
+            co2_per_cell = f.calculate_co2(roads, emptys_0) / (len(roads+emptys_0))
+            real_values.append(co2_per_cell)
             if not SENSOR_STATIC:
                 debug("Moving sensors...")
                 sensor_manager.shuffle_sensors(roads)
+                
 
         if sec >= TIME_TO_RUN:
             print()
@@ -149,11 +149,7 @@ def main():
     if SAVE_PLOTS:
         vis.visualize_co2_comparison(co2=real_values, co2_measured=measured_values, duration=TIME_TO_RUN, frequency=SENSOR_PERIOD)
 
-    # visualize accuracy / normalized co2 amount
-    score, real_co2_norm  = calculation.calculate_accuracy(score_values, real_values)
-    if SAVE_PLOTS:
-        vis.visualize_norm_co2(score_values=score_values, real_normalized=real_co2_norm, duration=TIME_TO_RUN, frequency=SENSOR_PERIOD)
-
+   
     # after the simulation is done, visualize the co2 in the city
     vis.visualize_co2(city, mesh=True, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
 
@@ -163,12 +159,6 @@ def main():
     total_measured_co2 = sensor_manager.get_total_co2()
     print("Total measured co2:", str(total_measured_co2), "grams")
         
-    #Save results in csv file
-    with open(results_path, 'a+', newline = "") as file:
-        writer = csv.writer(file, delimiter = ";")
-        newline =  [str(sensor_manager.get_sensor_cost()*sensor_number), str(SENSOR_DISTANCE), str(SENSOR_STATIC), str(SENSOR_PERIOD), str(TIME_TO_RUN), str(round(score/100, 2))]
-        writer.writerow(newline)
-    file.close()
     
     print(f"Average score of {round(score, 2)}% over {len(score_values)} samples")
     print(f"# Sensors: {sensor_number}")
