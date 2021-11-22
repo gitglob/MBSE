@@ -10,6 +10,7 @@ import environment.simulation_functions as f
 import environment.visualize as vis
 from environment.classes import *
 from iot import SensorManager
+from iot import calculation
 from pprint import pprint
 from gui.gui import GUI
 import tkinter as tk
@@ -23,6 +24,8 @@ SENSOR_STATIC   = True
 SAVE_PLOTS      = False
 DEBUG           = False
 
+
+folders = ['co2_comparison',co2_diffusion co2_normalized_acc co2_rain_effect co2_timeseries co2_trees_effect co2_wind_effect results]
 results_path = "figures\\results\\results.csv"
 try:
     os.mkdir("figures\\results\\")
