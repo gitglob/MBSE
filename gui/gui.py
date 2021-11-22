@@ -105,7 +105,7 @@ class GUI:
                       textvariable = tk.IntVar())
         self.e1.grid(row=7, column=1, sticky="nw", padx=5,  pady=5)
         
-        button2 = tk.Button(self.parameters, text = "Set the Distance of the Sensors in Blocks", command = self.set_sensors_distance)
+        button2 = tk.Button(self.parameters, text = "Set the Distance of the Sensors in Meters", command = self.set_sensors_distance)
         button2.grid(row=7, column=1, sticky="ne", padx=5, pady=5)
 
         parameters.mainloop()

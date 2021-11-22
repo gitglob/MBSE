@@ -61,7 +61,7 @@ def main():
 
     if DEBUG:
         print("TIME TO RUN:", running_time_in_days,
-              "\nSENSORS DISTANCE IN BLOCKS:", SENSOR_DISTANCE,
+              "\nSENSORS DISTANCE IN METERS:", SENSOR_DISTANCE,
               "\nSENSORS SAMPLING PERIOD IN SECONDS", SENSOR_PERIOD,
               "\nSAVE_PLOTS:", SAVE_PLOTS)
               
@@ -218,33 +218,7 @@ def main():
         print("Total system cost:", str(sensor_manager.get_sensor_cost()*sensor_number), "euro")
 
 
-
-# parser = argparse.ArgumentParser(description='CO2 Monitoring simulator.')
-# parser.add_argument('-d', '--days', type=float, default=TIME_TO_RUN/3600/24,
-#         help='Number of days to run.')
-# parser.add_argument('-n', '--sensor-distance', type=int, default=SENSOR_DISTANCE,
-#         help='Cell distance between sensors')
-# parser.add_argument('-p', '--sensor-period', type=int, default=SENSOR_PERIOD,
-#         help='Sensor measurement period in secs.')
-# parser.add_argument('-m', '--sensor-movement', type=str, default='static',
-#         choices=['static', 'random'], help='Sensors movement type.')
-# parser.add_argument('-s', '--save-plots', action='store_true',
-#         help='Save intermediate plots.')
-# parser.add_argument('-v', '--verbose', action='store_true',
-#         help='Activate debug logs.')
-
-
-
 if __name__ == "__main__":
-    # args = parser.parse_args()
-    # TIME_TO_RUN = int(args.days * 3600 * 24)
-    # DEBUG = args.verbose
-    # SENSOR_DISTANCE = args.sensor_distance
-    # SENSOR_PERIOD = args.sensor_period
-    # SENSOR_STATIC = bool(args.sensor_movement == "static")
-    # SAVE_PLOTS = args.save_plots
 
-    # if SAVE_PLOTS:
-    #     os.makedirs(os.path.join('figures', 'co2_timeseries'), exist_ok=True)
 
     main()
