@@ -11,6 +11,7 @@ from environment.classes import *
 from iot import SensorManager
 from iot import calculation
 import matplotlib.pyplot as plt
+import pandas as pd
 
 
 # DEFAULT VALUES
@@ -57,6 +58,14 @@ def main():
     measured_values = []
     total_co2 = 0
     print("Running simulation for {} days (this might take a while) ... \n\n".format(TIME_TO_RUN/3600/24))
+
+    # data for dataframe
+    data = {
+        'measured_co2/cell': [],
+        'real_co2/cell': [],
+        'timeframe': [],
+        'sec': []
+    }
 
     while True:
         sec += 1
@@ -147,6 +156,11 @@ def main():
             measures = sensor_manager.gateway()
             co2_per_sensor = np.sum(measures) / sensor_number
             measured_values.append(co2_per_sensor/125)
+            real_co2_per_cell = f.calculate_co2(roads, []) / (len(roads))
+            data['measured_co2/cell'].append(co2_per_sensor)
+            data['real_co2/cell'].append(real_co2_per_cell)
+            data['timeframe'].append(SENSOR_PERIOD)
+            data['sec'].append(sec)
             if not SENSOR_STATIC:
                 debug("Moving sensors...")
                 sensor_manager.shuffle_sensors(roads)
@@ -168,7 +182,9 @@ def main():
     newline =  [str(sensor_manager.get_sensor_cost()*sensor_number), str(SENSOR_DISTANCE), str(sensor_number), str(SENSOR_STATIC), str(SENSOR_PERIOD), str(TIME_TO_RUN), str(round(score, 4))]
     calculation.save_results(newline)
 
-
+    # save data for simulation
+    df = pd.DataFrame.from_dict(data)
+    df.to_csv(os.path.join('figures', 'run_data', f'{TIME_TO_RUN}_{SENSOR_PERIOD}_{str(sensor_number)}_{SENSOR_STATIC}_{str(sensor_manager.get_sensor_cost()*sensor_number)}.csv'), index=False)
 
     # after the simulation is done, visualize the co2 in the city
     vis.visualize_co2(city, mesh=True, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
@@ -216,7 +232,14 @@ if __name__ == "__main__":
     SENSOR_STATIC = bool(args.sensor_movement == "static")
     SAVE_PLOTS = args.save_plots
 
+    #create needed folders
     if SAVE_PLOTS:
-        os.makedirs(os.path.join('figures', 'co2_timeseries'), exist_ok=True)
+        folders = [
+            'co2_comparison', 'co2_diffusion', 'co2_normalized_acc', 'co2_rain_effect', 'co2_timeseries',
+            'co2_trees_effect', 'co2_trees_effect_augmented', 'co2_wind_effect', 'results'
+        ]
+        for folder in folders:
+            os.makedirs(os.path.join('figures', f'{folder}'), exist_ok=True)
 
+    os.makedirs(os.path.join('figures', 'run_data'), exist_ok=True)
     main()
