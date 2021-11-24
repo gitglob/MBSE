@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 # DEFAULT VALUES
 TIME_TO_RUN     = 3600*24 # 1 day
 SENSOR_DISTANCE = 15
-SENSOR_PERIOD   = 7200
+SENSOR_PERIOD   = 3600
 SENSOR_STATIC   = True
 SAVE_PLOTS      = True
 DEBUG           = False
@@ -160,16 +160,12 @@ def main():
     # save a plot of co2 vs measured co2
     if SAVE_PLOTS:
         vis.visualize_co2_comparison(co2=real_values, co2_measured=measured_values, duration=TIME_TO_RUN, frequency=SENSOR_PERIOD)
-    # # calculate and print the total co2 in the city
-    # total_co2 = f.calculate_co2(roads)
-    # print("Total accumulated co2 in the city:", total_co2, "grams")
-    # total_measured_co2 = sensor_manager.get_total_co2()
-    # print("Total measured co2:", str(total_measured_co2), "grams")
+
 
     score = calculation.calculate_error(real_values, measured_values)
 
     #Save results in csv file
-    newline =  [str(sensor_manager.get_sensor_cost()*sensor_number), str(SENSOR_DISTANCE), str(SENSOR_STATIC), str(SENSOR_PERIOD), str(TIME_TO_RUN), str(round(score, 2))]
+    newline =  [str(sensor_manager.get_sensor_cost()*sensor_number), str(SENSOR_DISTANCE), str(sensor_number), str(SENSOR_STATIC), str(SENSOR_PERIOD), str(TIME_TO_RUN), str(round(score, 4))]
     calculation.save_results(newline)
 
 
@@ -183,20 +179,16 @@ def main():
     total_measured_co2 = sensor_manager.get_total_co2()
     print("Total measured co2:", str(total_measured_co2), "grams")
 
-    score = calculation.calculate_error(real_values, measured_values)
-    print(f"Root-Mean-Square Error: {round(score, 2)}")
+    print(f"Root-Mean-Square Error: {round(score, 4)}")
     print(f"Sensors: {sensor_number}")
 
     print("Cost per device:", str(sensor_manager.get_sensor_cost()))
     print("Total system cost:", str(sensor_manager.get_sensor_cost()*sensor_number))
 
-    #Save results in csv file
-    newline =  [str(sensor_manager.get_sensor_cost()*sensor_number), str(SENSOR_DISTANCE), str(SENSOR_STATIC), str(SENSOR_PERIOD), str(TIME_TO_RUN), str(round(score, 2))]
-    calculation.save_results(newline)
 
     # after the simulation is done, visualize the co2 in the city
     vis.visualize_co2(city, mesh=True, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
-    calculation.evaluate()
+    #calculation.evaluate()
 
 
 parser = argparse.ArgumentParser(description='CO2 Monitoring simulator.')
