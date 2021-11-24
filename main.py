@@ -179,12 +179,12 @@ def main():
     score = calculation.calculate_error(real_values, measured_values)
 
     #Save results in csv file
-    newline =  [str(sensor_manager.get_sensor_cost()*sensor_number), str(SENSOR_DISTANCE), str(sensor_number), str(SENSOR_STATIC), str(SENSOR_PERIOD), str(TIME_TO_RUN), str(round(score, 4))]
+    newline =  [str(sensor_manager.get_sensor_cost(TIME_TO_RUN)*sensor_number), str(SENSOR_DISTANCE), str(sensor_number), str(SENSOR_STATIC), str(SENSOR_PERIOD), str(TIME_TO_RUN), str(round(score, 4))]
     calculation.save_results(newline)
 
     # save data for simulation
     df = pd.DataFrame.from_dict(data)
-    df.to_csv(os.path.join('figures', 'run_data', f'{TIME_TO_RUN}_{SENSOR_PERIOD}_{str(sensor_number)}_{SENSOR_STATIC}_{str(sensor_manager.get_sensor_cost()*sensor_number)}.csv'), index=False)
+    df.to_csv(os.path.join('figures', 'run_data', f'{TIME_TO_RUN}_{SENSOR_PERIOD}_{str(sensor_number)}_{SENSOR_STATIC}_{str(sensor_manager.get_sensor_cost(TIME_TO_RUN)*sensor_number)}.csv'), index=False)
 
     # after the simulation is done, visualize the co2 in the city
     vis.visualize_co2(city, mesh=True, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
@@ -198,8 +198,9 @@ def main():
     print(f"Root-Mean-Square Error: {round(score, 4)}")
     print(f"Sensors: {sensor_number}")
 
-    print("Cost per device:", str(sensor_manager.get_sensor_cost()))
-    print("Total system cost:", str(sensor_manager.get_sensor_cost()*sensor_number))
+    print("Energy per device fro 1 year:", str(sensor_manager.get_used_power(TIME_TO_RUN)), "mAh")
+    print("Cost per device:", str(sensor_manager.get_sensor_cost(TIME_TO_RUN)))
+    print("Total system cost:", str(sensor_manager.get_sensor_cost(TIME_TO_RUN)*sensor_number))
 
 
     # after the simulation is done, visualize the co2 in the city
