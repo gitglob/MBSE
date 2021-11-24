@@ -15,8 +15,8 @@ import matplotlib.pyplot as plt
 
 # DEFAULT VALUES
 TIME_TO_RUN     = 3600*24 # 1 day
-SENSOR_DISTANCE = 30
-SENSOR_PERIOD   = 3600
+SENSOR_DISTANCE = 15
+SENSOR_PERIOD   = 7200
 SENSOR_STATIC   = True
 SAVE_PLOTS      = True
 DEBUG           = False
@@ -63,7 +63,9 @@ def main():
         if sec%86400 == 0:
             print("\nDate: ", date)
 
+
         # every 6 hours generate new positions for cars
+
         if sec%21600 == 0:
             debug("Hour: ", f.sec_to(sec, "hour")%24)
             current_time = f.calculate_tz(f.sec_to(sec, "hour")%24)
@@ -73,6 +75,7 @@ def main():
         # cars generate co2 every minute
         if sec % 60 == 0:
             f.generate_co2(cars, city, 60)
+            
 
         # every hour apply the wind effect and the trees effect
         if sec%3600 == 0:
@@ -131,13 +134,21 @@ def main():
         if sec % SENSOR_PERIOD == 0:
             debug("Taking gateway measurement...")
             measures = sensor_manager.gateway()
-            co2_per_sensor = np.sum(measures) / sensor_number
-            measured_values.append(co2_per_sensor/125)
-            co2_per_cell = f.calculate_co2(roads, emptys_0) / (len(roads+emptys_0))
-            real_values.append(co2_per_cell/125)
+            co2_per_sensor = np.sum(measures) / sensor_number          
+            measured_values.append(co2_per_sensor / 125)  
+            #We shouldn't calculate the co2 in the roads+emptys, because we are only measuring on the roads.
+            #You can't compare an apple with a pear
+            co2_per_cell = f.calculate_co2(roads, []) / (len(roads))
+            real_values.append(co2_per_cell / 125)
             if not SENSOR_STATIC:
                 debug("Moving sensors...")
                 sensor_manager.shuffle_sensors(roads)
+        elif sec % 3600 == 0:
+            #We have to store more values of the real co2 to capture a more realistic picture of the environment
+            measured_values.append(None)
+            co2_per_cell = f.calculate_co2(roads, []) / (len(roads))
+            real_values.append(co2_per_cell / 125)
+        
 
         if sec >= TIME_TO_RUN:
             print()
@@ -147,6 +158,19 @@ def main():
     # save a plot of co2 vs measured co2
     if SAVE_PLOTS:
         vis.visualize_co2_comparison(co2=real_values, co2_measured=measured_values, duration=TIME_TO_RUN, frequency=SENSOR_PERIOD)
+    # # calculate and print the total co2 in the city
+    # total_co2 = f.calculate_co2(roads)
+    # print("Total accumulated co2 in the city:", total_co2, "grams")
+    # total_measured_co2 = sensor_manager.get_total_co2()
+    # print("Total measured co2:", str(total_measured_co2), "grams")
+    
+    score = calculation.calculate_error(real_values, measured_values)
+    vis.visualize_accuracy(real_values, measured_values)
+    
+    #Save results in csv file
+    newline =  [str(sensor_manager.get_sensor_cost()*sensor_number), str(SENSOR_DISTANCE), str(SENSOR_STATIC), str(SENSOR_PERIOD), str(TIME_TO_RUN), str(round(score, 2))]
+    calculation.save_results(newline)
+
 
    
     # after the simulation is done, visualize the co2 in the city
