@@ -78,7 +78,7 @@ def main():
         # cars generate co2 every minute
         if sec % 600 == 0:
             f.generate_co2(cars, city, 600)
-            
+
 
         # every hour apply the wind effect and the trees effect
         if sec % 600 == 0:
@@ -150,18 +150,13 @@ def main():
             if not SENSOR_STATIC:
                 debug("Moving sensors...")
                 sensor_manager.shuffle_sensors(roads)
-        elif sec % 3600 == 0:
-            #We have to store more values of the real co2 to capture a more realistic picture of the environment
-            measured_values.append(None)
-            co2_per_cell = f.calculate_co2(roads, []) / (len(roads))
-            real_values.append(co2_per_cell / 125)
-        
+
 
         if sec >= TIME_TO_RUN:
             print()
             break
 
-    
+
     # save a plot of co2 vs measured co2
     if SAVE_PLOTS:
         vis.visualize_co2_comparison(co2=real_values, co2_measured=measured_values, duration=TIME_TO_RUN, frequency=SENSOR_PERIOD)
@@ -170,15 +165,15 @@ def main():
     # print("Total accumulated co2 in the city:", total_co2, "grams")
     # total_measured_co2 = sensor_manager.get_total_co2()
     # print("Total measured co2:", str(total_measured_co2), "grams")
-    
+
     score = calculation.calculate_error(real_values, measured_values)
-    
+
     #Save results in csv file
     newline =  [str(sensor_manager.get_sensor_cost()*sensor_number), str(SENSOR_DISTANCE), str(SENSOR_STATIC), str(SENSOR_PERIOD), str(TIME_TO_RUN), str(round(score, 2))]
     calculation.save_results(newline)
 
 
-   
+
     # after the simulation is done, visualize the co2 in the city
     vis.visualize_co2(city, mesh=True, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
     vis.visualize_accuracy(real_values, REAL_C02_PERIOD, measured_values, SENSOR_PERIOD)
@@ -187,14 +182,14 @@ def main():
     print("Total accumulated co2 in the city:", total_co2, "grams")
     total_measured_co2 = sensor_manager.get_total_co2()
     print("Total measured co2:", str(total_measured_co2), "grams")
-     
+
     score = calculation.calculate_error(real_values, measured_values)
     print(f"Root-Mean-Square Error: {round(score, 2)}")
     print(f"Sensors: {sensor_number}")
 
     print("Cost per device:", str(sensor_manager.get_sensor_cost()))
     print("Total system cost:", str(sensor_manager.get_sensor_cost()*sensor_number))
-    
+
     #Save results in csv file
     newline =  [str(sensor_manager.get_sensor_cost()*sensor_number), str(SENSOR_DISTANCE), str(SENSOR_STATIC), str(SENSOR_PERIOD), str(TIME_TO_RUN), str(round(score, 2))]
     calculation.save_results(newline)

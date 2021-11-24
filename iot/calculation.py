@@ -17,7 +17,7 @@ results_path = os.path.join("figures", "results", "results.csv")
 def calculate_error(real, measured):
     diff = (len(real)-1) / (len(measured)-1)
     interp_measured = np.interp(range(len(real)),
-            [x/diff for x in range(len(measured))],
+            [x*diff for x in range(len(measured))],
             measured)
 
     summ = 0
