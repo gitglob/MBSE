@@ -10,18 +10,22 @@ import csv
 from os.path import exists
 import pandas as pd
 from matplotlib import pyplot as plt
-from numpy import diff
 
 
 
-results_path = "..\\figures\\results\\results.csv"
+
+results_path = "figures\\results\\results.csv"
+
+
 
 
 #Calculating the Root-Mean-Square Error of the measurement vs real values
 def calculate_error(real, measured):
     summ = 0
+    measured_interpolated = pd.Series(measured).interpolate()
     for i in range(len(real)):
-        summ += pow(real[i] - measured[i], 2)
+        if not (measured_interpolated[i] == None):
+            summ += pow(real[i] - measured_interpolated[i], 2)
     error = math.sqrt(summ/len(real))
     return(error)
 

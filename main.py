@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 # DEFAULT VALUES
 TIME_TO_RUN     = 3600*24 # 1 day
 SENSOR_DISTANCE = 30
-SENSOR_PERIOD   = 3600
+SENSOR_PERIOD   = 7200
 SENSOR_STATIC   = True
 SAVE_PLOTS      = False
 DEBUG           = False
@@ -75,7 +75,7 @@ def main():
             debug("Date: ", date)
 
         # every hour generate new positions for cars
-        if sec%21600 == 0:#21600 == 0:
+        if sec%21600 == 0:
             debug("Hour: ", f.sec_to(sec, "hour")%24)
             current_time = f.calculate_tz(f.sec_to(sec, "hour")%24)
             cars = f.generate_cars(city, roads, time=current_time, max_cars=5000)
@@ -92,6 +92,7 @@ def main():
         # cars generate co2
         if sec % 60 == 0:
             f.generate_co2(cars, city, 60)
+            
 
         a3 = time.time()
 
@@ -143,12 +144,16 @@ def main():
             debug("Taking gateway measurement...")
             measures = sensor_manager.gateway()
             co2_per_sensor = np.sum(measures) / sensor_number
-            measured_values.append(co2_per_sensor)
+            measured_values.append(co2_per_sensor / 125)
             co2_per_cell = f.calculate_co2(roads) / (len(roads))            
-            real_values.append(co2_per_cell)
+            real_values.append(co2_per_cell / 125)
             if not SENSOR_STATIC:
                 debug("Moving sensors...")
                 sensor_manager.shuffle_sensors(roads)
+        elif sec % 3600 == 0:
+            measured_values.append(None)
+            co2_per_cell = f.calculate_co2(roads + emptys) / (len(roads + emptys))            
+            real_values.append(co2_per_cell / 125)
         
 
         a5 = time.time()
@@ -178,7 +183,6 @@ def main():
     #Save results in csv file
     newline =  [str(sensor_manager.get_sensor_cost()*sensor_number), str(SENSOR_DISTANCE), str(SENSOR_STATIC), str(SENSOR_PERIOD), str(TIME_TO_RUN), str(round(score, 2))]
     calculation.save_results(newline)
-    
 
 
     print(f"Root-Mean-Square Error: {round(score, 2)}")

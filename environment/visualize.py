@@ -5,6 +5,8 @@ from pylab import *
 import seaborn as sns
 import os
 import datetime
+import pandas as pd
+
 
 # Visualize 3d grid
 def visualize_3d_grid(city):
@@ -508,9 +510,11 @@ def visualize_rain_effect(city, date):
     plt.close()
     
     
-def visualize_accuracy (real, measured):
+def visualize_accuracy (real, measured):    
+    measured_interpolated = pd.Series(measured).interpolate()
+    
     plt.figure()
-    plt.plot(range(len(real)), real, measured)
+    plt.plot(range(len(real)), real, measured_interpolated)
     plt.legend(["Real", "Measured"])
     plt.ylabel("CO2 amount [g/m3]")
     plt.xlabel("Time [h]")
