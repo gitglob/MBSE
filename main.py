@@ -57,14 +57,14 @@ def main():
     if SAVE_PLOTS:
         os.makedirs(os.path.join('figures', 'co2_timeseries'), exist_ok=True)
     SENSOR_DISTANCE = int(app.sensors_distance)
-    SENSOR_PERIOD = int(app.sensors_period)
+    REAL_C02_PERIOD = int(app.sensors_period)
     SENSOR_STATIC = int(app.sensors_movement)
     DEBUG = app.debug
 
     if DEBUG:
         print("TIME TO RUN:", running_time_in_days,
               "\nSENSORS DISTANCE IN METERS:", SENSOR_DISTANCE,
-              "\nSENSORS SAMPLING PERIOD IN SECONDS", SENSOR_PERIOD,
+              "\nSENSORS SAMPLING PERIOD IN SECONDS", REAL_C02_PERIOD,
               "\nSAVE_PLOTS:", SAVE_PLOTS)
               
     
@@ -75,12 +75,12 @@ def main():
         print("Our city is a {} grid".format([len(city.grid3d), len(city.grid3d[0]),
             len(city.grid3d[0][0])]))
     
-        #vis.visualize_3d_grid(city)
+        vis.visualize_3d_grid(city)
     
         # extract the tree cells
         trees, roads, emptys, emptys_0 = pre.extract_trees_roads_empty_blocks(city)
     
-        sensor_manager = SensorManager(city, SENSOR_PERIOD)
+        sensor_manager = SensorManager(city, REAL_C02_PERIOD)
         sensor_manager.distribute_sensors(SENSOR_DISTANCE)
         sensor_number = sensor_manager.get_sensors_count()
         print("Placed " + str(sensor_number) + " sensors")
@@ -107,19 +107,22 @@ def main():
             if sec%86400 == 0:
                 print("\nDate: ", date)
     
+    
             # every 6 hours generate new positions for cars
+    
             if sec%21600 == 0:
-                debug("Hour: ", f.sec_to(sec, "hour")%24)
+               # debug("Hour: ", f.sec_to(sec, "hour")%24)
                 current_time = f.calculate_tz(f.sec_to(sec, "hour")%24)
                 cars = f.generate_cars(city, roads, time=current_time, max_cars=5000)
                 # vis.visualize_cars(city, cars)
     
             # cars generate co2 every minute
-            if sec % 60 == 0:
-                f.generate_co2(cars, city, 60)
+            if sec % 600 == 0:
+                f.generate_co2(cars, city, 600)
+    
     
             # every hour apply the wind effect and the trees effect
-            if sec%3600 == 0:
+            if sec % 600 == 0:
                 #every one hour visualize co2
                 if SAVE_PLOTS:
                     vis.visualize_co2(city, mesh=False, d=0, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
@@ -140,8 +143,8 @@ def main():
     
                 # convert wind_speed from km/h to m/s
                 wind_speed = float(wind_speed_km) * 1000 / 3600
-                debug('wind_speed: ', wind_speed, "(m/sec)")
-                debug('wind direction: ', wind_direction)
+                #debug('wind_speed: ', wind_speed, "(m/sec)")
+                #debug('wind direction: ', wind_direction)
     
                 # calculate wind effect
                 if SAVE_PLOTS:
@@ -171,55 +174,72 @@ def main():
             if sec % 60 == 0:
                 sensor_manager.measure(city, sec//60)
     
+    
+            if sec % REAL_C02_PERIOD == 0:
+                #We shouldn't calculate the co2 in the roads+emptys, because we are only measuring on the roads.
+                #You can't compare an apple with a pear
+                co2_per_cell = f.calculate_co2(roads, []) / (len(roads))
+                real_values.append(co2_per_cell / 125)
+    
+    
             #get a measure
-            if sec % SENSOR_PERIOD == 0:
-                debug("Taking gateway measurement...")
+            if sec % REAL_C02_PERIOD == 0:
+               # debug("Taking gateway measurement...")
                 measures = sensor_manager.gateway()
                 co2_per_sensor = np.sum(measures) / sensor_number
-                measured_values.append(co2_per_sensor / 125)
-                co2_per_cell = f.calculate_co2(roads, emptys_0) / (len(roads+emptys_0))          
-                real_values.append(co2_per_cell / 125)
+                measured_values.append(co2_per_sensor/125)
                 if not SENSOR_STATIC:
-                    debug("Moving sensors...")
+                    print("Moving sensors...")
                     sensor_manager.shuffle_sensors(roads)
+    
     
             if sec >= TIME_TO_RUN:
                 print()
                 break
-        
+    
+    
         # save a plot of co2 vs measured co2
         if SAVE_PLOTS:
-            vis.visualize_co2_comparison(co2=real_values, co2_measured=measured_values, duration=TIME_TO_RUN, frequency=SENSOR_PERIOD)
+            vis.visualize_co2_comparison(co2=real_values, co2_measured=measured_values, duration=TIME_TO_RUN, frequency=REAL_C02_PERIOD)
+        # # calculate and print the total co2 in the city
+        # total_co2 = f.calculate_co2(roads)
+        # print("Total accumulated co2 in the city:", total_co2, "grams")
+        # total_measured_co2 = sensor_manager.get_total_co2()
+        # print("Total measured co2:", str(total_measured_co2), "grams")
     
-        
+        score = calculation.calculate_error(real_values, measured_values)
+    
+        #Save results in csv file
+        newline =  [str(sensor_manager.get_sensor_cost()*sensor_number), str(SENSOR_DISTANCE), str(SENSOR_STATIC), str(REAL_C02_PERIOD), str(TIME_TO_RUN), str(round(score, 2))]
+        calculation.save_results(newline)
+    
+    
     
         # after the simulation is done, visualize the co2 in the city
         vis.visualize_co2(city, mesh=True, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
-        vis.visualize_accuracy(real_values, measured_values)
-    
+        vis.visualize_accuracy(real_values, REAL_C02_PERIOD, measured_values, REAL_C02_PERIOD)
         # calculate and print the total co2 in the city
         total_co2 = f.calculate_co2(roads, emptys)
         print("Total accumulated co2 in the city:", total_co2, "grams")
         total_measured_co2 = sensor_manager.get_total_co2()
         print("Total measured co2:", str(total_measured_co2), "grams")
-            
+    
         score = calculation.calculate_error(real_values, measured_values)
         print(f"Root-Mean-Square Error: {round(score, 2)}")
         print(f"Sensors: {sensor_number}")
-        
+    
         print("Cost per device:", str(sensor_manager.get_sensor_cost()))
-        print("Total system cost:", str(sensor_manager.get_sensor_cost()*sensor_number),"Euros")
-       
-        
+        print("Total system cost:", str(sensor_manager.get_sensor_cost()*sensor_number))
+    
         #Save results in csv file
-        newline =  [str(sensor_manager.get_sensor_cost()*sensor_number), str(SENSOR_DISTANCE), str(SENSOR_STATIC), str(SENSOR_PERIOD), str(TIME_TO_RUN), str(round(score, 2))]
+        newline =  [str(sensor_manager.get_sensor_cost()*sensor_number), str(SENSOR_DISTANCE), str(SENSOR_STATIC), str(REAL_C02_PERIOD), str(TIME_TO_RUN), str(round(score, 2))]
         calculation.save_results(newline)
-
+    
         # after the simulation is done, visualize the co2 in the city
         vis.visualize_co2(city, mesh=True, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
         calculation.evaluate()
-    
-       
+        
+           
 
 
 if __name__ == "__main__":
