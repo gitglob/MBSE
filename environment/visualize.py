@@ -510,10 +510,10 @@ def visualize_rain_effect(city, date):
     plt.close()
     
     
-def visualize_accuracy (real, measured):    
-    measured_interpolated = pd.Series(measured).interpolate()    
+def visualize_accuracy (real, real_period, measured, sensor_period):
     plt.figure()
-    plt.plot(range(len(real)), real, measured_interpolated)
+    plt.plot([x*real_period/3600 for x in range(len(real))], real, "-")
+    plt.plot([x*sensor_period/3600 for x in range(len(measured))], measured, "-")
     plt.legend(["Real", "Measured"])
     plt.ylabel("CO2 amount [g/m3]")
     plt.xlabel("Time [h]")
