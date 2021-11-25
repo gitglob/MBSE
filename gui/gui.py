@@ -39,7 +39,7 @@ class GUI:
         self.sensors_distance = 15
         self.sensors_period = 3600
         self.sensors_movement = True  # True = 'static'
-        self.save_plots = True
+        self.save_plots = False
         self.debug = False
         self.frame.pack()
 
@@ -94,7 +94,7 @@ class GUI:
 
         button2 = tk.Button(
             self.parameters, text="Set the Sensors Sampling Period in Secs", command=self.set_sensors_period)
-        button2.grid(row=6, column=1, sticky="ne", padx=5, pady=5)
+        button2.grid(row=6, column=1, sticky="e", padx=5, pady=5)
 
         #%%     SENSORS DISTANCE
 
@@ -104,7 +104,7 @@ class GUI:
 
         button2 = tk.Button(
             self.parameters, text="Set the Distance of the Sensors in Meters", command=self.set_sensors_distance)
-        button2.grid(row=7, column=1, sticky="ne", padx=5, pady=5)
+        button2.grid(row=7, column=1, sticky="e", padx=5, pady=5)
 
         parameters.mainloop()
 

@@ -4,6 +4,7 @@ This is the main file, that executes the core loop of our simulation.
 import sys
 import csv
 import os
+import pandas as pd
 from random import randint
 import math
 import environment.preprocessing as pre
@@ -63,7 +64,7 @@ def main():
 
     results_path = "figures\\results\\results.csv"
     folders = ['co2_comparison', 'co2_diffusion', 'co2_normalized_acc', 'co2_rain_effect',
-               'co2_timeseries', 'co2_trees_effect', 'co2_wind_effect', 'co2_3d','results']
+               'co2_timeseries', 'co2_trees_effect', 'co2_wind_effect', 'co2_3d', 'run_data' 'results']
     try:
         os.mkdir("figures")
     except FileExistsError:
