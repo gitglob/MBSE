@@ -119,13 +119,15 @@ def calculate_wind_speed(month, secs):
         num_secs -> the number of seconds that this wind speed will apply for, before moving to the next row of the table, which corresponds to a different wind speed
     """
     print("Calculating wind speed...")
-    secs = secs % 2628000
+    secs = secs % (60*60*24*30)
     month_name = match_month(month)
     col = wind_month_day_df[month_name]
     
     # calculate the wind speed 
+    pre_sum = 0 # the amount of seconds that have passed from all the previous rows in a column
     for i, num_days in enumerate(col[:-1]): 
-        num_secs = num_days * 86400
+        num_secs = (num_days * 60*60*24) + pre_sum
+        pre_sum += num_secs
         if secs < num_secs:
             wind_speed = wind_month_day_df['Wind Speed (km/h)'][i]
 
