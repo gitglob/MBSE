@@ -157,7 +157,7 @@ def main():
                 # apply dispersion
                 if SAVE_PLOTS:
                     vis.visualize_diffusion(city, date)
-                f.apply_diffusion_effect(city, roads, emptys)
+                f.apply_diffusion_effect(city, roads, emptys, 600)
                 if SAVE_PLOTS:
                     vis.visualize_diffusion(city, date)
 

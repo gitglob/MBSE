@@ -5,8 +5,8 @@ import tkinter as tk
 ''' DEFAULT VALUES FOR THE SIMULATION
 
 TIME_TO_RUN     = 3600*24*1 # 1 day
-SENSOR_DISTANCE = 15 # 15 meters => 3 blocks
-SENSOR_PERIOD   = 3600 # every 1 hour
+SENSOR_DISTANCE = 0 # 15 meters => 3 blocks
+SENSOR_PERIOD   = 600 # seconds (5mins)
 SENSOR_STATIC   = True
 SAVE_PLOTS      = True
 DEBUG           = False
@@ -36,8 +36,8 @@ class GUI:
             605, 645, window=self.quitButton)
 
         self.days = 1
-        self.sensors_distance = 15
-        self.sensors_period = 3600
+        self.sensors_distance = 0
+        self.sensors_period = 300
         self.sensors_movement = True  # True = 'static'
         self.save_plots = False
         self.debug = False
