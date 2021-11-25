@@ -16,8 +16,8 @@ import pandas as pd
 
 # DEFAULT VALUES
 TIME_TO_RUN     = 3600*24 # 1 day
-SENSOR_DISTANCE = 15
-SENSOR_PERIOD   = 3600
+SENSOR_DISTANCE = 0
+SENSOR_PERIOD   = 600
 SENSOR_STATIC   = True
 SAVE_PLOTS      = True
 DEBUG           = False
@@ -99,7 +99,7 @@ def main():
             # apply dispersion
             if SAVE_PLOTS:
                 vis.visualize_diffusion(city, date)
-            f.apply_diffusion_effect(city, roads, emptys)
+            f.apply_diffusion_effect(city, roads, emptys, 600)
             if SAVE_PLOTS:
                 vis.visualize_diffusion(city, date)
 
@@ -208,6 +208,7 @@ def main():
     #calculation.evaluate()
 
 
+
 parser = argparse.ArgumentParser(description='CO2 Monitoring simulator.')
 parser.add_argument('-d', '--days', type=float, default=TIME_TO_RUN/3600/24,
         help='Number of days to run.')
@@ -237,7 +238,7 @@ if __name__ == "__main__":
     if SAVE_PLOTS:
         folders = [
             'co2_comparison', 'co2_diffusion', 'co2_normalized_acc', 'co2_rain_effect', 'co2_timeseries', 'co2_3d', 
-            'co2_trees_effect', 'co2_trees_effect_augmented', 'co2_wind_effect', 'results'
+            'co2_trees_effect', 'co2_wind_effect', 'results'
         ]
         for folder in folders:
             os.makedirs(os.path.join('figures', f'{folder}'), exist_ok=True)

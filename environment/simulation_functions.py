@@ -407,7 +407,7 @@ def match_direction(city, d, cell):
     return retval
 
 # Applying diffusion effect: The CO2 spreads vertically and horizontally
-def apply_diffusion_effect(city, roads, emptys):
+def apply_diffusion_effect(city, roads, emptys, time):
     print("Applying diffusion...")
     for cell in roads+emptys:
         if cell.co2>0:
@@ -425,7 +425,7 @@ def apply_diffusion_effect(city, roads, emptys):
             
             # iterate over free adjacent cells
             for free_cell in free_cells_not_below:
-                flow = flow_calc(cell.co2/len(free_cells_not_below), free_cell.co2)
+                flow = flow_calc(cell.co2/len(free_cells_not_below), free_cell.co2, time)
                 free_cell.stash_co2(flow)
                 cell.stash_co2(-flow)
 
@@ -609,12 +609,12 @@ def sec_to(sec, x):
         minute = sec // 60
         return minute
 
-# calculating the mass flow of CO2 between blocks (per hour)
-def flow_calc(source, target):
+# calculating the mass flow of CO2 between blocks 
+def flow_calc(source, target, time):
     diffrate = 1.6e-5
     area = 25
     distance = 5
-    flow = diffrate*((source-target)/distance)*area*3600
+    flow = diffrate*((source-target)/distance)*area*time
     return flow
 
 # calculate time zone (1,2,3,4) based on the current hour
