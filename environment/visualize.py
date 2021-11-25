@@ -180,7 +180,10 @@ def visualize_co2(city, mesh=False, d = 3, wind_direction=None, wind_speed=0, da
         ax.set_zlabel('Z-axis')
 
         # displaying plot
-        plt.show()
+        # plt.show()
+        now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        plt.savefig(os.path.join('figures', 'co2_3d', f'{now}.png'))
+        plt.close()
 
     # 2d visualization
     else:

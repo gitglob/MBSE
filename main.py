@@ -94,6 +94,7 @@ def main():
             #every one hour visualize co2
             if SAVE_PLOTS:
                 vis.visualize_co2(city, mesh=False, d=0, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
+                vis.visualize_co2(city, mesh=False, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
 
             # apply dispersion
             if SAVE_PLOTS:
@@ -144,9 +145,8 @@ def main():
 
 
         if sec % REAL_C02_PERIOD == 0:
-            #We shouldn't calculate the co2 in the roads+emptys, because we are only measuring on the roads.
-            #You can't compare an apple with a pear
-            co2_per_cell = f.calculate_co2(roads, []) / (len(roads))
+            # We calculate co2 in the entire 0 floor of the city, that means both the roads and the empty space
+            co2_per_cell = f.calculate_co2(roads, emptys_0) / (len(roads + emptys_0))
             real_values.append(co2_per_cell / 125)
 
 
@@ -156,7 +156,7 @@ def main():
             measures = sensor_manager.gateway()
             co2_per_sensor = np.sum(measures) / sensor_number
             measured_values.append(co2_per_sensor/125)
-            real_co2_per_cell = f.calculate_co2(roads, []) / (len(roads))
+            real_co2_per_cell = f.calculate_co2(roads, emptys_0) / (len(roads + emptys_0))
             data['measured_co2/cell'].append(co2_per_sensor)
             data['real_co2/cell'].append(real_co2_per_cell)
             data['timeframe'].append(SENSOR_PERIOD)
@@ -236,7 +236,7 @@ if __name__ == "__main__":
     #create needed folders
     if SAVE_PLOTS:
         folders = [
-            'co2_comparison', 'co2_diffusion', 'co2_normalized_acc', 'co2_rain_effect', 'co2_timeseries',
+            'co2_comparison', 'co2_diffusion', 'co2_normalized_acc', 'co2_rain_effect', 'co2_timeseries', 'co2_3d', 
             'co2_trees_effect', 'co2_trees_effect_augmented', 'co2_wind_effect', 'results'
         ]
         for folder in folders:
