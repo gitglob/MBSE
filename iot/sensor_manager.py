@@ -19,7 +19,7 @@ class SensorManager:
         valid_pos = np.ones(shape=(self.city.rows, self.city.cols))
         for i in range(self.city.rows):
             for j in range(self.city.cols):
-                if (self.city.city_model[i][j][0] == self.city.ROAD and valid_pos[i][j] == 1):
+                if ((self.city.city_model[i][j][0] == self.city.ROAD or self.city.city_model[i][j][0] == self.city.NOTHING) and valid_pos[i][j] == 1):
                     self.add_sensor(i, j, 0)
                     #mark positions around as invalid
                     bottom_x = max(0, j-distance-1)
