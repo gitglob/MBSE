@@ -5,6 +5,8 @@ from pylab import *
 import seaborn as sns
 import os
 import datetime
+import pandas as pd
+
 
 # Visualize 3d grid
 def visualize_3d_grid(city):
@@ -178,7 +180,10 @@ def visualize_co2(city, mesh=False, d = 3, wind_direction=None, wind_speed=0, da
         ax.set_zlabel('Z-axis')
 
         # displaying plot
-        plt.show()
+        # plt.show()
+        now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        plt.savefig(os.path.join('figures', 'co2_3d', f'{now}.png'))
+        plt.close()
 
     # 2d visualization
     else:
@@ -508,9 +513,10 @@ def visualize_rain_effect(city, date):
     plt.close()
     
     
-def visualize_accuracy (real, measured):
+def visualize_accuracy (real, real_period, measured, sensor_period):
     plt.figure()
-    plt.plot(range(len(real)), real, measured)
+    plt.plot([x*real_period/3600 for x in range(len(real))], real, "-")
+    plt.plot([x*sensor_period/3600 for x in range(len(measured))], measured, "-")
     plt.legend(["Real", "Measured"])
     plt.ylabel("CO2 amount [g/m3]")
     plt.xlabel("Time [h]")

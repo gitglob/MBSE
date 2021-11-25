@@ -17,19 +17,19 @@ from gui.gui import GUI
 import tkinter as tk
 
 
-results_path = "figures\\results\\results.csv"
-folders = ['co2_comparison', 'co2_diffusion', 'co2_normalized_acc', 'co2_rain_effect',
-           'co2_timeseries', 'co2_trees_effect', 'co2_wind_effect', 'results']
-try:
-    os.mkdir("figures")
-except FileExistsError:
-    pass
+# results_path = "figures/results/results.csv"
+# folders = ['co2_comparison', 'co2_diffusion', 'co2_normalized_acc', 'co2_rain_effect',
+#            'co2_timeseries', 'co2_trees_effect', 'co2_wind_effect',  'results']
+# try:
+#     os.mkdir("figures")
+# except FileExistsError:
+#     pass
 
-for folder in folders:
-    try:
-        os.mkdir("figures\\" + folder)
-    except FileExistsError:
-        pass
+# for folder in folders:
+#     try:
+#         os.mkdir("figures\\" + folder)
+#     except FileExistsError:
+#         pass
 
 
 #%%
@@ -57,13 +57,13 @@ def main():
     running_time_in_days = int(app.days)
     SAVE_PLOTS = app.save_plots
     SENSOR_DISTANCE = int(app.sensors_distance)
-    REAL_C02_PERIOD = int(app.sensors_period)
+    SENSOR_PERIOD = int(app.sensors_period)
     SENSOR_STATIC = int(app.sensors_movement)
     DEBUG = app.debug
 
     results_path = "figures\\results\\results.csv"
     folders = ['co2_comparison', 'co2_diffusion', 'co2_normalized_acc', 'co2_rain_effect',
-               'co2_timeseries', 'co2_trees_effect', 'co2_wind_effect', 'results']
+               'co2_timeseries', 'co2_trees_effect', 'co2_wind_effect', 'co2_3d','results']
     try:
         os.mkdir("figures")
     except FileExistsError:
@@ -79,7 +79,7 @@ def main():
     if DEBUG:
         print("TIME TO RUN:", running_time_in_days,
               "\nSENSORS DISTANCE IN METERS:", SENSOR_DISTANCE,
-              "\nSENSORS SAMPLING PERIOD IN SECONDS", REAL_C02_PERIOD,
+              "\nSENSORS SAMPLING PERIOD IN SECONDS", SENSOR_PERIOD,
               "\nSAVE_PLOTS:", SAVE_PLOTS)
 
     TIME_TO_RUN = running_time_in_days * 3600 * 24
@@ -205,7 +205,7 @@ def main():
             if sec % 60 == 0:
                 sensor_manager.measure(city, sec // 60)
 
-            if sec % REAL_C02_PERIOD == 0:
+            if sec % SENSOR_PERIOD == 0:
                 # We calculate co2 in the entire 0 floor of the city, that means both the roads and the empty space
                 co2_per_cell = f.calculate_co2(
                     roads, emptys_0) / (len(roads + emptys_0))
@@ -251,7 +251,7 @@ def main():
         # after the simulation is done, visualize the co2 in the city
         vis.visualize_co2(
             city, mesh=True, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
-        vis.visualize_accuracy(real_values, REAL_C02_PERIOD,
+        vis.visualize_accuracy(real_values, SENSOR_PERIOD,
                                measured_values, SENSOR_PERIOD)
         # calculate and print the total co2 in the city
         total_co2 = f.calculate_co2(roads, emptys)

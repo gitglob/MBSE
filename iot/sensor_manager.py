@@ -2,9 +2,9 @@ import numpy as np
 import random
 
 from .device import Device
-from .battery import BatteryList
+from .battery import BatteryList, get_best_battery
 from .network import Network, NetworkList
-from .sensor import Sensor
+from .sensor import SensorList
 from .processor import ProcessorList
 
 class SensorManager:
@@ -39,9 +39,8 @@ class SensorManager:
         return False
 
     def add_sensor(self, x, y, z):
-        sensor = Sensor(0.10, 1, 1.5, 0.5)
-        device = Device(sensor, NetworkList.LORA, BatteryList.INFINITE,
-                ProcessorList.ESP32, len(self.devices), self.period)
+        device = Device(SensorList.SCD4, NetworkList.LORA, len(self.devices),
+                self.period)
 
         device.set_position(x, y, z)
         self.devices.append(device)
@@ -69,5 +68,11 @@ class SensorManager:
     def get_total_co2(self):
         return np.sum(self.measure_history[-1])
     
-    def get_sensor_cost(self):
-        return self.devices[0].get_total_cost()
+    def get_sensor_cost(self, runtime):
+        name, battery = get_best_battery(self.get_used_power(runtime))
+        print("Battery", name)
+        return self.devices[0].get_total_cost() + battery.cost
+
+    def get_used_power(self, runtime):
+        used_power = self.devices[0].get_used_power() * 3600*24*365 / runtime
+        return used_power

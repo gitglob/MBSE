@@ -33,7 +33,7 @@ def save_results(newline):
     if exists(results_path) == False:
         with open(results_path, "a+", newline = "") as file:
             writer = csv.writer(file, delimiter = ";")
-            writer.writerow(["Cost", "Sensor distance",	"Static", "Sampling time", "Simulation time", "Error"])
+            writer.writerow(["Cost", "Sensor distance","Number of sensors", "Static", "Sampling time", "Simulation time", "Error"])
             writer.writerow(newline)
     else:
         with open(results_path, "a+", newline = "") as file:
@@ -42,7 +42,7 @@ def save_results(newline):
             
 #Evaluation of Root-Mean-Square Error against Total system cost
 def evaluate():
-    cost = []
+    number = []
     error = []
     # error10 = []
     # error30 = []
@@ -52,8 +52,8 @@ def evaluate():
     df = pd.read_csv(results_path, delimiter=';')
     rows = [tuple(x) for x in df.values]
     for i in rows:
-        cost.append(i[0])
-        error.append(i[5])
+        number.append(i[2])
+        error.append(i[6])
         
         #Let's decide on dedicated sampling rates!
         
@@ -81,15 +81,14 @@ def evaluate():
         
     #Plotting cost vs error
     plt.figure()
-    plt.plot(cost, error, 'ro')
+    plt.plot(number, error, 'ro')
     # plt.plot(cost, error10, 'ro')
     # plt.plot(cost, error30, 'bo')
     # plt.plot(cost, error60, 'go')
     # plt.plot(cost, error120, 'yo')
     
     plt.ylabel("Root-Mean-Square Error")
-    plt.xlabel("Total system cost [€]")
-    plt.title("Static")
+    plt.xlabel("Number of sensors")
     #plt.legend(["10 minutes", "30 minutes", "60 minutes", "120 minutes"])
     plt.show()
     
@@ -102,7 +101,7 @@ def accuracy_per_cost():
     rows = [tuple(x) for x in df.values]
     for i in rows:
         cost.append(i[0])
-        error.append(-i[5])
+        error.append(-i[6])
     
     #Normalize error
     acc_norm = []
