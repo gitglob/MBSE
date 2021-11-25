@@ -18,27 +18,6 @@ from gui.gui import GUI
 import tkinter as tk
 
 
-# results_path = "figures/results/results.csv"
-# folders = ['co2_comparison', 'co2_diffusion', 'co2_normalized_acc', 'co2_rain_effect',
-#            'co2_timeseries', 'co2_trees_effect', 'co2_wind_effect',  'results']
-# try:
-#     os.mkdir("figures")
-# except FileExistsError:
-#     pass
-
-# for folder in folders:
-#     try:
-#         os.mkdir("figures\\" + folder)
-#     except FileExistsError:
-#         pass
-
-
-#%%
-def debug(*args):
-    if DEBUG:
-        print(*args)
-
-
 def main():
     #%% GUI
     root = tk.Tk()
