@@ -217,10 +217,13 @@ def main():
                 co2=real_values, co2_measured=measured_values, duration=TIME_TO_RUN, frequency=SENSOR_PERIOD)
 
         score = calculation.calculate_error(real_values, measured_values)
+        accuracy = calculation.accuracy(real_values, measured_values)
+        print("Average accuracy = ", accuracy*100, "%")
 
         # Save results in csv file
-        newline = [str(sensor_manager.get_sensor_cost(TIME_TO_RUN) * sensor_number), str(SENSOR_DISTANCE),
-                   str(sensor_number), str(SENSOR_STATIC), str(SENSOR_PERIOD), str(TIME_TO_RUN), str(round(score, 4))]
+        newline =  [str(sensor_manager.get_sensor_cost(TIME_TO_RUN)*sensor_number), str(SENSOR_DISTANCE), 
+                    str(sensor_number), str(SENSOR_STATIC), str(SENSOR_PERIOD), str(TIME_TO_RUN), str(round(score, 4)), str(round(accuracy, 4))]
+        
         calculation.save_results(newline)
 
         # save data for simulation
