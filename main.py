@@ -46,7 +46,7 @@ def main():
     print("Placed " + str(sensor_number) + " sensors")
 
     # visualiza the sensor placement
-    vis.visualize_sensor(city, sensor_manager.devices)
+    vis.visualize_sensor(city, sensor_manager.devices, SENSOR_STATIC, SENSOR_PERIOD, SENSOR_DISTANCE)
 
     # run the simulation - Note: Every iteration is 1 second
     sec = -1
@@ -238,7 +238,7 @@ if __name__ == "__main__":
     if SAVE_PLOTS:
         folders = [
             'co2_comparison', 'co2_diffusion', 'co2_normalized_acc', 'co2_rain_effect', 'co2_timeseries', 'co2_3d', 
-            'co2_trees_effect', 'co2_wind_effect', 'results'
+            'co2_trees_effect', 'co2_wind_effect', 'results', 'city_model', 'sensor_placement'
         ]
         for folder in folders:
             os.makedirs(os.path.join('figures', f'{folder}'), exist_ok=True)
