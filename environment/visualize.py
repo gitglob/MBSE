@@ -53,7 +53,9 @@ def visualize_3d_grid(city):
     ax.scatter(x3, y3, z3, s=0.5, c='blue', alpha=1)
     ax.scatter(x4, y4, z4, s=0.5, c='white', alpha=1)
     plt.title("3d CITY MODEL \n\nBlue: buildings \nGreen: trees \nRed: roads \n White: empty (air)")
+    plt.savefig(os.path.join('figures', 'city_model', 'city_3d_model.png'))
     plt.show()
+
 
 # Visualize cards
 def visualize_cars(city, cars):
@@ -247,7 +249,7 @@ def visualize_co2(city, mesh=False, d = 3, wind_direction=None, wind_speed=0, da
         plt.savefig(os.path.join('figures', 'co2_timeseries', f'{now}.png'))
         plt.close()
 
-def visualize_sensor(city, sensors):
+def visualize_sensor(city, sensors, static, T, d):
     # creating figures
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(111)
@@ -284,15 +286,17 @@ def visualize_sensor(city, sensors):
     ax.scatter(s_x, s_y, s=4, marker='o', c='#a10000', alpha=1)
 
     # adding title and labels
-    ax.set_title("City 2d Sensor location")
+    if static:
+        placement = "static"
+    else:
+        placement = "dynamic"
+    ax.set_title(f"City 2d Sensor location (ground floor, sensors marked as red dots) \n\n Sensor placement: {placement} \nSensor period: {T} sec \nSensor distance: {d} m")
     ax.set_xlabel('X-axis')
     ax.set_ylabel('Y-axis')
 
     # displaying plot
+    plt.savefig(os.path.join('figures', 'sensor_placement', 'sensor_placement.png'))
     plt.show()
-    #now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-    #plt.savefig(os.path.join('figures', 'co2_timeseries', f'{now}.png'))
-    #plt.close()
 
 def visualize_co2_measures(values):
     print("Visualizing real co2...")
@@ -517,10 +521,12 @@ def visualize_accuracy (real, real_period, measured, sensor_period):
     plt.figure()
     plt.plot([x*real_period/3600 for x in range(len(real))], real, "-")
     plt.plot([x*sensor_period/3600 for x in range(len(measured))], measured, "-")
-    plt.legend(["Real", "Measured"])
-    plt.ylabel("CO2 amount [g/m3]")
-    plt.xlabel("Time [h]")
-    plt.title("CO2 level in the city")
+    plt.legend(["Real", "Measured"], fontsize = 30)
+    plt.ylabel("CO2 amount [g/m3]", fontsize = 30)
+    plt.xlabel("Time [h]", fontsize = 30)
+    plt.title("CO2 level in the city", fontsize = 30)
+    plt.xticks(fontsize = 30)
+    plt.yticks(fontsize = 30)
     plt.show()
 
 def visualize_diffusion(city, date):
