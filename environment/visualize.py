@@ -521,10 +521,12 @@ def visualize_accuracy (real, real_period, measured, sensor_period):
     plt.figure()
     plt.plot([x*real_period/3600 for x in range(len(real))], real, "-")
     plt.plot([x*sensor_period/3600 for x in range(len(measured))], measured, "-")
-    plt.legend(["Real", "Measured"])
-    plt.ylabel("CO2 amount [g/m3]")
-    plt.xlabel("Time [h]")
-    plt.title("CO2 level in the city")
+    plt.legend(["Real", "Measured"], fontsize = 30)
+    plt.ylabel("CO2 amount [g/m3]", fontsize = 30)
+    plt.xlabel("Time [h]", fontsize = 30)
+    plt.title("CO2 level in the city", fontsize = 30)
+    plt.xticks(fontsize = 30)
+    plt.yticks(fontsize = 30)
     plt.show()
 
 def visualize_diffusion(city, date):

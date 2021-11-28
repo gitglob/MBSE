@@ -425,7 +425,7 @@ def apply_diffusion_effect(city, roads, emptys, time):
             
             # iterate over free adjacent cells
             for free_cell in free_cells_not_below:
-                flow = flow_calc(cell.co2/len(free_cells_not_below), free_cell.co2, time)
+                flow = flow_calc(cell.co2, free_cell.co2, time)/len(free_cells_not_below)
                 free_cell.stash_co2(flow)
                 cell.stash_co2(-flow)
 

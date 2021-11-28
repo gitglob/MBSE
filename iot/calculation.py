@@ -15,6 +15,7 @@ results_path = os.path.join("figures", "results", "results.csv")
 
 #Calculating the Root-Mean-Square Error of the measurement vs real values
 def calculate_error(real, measured):
+    #Interpolating the samples
     diff = (len(real)-1) / (len(measured)-1)
     interp_measured = np.interp(range(len(real)),
             [x*diff for x in range(len(measured))],
@@ -33,7 +34,7 @@ def save_results(newline):
     if exists(results_path) == False:
         with open(results_path, "a+", newline = "") as file:
             writer = csv.writer(file, delimiter = ";")
-            writer.writerow(["Cost", "Sensor distance","Number of sensors", "Static", "Sampling time", "Simulation time", "Error"])
+            writer.writerow(["Cost", "Sensor distance","Number of sensors", "Static", "Sampling time", "Simulation time", "Error", "Accuracy"])
             writer.writerow(newline)
     else:
         with open(results_path, "a+", newline = "") as file:
@@ -91,8 +92,27 @@ def evaluate():
     plt.xlabel("Number of sensors")
     #plt.legend(["10 minutes", "30 minutes", "60 minutes", "120 minutes"])
     plt.show()
+      
+def accuracy(real, measured):
+    values = []
+    values_norm = []
+    
+    #Interpolate the samples
+    diff = (len(real)-1) / (len(measured)-1)
+    interp_measured = np.interp(range(len(real)),
+            [x*diff for x in range(len(measured))],
+            measured)
     
     
+    #Calculating accuracy
+    for i in range(len(interp_measured)):
+        if (real[i] > 0):
+            acc = 1 - abs(real[i] - interp_measured[i])/real[i]
+            values.append(acc)
+            
+    
+    accuracy = sum(values)/len(values)
+    return(accuracy)
     
 def accuracy_per_cost():
     cost = []
@@ -124,7 +144,14 @@ def accuracy_per_cost():
     
     print("Highest value: ", max(added_value), " at the price of: ", cost[added_value.index(max(added_value))])
     
+
     
+# real = [1, 1, 1, 2]
+# mes = [1, 1.9, 1.9, 2]
+# print(accuracy(real, mes))
+# plt.plot(range(len(real)), real)
+# plt.plot(range(len(mes)), mes)
+# plt.show()
 #evaluate()
 #accuracy_per_cost()
         
