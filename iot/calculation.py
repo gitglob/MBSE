@@ -45,6 +45,7 @@ def save_results(newline):
 def evaluate():
     number = []
     error = []
+    accuracy = []
     # error10 = []
     # error30 = []
     # error60 = []
@@ -55,6 +56,7 @@ def evaluate():
     for i in rows:
         number.append(i[2])
         error.append(i[6])
+        accuracy.append(i[7])
         
         #Let's decide on dedicated sampling rates!
         
@@ -82,20 +84,20 @@ def evaluate():
         
     #Plotting cost vs error
     plt.figure()
-    plt.plot(number, error, 'ro')
+    plt.plot(number, accuracy, 'ro')
     # plt.plot(cost, error10, 'ro')
     # plt.plot(cost, error30, 'bo')
     # plt.plot(cost, error60, 'go')
     # plt.plot(cost, error120, 'yo')
     
-    plt.ylabel("Root-Mean-Square Error")
+    plt.ylabel("Accuracy")
+    #plt.ylabel("Root-Mean-Square Error")
     plt.xlabel("Number of sensors")
     #plt.legend(["10 minutes", "30 minutes", "60 minutes", "120 minutes"])
     plt.show()
       
 def accuracy(real, measured):
     values = []
-    values_norm = []
     
     #Interpolate the samples
     diff = (len(real)-1) / (len(measured)-1)
@@ -152,7 +154,7 @@ def accuracy_per_cost():
 # plt.plot(range(len(real)), real)
 # plt.plot(range(len(mes)), mes)
 # plt.show()
-#evaluate()
+evaluate()
 #accuracy_per_cost()
         
 
