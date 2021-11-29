@@ -16,8 +16,8 @@ import pandas as pd
 
 # DEFAULT VALUES
 TIME_TO_RUN     = 3600*24 # 1 day
-SENSOR_DISTANCE = 8
-SENSOR_PERIOD   = 3600
+SENSOR_DISTANCE = 15
+SENSOR_PERIOD   = 900
 SENSOR_STATIC   = True
 SAVE_PLOTS      = False
 DEBUG           = False
