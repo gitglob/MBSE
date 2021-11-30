@@ -36,8 +36,8 @@ class GUI:
             605, 645, window=self.quitButton)
 
         self.days = 1
-        self.sensors_distance = 0
-        self.sensors_period = 300
+        self.sensors_distance = 15
+        self.sensors_period = 900
         self.sensors_movement = True  # True = 'static'
         self.save_plots = False
         self.debug = False
