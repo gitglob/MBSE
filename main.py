@@ -51,6 +51,7 @@ def main():
     # run the simulation - Note: Every iteration is 1 second
     sec = -1
     wind_speed_duration = 0
+    wind_speed_km = 0
     wind_speed = 0
     wind_direction = None
     score_values = []
@@ -75,9 +76,21 @@ def main():
         if sec%86400 == 0:
             print("\nDate: ", date)
 
+        # calculate wind speed
+        if wind_speed_duration == 0 or sec%wind_speed_duration == 0:
+            wind_speed_km, wind_speed_duration = f.calculate_wind_speed(f.sec_to(sec, "month")%12 + 1, sec)
+            debug("\t\t\tWIND SPEED :: ", wind_speed_km)
+            debug(f"\t\t\tfor ...  {wind_speed_duration} secs ({wind_speed_duration/60/60} hours)")
+
+            # calculate wind direction
+            wind_direction = f.calculate_wind_directions(wind_speed_km)
+
+            # convert wind_speed from km/h to m/s
+            wind_speed = float(wind_speed_km) * 1000 / 3600
+            debug('wind_speed: ', wind_speed, "(m/sec)")
+            debug('wind direction: ', wind_direction)
 
         # every 6 hours generate new positions for cars
-
         if sec%21600 == 0:
             debug("Hour: ", f.sec_to(sec, "hour")%24)
             current_time = f.calculate_tz(f.sec_to(sec, "hour")%24)
@@ -88,9 +101,10 @@ def main():
         if sec % 600 == 0:
             f.generate_co2(cars, city, 600)
 
-
-        # every hour apply the wind effect and the trees effect
+        # every 10 mins apply the wind effect and the trees effect
         if sec % 600 == 0:
+            debug(date)
+
             #every one hour visualize co2
             if SAVE_PLOTS:
                 vis.visualize_co2(city, mesh=False, d=0, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
@@ -102,18 +116,6 @@ def main():
             f.apply_diffusion_effect(city, roads, emptys, 600)
             if SAVE_PLOTS:
                 vis.visualize_diffusion(city, date)
-
-            # calculate wind speed
-            if wind_speed_duration == 0 or sec%wind_speed_duration == 0:
-                wind_speed_km, wind_speed_duration = f.calculate_wind_speed(f.sec_to(sec, "month")%12 + 1, sec)
-
-            # calculate wind direction
-            wind_direction = f.calculate_wind_directions(wind_speed_km)
-
-            # convert wind_speed from km/h to m/s
-            wind_speed = float(wind_speed_km) * 1000 / 3600
-            debug('wind_speed: ', wind_speed, "(m/sec)")
-            debug('wind direction: ', wind_direction)
 
             # calculate wind effect
             if SAVE_PLOTS:
@@ -234,17 +236,16 @@ if __name__ == "__main__":
     SENSOR_DISTANCE = args.sensor_distance
     SENSOR_PERIOD = args.sensor_period
     SENSOR_STATIC = bool(args.sensor_movement == "static")
-    #SAVE_PLOTS = args.save_plots
-    SAVE_PLOTS = False
+    SAVE_PLOTS = args.save_plots
+    #SAVE_PLOTS = False
 
     #create needed folders
-    if SAVE_PLOTS:
-        folders = [
-            'co2_comparison', 'co2_diffusion', 'co2_normalized_acc', 'co2_rain_effect', 'co2_timeseries', 'co2_3d', 
-            'co2_trees_effect', 'co2_wind_effect', 'results', 'city_model', 'sensor_placement'
-        ]
-        for folder in folders:
-            os.makedirs(os.path.join('figures', f'{folder}'), exist_ok=True)
+    folders = [
+        'co2_comparison', 'co2_diffusion', 'co2_normalized_acc', 'co2_rain_effect', 'co2_timeseries', 'co2_3d', 
+        'co2_trees_effect', 'co2_wind_effect', 'results', 'city_model', 'sensor_placement'
+    ]
+    for folder in folders:
+        os.makedirs(os.path.join('figures', f'{folder}'), exist_ok=True)
 
     os.makedirs(os.path.join('figures', 'run_data'), exist_ok=True)
     main()
