@@ -203,8 +203,8 @@ def main():
     print(f"Sensors: {sensor_number}")
 
     print("Energy per device fro 1 year:", str(sensor_manager.get_used_power(TIME_TO_RUN)), "mAh")
-    print("Cost per device:", str(sensor_manager.get_sensor_cost(TIME_TO_RUN)))
-    print("Total system cost:", str(sensor_manager.get_sensor_cost(TIME_TO_RUN)*sensor_number))
+    print("Cost per device:", str(sensor_manager.get_sensor_cost(TIME_TO_RUN)), " [€]")
+    print("Total system cost:", str(sensor_manager.get_sensor_cost(TIME_TO_RUN)*sensor_number), " [€]")
 
 
     # after the simulation is done, visualize the co2 in the city
