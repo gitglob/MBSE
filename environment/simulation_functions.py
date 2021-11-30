@@ -17,13 +17,11 @@ wind_directions_distribution_df = pd.read_csv(dir_path + os.path.sep+'wind_direc
 def generate_cars(city, roads, time, max_cars):
     """
     Function that generates cars on roads based on the time of the date and the zones specified.
-
     Input: 
         1. cells of city
         2. roads
         3. time of the day
         4. maximum number of cars
-
     Output: List of car objects that were generated. 
     """
     city_size = city.rows
@@ -110,7 +108,6 @@ def calculate_co2(roads, emptys):
 def calculate_wind_speed(month, secs):
     """
     Function that calculates the wind speed of a city based on the month and the amount of time that has passed in that month.
-
     Input:
         month -> integer inside [1, 12]
         secs -> amount of seconds that have passed in that month [0, 2.592.000]
@@ -121,18 +118,22 @@ def calculate_wind_speed(month, secs):
     print("Calculating wind speed...")
     secs = secs % (60*60*24*30)
     month_name = match_month(month)
-    col = wind_month_day_df[month_name]
+    col = wind_month_day_df[month_name][:-1]
     
     # calculate the wind speed 
-    pre_sum = 0 # the amount of seconds that have passed from all the previous rows in a column
-    for i, num_days in enumerate(col[:-1]): 
-        num_secs = (num_days * 60*60*24) + pre_sum
-        pre_sum += num_secs
-        if secs < num_secs:
+    for i, num_days in enumerate(col):
+        if i>0:
+            pre_days = col[i-1]
+        else:
+            pre_days = 0
+        pre_secs = pre_days * 60*60*24
+        num_secs = num_days * 60*60*24
+        if pre_secs <= secs and secs < num_secs:
             wind_speed = wind_month_day_df['Wind Speed (km/h)'][i]
+            wind_speed_duration = num_secs
 
     #print("We have {} (km/h) wind speed for {} seconds ({} days).".format(wind_speed, num_secs, num_days))
-    return wind_speed, num_secs
+    return wind_speed, wind_speed_duration
 
 # calculate the wind direction
 def calculate_wind_directions(wind_speed):
@@ -142,7 +143,6 @@ def calculate_wind_directions(wind_speed):
     west -> i-
     north -> j+
     south -> j-
-
     Input:
         wind_speed -> wind speed in km/h
     Output:
@@ -167,7 +167,6 @@ def calculate_wind_directions(wind_speed):
 def match_month(m):
     """
     Function to match integer to the corresponding month.
-
     Input:
         m -> Integer, corresponds to month [1,12].
     Output:
@@ -202,7 +201,6 @@ def match_month(m):
 def apply_wind_effect(city, roads, emptys, direction, speed):
     """
     Function that applies the effect of wind to the co2 inside a 3d city model.
-
     Input:
         city -> the 3d grid of the model of our city as a 3d list with objects of grid_cell inside
         direction -> the wind direction ('w', 'wnw', 'nw', 'nnw', 'n', 'nne', 'ne', 'ene', 'e', 'ese',	'se', 'sse', 's', 'ssw', 'sw', 'wsw')
@@ -278,7 +276,6 @@ def apply_wind_effect(city, roads, emptys, direction, speed):
 def find_closest_free_cells(cell, adj_cells):
     """
     Function that finds the closest free grid cell to the current one based on euclidean distance.
-
     Input:
         cell -> 1d integer list of current cell index ([i, j, k])
         adj_cells -> list with adjacent cells
@@ -306,7 +303,6 @@ def find_closest_free_cells(cell, adj_cells):
 def match_direction(city, d, cell):
     """
     Function to match wind direction (east, west, north, south) to a adjacent cell
-
     input:
         city -> 3d grid of city
         d -> direction of wind ('w', 'wnw', 'nw', 'nnw', 'n', 'nne', 'ne', 'ene', 'e', 'ese',	'se', 'sse', 's', 'ssw', 'sw', 'wsw')
@@ -437,7 +433,6 @@ def apply_diffusion_effect(city, roads, emptys, time):
 def apply_trees_effect(city, trees):
     """
     Function that applies the effect that trees have to co2.
-
     Input:
         city -> the 3d grid of the model of our city as a 3d list with objects of grid_cell inside
     Output:
@@ -564,7 +559,6 @@ def find_free_adj_cells(city, cell, d):
 def rain(city):
     """ 
     Function that simulates rain and makes all the CO2 accumulate in the bottom layer of the city.
-
     Input: City cells
     """
 
