@@ -189,7 +189,7 @@ def main():
 
     # after the simulation is done, visualize the co2 in the city
     vis.visualize_co2(city, mesh=False, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
-    vis.visualize_accuracy(real_values, REAL_C02_PERIOD, measured_values, SENSOR_PERIOD)
+    vis.visualize_accuracy(real_values, REAL_C02_PERIOD, measured_values, SENSOR_PERIOD, sensing_times)
 
     # calculate and print the total co2 in the city
     total_co2 = f.calculate_co2(roads, emptys)
@@ -204,12 +204,6 @@ def main():
     print("Energy per device fro 1 year:", str(sensor_manager.get_used_power(TIME_TO_RUN)), "mAh")
     print("Cost per device:", str(sensor_manager.get_sensor_cost(TIME_TO_RUN)), " [€]")
     print("Total system cost:", str(sensor_manager.get_sensor_cost(TIME_TO_RUN)*sensor_number), " [€]")
-
-
-    # after the simulation is done, visualize the co2 in the city
-    vis.visualize_co2(city, mesh=True, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
-    #calculation.evaluate()
-
 
 
 parser = argparse.ArgumentParser(description='CO2 Monitoring simulator.')
