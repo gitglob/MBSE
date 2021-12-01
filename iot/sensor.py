@@ -19,4 +19,4 @@ class Sensor:
         return result
 
 class SensorList:
-    SCD4 = Sensor(0.05, 7, 9.72e-6)
+    SCD4 = Sensor(0.05, 7, 9.72e-3)
