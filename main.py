@@ -228,7 +228,13 @@ if __name__ == "__main__":
     SENSOR_STATIC = bool(args.sensor_movement == "static")
     SAVE_PLOTS = args.save_plots
 
-    if SAVE_PLOTS:
-        os.makedirs(os.path.join('figures', 'co2_timeseries'), exist_ok=True)
+    #create needed folders
+    folders = [
+        'co2_comparison', 'co2_diffusion', 'co2_normalized_acc', 'co2_rain_effect', 'co2_timeseries', 'co2_3d', 
+        'co2_trees_effect', 'co2_wind_effect', 'results', 'city_model', 'sensor_placement'
+    ]
+    for folder in folders:
+        os.makedirs(os.path.join('figures', f'{folder}'), exist_ok=True)
 
+    os.makedirs(os.path.join('figures', 'run_data'), exist_ok=True)
     main()
