@@ -20,7 +20,7 @@ SENSOR_STATIC   = True
 SAVE_PLOTS      = False
 DEBUG           = False
 
-results_path = "figures\\results\\results.csv"
+results_path = os.path.join("figures", "results", "results.csv")
 
 # Not configurable
 REAL_C02_PERIOD = 600 # 5 min (must be <= the environment period)
