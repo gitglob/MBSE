@@ -69,8 +69,20 @@ def main():
         if sec%86400 == 0:
             print("\nDate: ", date)
 
+        # calculate wind speed
+        if wind_speed_duration == 0 or sec%wind_speed_duration == 0:
+            wind_speed_km, wind_speed_duration = f.calculate_wind_speed(f.sec_to(sec, "month")%12 + 1, sec)
+
+        # calculate wind direction
+        wind_direction = f.calculate_wind_directions(wind_speed_km)
+
+        # convert wind_speed from km/h to m/s
+        wind_speed = float(wind_speed_km) * 1000 / 3600
+        debug('wind_speed: ', wind_speed, "(m/sec)")
+        debug('wind direction: ', wind_direction)
+
         # every 6 hours generate new positions for cars
-        if sec%21600 == 0:
+        if sec%CAR_PERIOD== 0:
             debug("Hour: ", f.sec_to(sec, "hour")%24)
             current_time = f.calculate_tz(f.sec_to(sec, "hour")%24)
             cars = f.generate_cars(city, roads, time=current_time, max_cars=5000)
@@ -81,7 +93,7 @@ def main():
             f.generate_co2(cars, city, 60)
 
         # every hour apply the wind effect and the trees effect
-        if sec%3600 == 0:
+        if sec%ENVIRONMENT_PERIOD == 0:
             #every one hour visualize co2
             if SAVE_PLOTS:
                 vis.visualize_co2(city, mesh=False, d=0, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
@@ -89,21 +101,9 @@ def main():
             # apply dispersion
             if SAVE_PLOTS:
                 vis.visualize_diffusion(city, date)
-            f.apply_diffusion_effect(city, roads, emptys)
+            f.apply_diffusion_effect(city, roads, emptys, ENVIRONMENT_PERIOD)
             if SAVE_PLOTS:
                 vis.visualize_diffusion(city, date)
-
-            # calculate wind speed
-            if wind_speed_duration == 0 or sec%wind_speed_duration == 0:
-                wind_speed_km, wind_speed_duration = f.calculate_wind_speed(f.sec_to(sec, "month")%12 + 1, sec)
-
-            # calculate wind direction
-            wind_direction = f.calculate_wind_directions(wind_speed_km)
-
-            # convert wind_speed from km/h to m/s
-            wind_speed = float(wind_speed_km) * 1000 / 3600
-            debug('wind_speed: ', wind_speed, "(m/sec)")
-            debug('wind direction: ', wind_direction)
 
             # calculate wind effect
             if SAVE_PLOTS:
@@ -141,7 +141,7 @@ def main():
 
 
         # get a measurement
-        if sec % SENSOR_PERIOD == 0 and rain_flag:
+        if sec % SENSOR_PERIOD == 0:
             print("Taking gateway measurement...\n")
             sensing_times.append(sec)
             measures = sensor_manager.gateway()

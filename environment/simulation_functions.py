@@ -405,7 +405,7 @@ def match_direction(city, d, cell):
     return retval
 
 # Applying diffusion effect: The CO2 spreads vertically and horizontally
-def apply_diffusion_effect(city, roads, emptys):
+def apply_diffusion_effect(city, roads, emptys, dt):
     print("Applying diffusion...")
     for cell in roads+emptys:
         if cell.co2>0:
@@ -420,7 +420,7 @@ def apply_diffusion_effect(city, roads, emptys):
 
             # the co2 that goes out of grid gets lost
             #print(f"\t cell {[cell.x, cell.y, cell.z]} total co2: {cell.co2}")
-            lost_co2_per_cell = flow_calc(cell.co2, 0, time)
+            lost_co2_per_cell = flow_calc(cell.co2, 0, dt)
             total_lost_co2 = lost_co2_per_cell*num_OOG_cells
             #print(f"\t lost {total_lost_co2} co2 to #{num_OOG_cells} OOG cells")
             available_co2 = cell.co2 - total_lost_co2
@@ -435,7 +435,7 @@ def apply_diffusion_effect(city, roads, emptys):
             # iterate over free adjacent cells
             passed_co2 = 0
             for free_cell in free_cells_not_below:
-                flow = flow_calc(available_co2, free_cell.co2, time)
+                flow = flow_calc(available_co2, free_cell.co2, dt)
                 free_cell.stash_co2(flow)
                 cell.stash_co2(-flow)
                 #print(f"\t\t{flow} co2 goes from cell {[cell.x, cell.y, cell.z]} -> cell {free_cell.x, free_cell.y, free_cell.z}")
