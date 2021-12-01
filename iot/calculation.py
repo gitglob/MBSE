@@ -1,17 +1,15 @@
+import os
+import math
+import csv
+from os.path import exists
+import pandas as pd
+from matplotlib import pyplot as plt
+from numpy import diff
+import numpy as np
 
-from numpy.lib.type_check import real
 
+results_path = os.path.join("figures", "results", "results.csv")
 
-def calculate_accuracy(score_values, real_values):
-    score = 0
-    real_normalized = []
-    for s in score_values:
-        score += s
-    score = score * 100 / len(score_values)
-    real_min = min(real_values)
-    real_max = max(real_values)
-    for r in real_values:
-        real_normalized.append((r - real_min) / (real_max - real_min))
 
 
 #Calculating the Root-Mean-Square Error of the measurement vs real values
@@ -76,7 +74,6 @@ def accuracy(real, measured):
     values = []
     
     #Interpolate the samples
-    print(f"Real length: {len(real)} vs Measured length: {len(measured)}")
     diff = (len(real)-1) / (len(measured)-1)
     interp_measured = np.interp(range(len(real)),
             [x*diff for x in range(len(measured))],
