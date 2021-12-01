@@ -62,8 +62,16 @@ def main():
     measured_values = []
     sensing_times = []
     total_co2 = 0
-    print("Running simulation for {} days (this might take a while) ... \n\n".format(TIME_TO_RUN/3600/24))
 
+    # data for dataframe
+    data = {
+        'measured_co2/cell': [],
+        'real_co2/cell': [],
+        'timeframe': [],
+        'sec': []
+    }
+
+    print("Running simulation for {} days (this might take a while) ... \n\n".format(TIME_TO_RUN/3600/24))
     while True:
         sec += 1
 
