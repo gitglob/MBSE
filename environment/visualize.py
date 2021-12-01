@@ -66,52 +66,42 @@ def visualize_cars(city, cars, date):
     y3 = []
     y4 = []
     y5 = []
-    z1 = []
-    z2 = []
-    z3 = []
-    z4 = []
-    z5 = []
 
     car_pos = []
     for car in cars:
         x5.append(car.x)
         y5.append(car.y)
-        z5.append(car.z)
-        car_pos.append([car.x, car.y, car.z])
+        car_pos.append([car.x, car.y])
 
+    k = 0
     for i in range(city.rows):
         for j in range(city.cols):
-            for k in range(city.height):
-                if city.grid3d[i][j][k].contains == "empty":
-                    x4.append(i)
-                    y4.append(j)
-                    z4.append(k)
-                elif city.grid3d[i][j][k].contains == "building":
-                    x3.append(i)
-                    y3.append(j)
-                    z3.append(k)
-                elif city.grid3d[i][j][k].contains == "tree":
-                    x2.append(i)
-                    y2.append(j)
-                    z2.append(k)
-                else:
-                    if [i, j, k] not in car_pos:
-                        x1.append(i)
-                        y1.append(j)
-                        z1.append(k)
+            if city.grid3d[i][j][k].contains == "empty":
+                x4.append(i)
+                y4.append(j)
+            elif city.grid3d[i][j][k].contains == "building":
+                x3.append(i)
+                y3.append(j)
+            elif city.grid3d[i][j][k].contains == "tree":
+                x2.append(i)
+                y2.append(j)
+            else:
+                if [i, j] not in car_pos:
+                    x1.append(i)
+                    y1.append(j)
 
     plt.rcParams["figure.figsize"] = [10, 10]
     plt.rcParams["figure.autolayout"] = True
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    ax.scatter(x1, y1, z1, c='red', s=0.5, alpha=1)
-    ax.scatter(x2, y2, z2, c='green', s=0.5, alpha=1)
-    ax.scatter(x3, y3, z3, c='blue', s=0.5, alpha=1)
-    ax.scatter(x4, y4, z4, c='white', s=0.5, alpha=1)
-    ax.scatter(x5, y5, z5, c='black', s=0.75, alpha=1)
+    ax = fig.add_subplot(111)
+    ax.scatter(x1, y1, c='red', s=0.8, alpha=1)
+    ax.scatter(x2, y2, c='green', s=0.8, alpha=1)
+    ax.scatter(x3, y3, c='blue', s=0.8, alpha=1)
+    ax.scatter(x4, y4, c='white', s=0.8, alpha=1)
+    ax.scatter(x5, y5, c='black', s=3, alpha=1)
     
     # adding title and labels
-    ax.set_title(date + "\n\nCar positions on the city ground floor.")
+    ax.set_title(date + "\n\nCar positions on the city ground floor. \n\nBlue: buildings \nGreen: trees \nRed: roads \n White: empty (air) \n Black: cars")
     ax.set_xlabel('X-axis')
     ax.set_ylabel('Y-axis')
 
@@ -517,10 +507,10 @@ def visualize_rain_effect(city, date):
     plt.savefig(os.path.join('figures', 'co2_rain_effect', f'{now}.png'))
     plt.close()
     
-def visualize_accuracy (real, real_period, measured, sensor_period, sensing_times):
+def visualize_accuracy (real, real_period, measured, sensor_period):
     plt.figure()
     plt.plot([x*real_period/3600 for x in range(len(real))], real, "-o")
-    plt.plot([x/3600 for x in sensing_times], measured, "-o")
+    plt.plot([x*sensor_period/3600 for x in range(len(measured))], measured, "-o")
     plt.legend(["Real", "Measured"], fontsize = 30)
     plt.ylabel("CO2 amount [g/m3]", fontsize = 30)
     plt.xlabel("Time [h]", fontsize = 30)

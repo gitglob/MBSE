@@ -220,13 +220,15 @@ def apply_wind_effect(city, roads, emptys, direction, speed):
             # check if the current cell has co2
             if cell.co2 > 0:
                 # find how many and which adjacent grid cells are free for the current cell
-                num_adj_cells, adj_cells, OOG_cells_id = find_free_adj_cells(city, cell, "2d")
+                num_adj_cells, adj_cells, OOG_adj_cells_id = find_free_adj_cells(city, cell, "2d")
 
                 # find which cells the wind flows towards
-                flow_cells, num_OOG_flow_cells  = match_direction(city, direction, cell)
+                flow_cells, num_OOG_flow_cells = match_direction(city, direction, cell)
+                num_flow_cells = len(flow_cells)
 
                 # the co2 that goes out of grid gets lost
-                cell.co2 = cell.co2 * (num_adj_cells / (num_adj_cells + num_OOG_flow_cells))
+                if num_OOG_flow_cells > 0:
+                    cell.co2 = cell.co2 * (num_flow_cells) / (num_flow_cells + num_OOG_flow_cells)
 
                 # check if the wind flows to 1 cell
                 if len(flow_cells) == 1:
@@ -273,7 +275,7 @@ def apply_wind_effect(city, roads, emptys, direction, speed):
 
         # iterate over the empty cells of the city (these are the only ones that can hold co2)
         for cell in roads+emptys:
-            if cell.stashed_co2>0:
+            if cell.stashed_co2!=0:
                 cell.merge_stashed_co2()
             
 # find the closest free cells

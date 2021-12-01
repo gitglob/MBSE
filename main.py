@@ -14,9 +14,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # DEFAULT VALUES
-TIME_TO_RUN     = 3600*24*3 # 1 day
-SENSOR_DISTANCE = 8 # 30 meters => 6 blocks
-SENSOR_PERIOD   = 600 # every 30 minutes
+TIME_TO_RUN     = 3600*24*3 # seconds (1 day)
+SENSOR_DISTANCE = 8 # blocks
+SENSOR_PERIOD   = 900 # seconds
 SENSOR_STATIC   = True
 SAVE_PLOTS      = False
 DEBUG           = False
@@ -33,6 +33,8 @@ def debug(*args):
         print(*args)
 
 def main():
+    print(f"Running simmulation with: \n\tDuration: {args.days} [days] \n\tSensor period: {SENSOR_PERIOD} [sec] \n\tSensor distance: {SENSOR_DISTANCE} [blocks].\n")
+
     city = Grid()
     print("Our city is a {} grid".format([len(city.grid3d), len(city.grid3d[0]),
         len(city.grid3d[0][0])]))
@@ -47,9 +49,9 @@ def main():
     print("Placed " + str(sensor_number) + " sensors")
 
     # visualize the city
-    vis.visualize_3d_grid(city)
+    #vis.visualize_3d_grid(city)
     # visualize the sensor placement
-    vis.visualize_sensor(city, sensor_manager.devices)
+    #vis.visualize_sensor(city, sensor_manager.devices)
 
     # run the simulation - Note: Every iteration is 1 second
     sec = -1
@@ -61,6 +63,7 @@ def main():
     measured_values = []
     sensing_times = []
     total_co2 = 0
+    rain_flag = False
 
     # data for dataframe
     data = {
@@ -127,14 +130,14 @@ def main():
             # apply trees effect
             if SAVE_PLOTS:
                 vis.visualize_trees_effect(city, date)
-            f.apply_trees_effect(city, trees)
+            #f.apply_trees_effect(city, trees)
             if SAVE_PLOTS:
                 vis.visualize_trees_effect(city, date)
 
             # calculate rain effect
             if SAVE_PLOTS:
                 vis.visualize_rain_effect(city, date)
-            rain_flag = f.rain(city)
+            #rain_flag = f.rain(city)
             if SAVE_PLOTS and rain_flag:
                 vis.visualize_rain_effect(city, date)
 
@@ -188,7 +191,7 @@ def main():
 
     # after the simulation is done, visualize the co2 in the city
     vis.visualize_co2(city, mesh=False, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
-    vis.visualize_accuracy(real_values, REAL_C02_PERIOD, measured_values, SENSOR_PERIOD, sensing_times)
+    vis.visualize_accuracy(real_values, REAL_C02_PERIOD, measured_values, SENSOR_PERIOD)
 
     # calculate and print the total co2 in the city
     total_co2 = f.calculate_co2(roads, emptys)
@@ -234,7 +237,7 @@ if __name__ == "__main__":
     #create needed folders
     folders = [
         'co2_comparison', 'co2_diffusion', 'co2_normalized_acc', 'co2_rain_effect', 'co2_timeseries', 'co2_3d', 
-        'co2_trees_effect', 'co2_wind_effect', 'results', 'city_model', 'sensor_placement'
+        'co2_trees_effect', 'co2_wind_effect', 'results', 'city_model', 'sensor_placement', 'results', 'car_positions'
     ]
     for folder in folders:
         os.makedirs(os.path.join('figures', f'{folder}'), exist_ok=True)
