@@ -15,8 +15,8 @@ import pandas as pd
 
 # DEFAULT VALUES
 TIME_TO_RUN     = 3600*24*3 # 1 day
-SENSOR_DISTANCE = 30 # 30 meters => 6 blocks
-SENSOR_PERIOD   = 1800 # every 30 minutes
+SENSOR_DISTANCE = 8 # 30 meters => 6 blocks
+SENSOR_PERIOD   = 600 # every 30 minutes
 SENSOR_STATIC   = True
 SAVE_PLOTS      = False
 DEBUG           = False
@@ -85,7 +85,8 @@ def main():
             debug("Hour: ", f.sec_to(sec, "hour")%24)
             current_time = f.calculate_tz(f.sec_to(sec, "hour")%24)
             cars = f.generate_cars(city, roads, time=current_time, max_cars=5000)
-            # vis.visualize_cars(city, cars)
+            if SAVE_PLOTS:
+                vis.visualize_cars(city, cars, date=date)
 
         # cars generate co2 every minute
         if sec % 60 == 0:

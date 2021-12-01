@@ -54,7 +54,7 @@ def visualize_3d_grid(city):
     plt.show()
 
 # Visualize cards
-def visualize_cars(city, cars):
+def visualize_cars(city, cars, date):
     print("Visualizing cars...")
     x1 = []
     x2 = []
@@ -109,7 +109,17 @@ def visualize_cars(city, cars):
     ax.scatter(x3, y3, z3, c='blue', s=0.5, alpha=1)
     ax.scatter(x4, y4, z4, c='white', s=0.5, alpha=1)
     ax.scatter(x5, y5, z5, c='black', s=0.75, alpha=1)
-    plt.show()
+    
+    # adding title and labels
+    ax.set_title(date + "\n\nCar positions on the city ground floor.")
+    ax.set_xlabel('X-axis')
+    ax.set_ylabel('Y-axis')
+
+    # displaying plot
+    # plt.show()
+    now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+    plt.savefig(os.path.join('figures', 'car_positions', f'{now}.png'))
+    plt.close()
 
 # Visualize CO2 levels in 3d grid or just one floor (d=[0,1,2] -> show this floor, d=3 -> show a 3d visualization)
 def visualize_co2(city, mesh=False, d = 3, wind_direction=None, wind_speed=0, date=None):
