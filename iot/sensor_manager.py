@@ -7,6 +7,7 @@ from .battery import BatteryList, get_best_battery
 from .network import Network, NetworkList
 from .sensor import SensorList
 from .processor import ProcessorList
+random.seed(10)
 
 class SensorManager:
     def __init__(self, city, period):

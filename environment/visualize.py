@@ -507,9 +507,11 @@ def visualize_rain_effect(city, date):
     plt.savefig(os.path.join('figures', 'co2_rain_effect', f'{now}.png'))
     plt.close()
     
-def visualize_accuracy (real, real_period, measured, sensor_period):
+def visualize_accuracy (real, measured, sensor_period):
+    measured = interpolate(real, measured)
+
     plt.figure()
-    plt.plot([x*real_period/3600 for x in range(len(real))], real, "-o")
+    plt.plot([x*sensor_period/3600 for x in range(len(real))], real, "-o")
     plt.plot([x*sensor_period/3600 for x in range(len(measured))], measured, "-o")
     plt.legend(["Real", "Measured"], fontsize = 30)
     plt.ylabel("CO2 amount [g/m3]", fontsize = 30)
@@ -587,6 +589,19 @@ def visualize_diffusion(city, date):
     plt.close()
 
 def visualize_co2_comparison(co2, co2_measured, duration, frequency):
+    # replace measured values with average measured values every 10 points
+    avg_measured = []
+    sum_ = 0
+    count = 0
+    for i, x in enumerate(co2_measured):
+        sum_ += x
+        count += 1
+        if i%10 == 0 or i == len(co2_measured)-1:
+            avg_measured.append(sum_/count)
+            sum_ = 0
+            count = 0
+
+    co2_measured = avg_measured
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(111)
 
@@ -622,3 +637,11 @@ def visualize_norm_co2(score_values, real_normalized, duration, frequency):
     now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
     plt.savefig(os.path.join('figures', 'co2_normalized_acc', f'{now}.png'))
     plt.close()
+
+def interpolate(real, measured):
+    diff = (len(real)-1) / (len(measured)-1)
+    interp_measured =np.interp(range(len(real)),
+            [x*diff for x in range(len(measured))],
+            measured)
+
+    return interp_measured

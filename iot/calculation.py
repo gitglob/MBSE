@@ -7,18 +7,12 @@ from matplotlib import pyplot as plt
 from numpy import diff
 import numpy as np
 
-
 results_path = os.path.join("figures", "results", "results.csv")
 
-
-
-#Calculating the Root-Mean-Square Error of the measurement vs real values
+# Calculating the Root-Mean-Square Error of the measurement vs real values
 def calculate_error(real, measured):
-    #Interpolating the samples
-    diff = (len(real)-1) / (len(measured)-1)
-    interp_measured = np.interp(range(len(real)),
-            [x*diff for x in range(len(measured))],
-            measured)
+    # Interpolating the samples
+    interp_measured = interpolate(real, measured)
 
     summ = 0
     for i in range(len(real)):
@@ -26,9 +20,21 @@ def calculate_error(real, measured):
     error = math.sqrt(summ/len(real))
     return(error)
 
+def accuracy(real, measured):
+    values = []
 
+    # Interpolate the samples
+    interp_measured = interpolate(real, measured)
+    
+    # Calculating accuracy
+    for i in range(len(interp_measured)):
+        acc = 1 - abs(real[i] - interp_measured[i])/real[i]
+        values.append(acc)
+    
+    accuracy = sum(values)/len(values)
+    return(accuracy)
 
-#Save results in csv file
+# Save results in csv file
 def save_results(newline):    
     if exists(results_path) == False:
         with open(results_path, "a+", newline = "") as file:
@@ -51,9 +57,6 @@ def evaluate():
         number.append(i[2])
         accuracy.append(round(i[7], 3)*100)
         
-
-       
-        
     #Plotting accuracy vs error
     plt.figure()
     plt.scatter(number, accuracy, s = 300)
@@ -69,26 +72,6 @@ def evaluate():
     plt.xticks(fontsize = 30)
     plt.yticks(fontsize = 30)
     plt.show()
-      
-def accuracy(real, measured):
-    values = []
-    
-    #Interpolate the samples
-    diff = (len(real)-1) / (len(measured)-1)
-    interp_measured = np.interp(range(len(real)),
-            [x*diff for x in range(len(measured))],
-            measured)
-    
-    
-    #Calculating accuracy
-    for i in range(len(interp_measured)):
-        if (real[i] > 0):
-            acc = 1 - abs(real[i] - interp_measured[i])/real[i]
-            values.append(acc)
-            
-    
-    accuracy = sum(values)/len(values)
-    return(accuracy)
     
 def accuracy_per_cost():
     cost = []
@@ -120,16 +103,34 @@ def accuracy_per_cost():
     
     print("Highest value: ", max(added_value), " at the price of: ", cost[added_value.index(max(added_value))])
     
-
-    
-# real = [1, 1, 1, 2]
-# mes = [1, 1.9, 1.9, 2]
-# print(accuracy(real, mes))
-# plt.plot(range(len(real)), real)
-# plt.plot(range(len(mes)), mes)
-# plt.show()
-#evaluate()
-#accuracy_per_cost()
+    # real = [1, 1, 1, 2]
+    # mes = [1, 1.9, 1.9, 2]
+    # print(accuracy(real, mes))
+    # plt.plot(range(len(real)), real)
+    # plt.plot(range(len(mes)), mes)
+    # plt.show()
+    #evaluate()
+    #accuracy_per_cost()
         
-
+def remove_outliers(measured, n):
+    # replace measured values with average measured values every 10 points
+    avg_measured = []
+    sum_ = 0
+    count = 0
+    for i, x in enumerate(measured):
+        sum_ += x
+        count += 1
+        if i%n == 0 or i == len(measured)-1:
+            avg_measured.append(sum_/count)
+            sum_ = 0
+            count = 0
         
+    return avg_measured
+
+def interpolate(real, measured):
+    diff = (len(real)-1) / (len(measured)-1)
+    interp_measured =np.interp(range(len(real)),
+            [x*diff for x in range(len(measured))],
+            measured)
+
+    return interp_measured

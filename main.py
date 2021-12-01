@@ -24,7 +24,6 @@ DEBUG           = False
 results_path = os.path.join("figures", "results", "results.csv")
 
 # Not configurable
-REAL_C02_PERIOD = 600 # 5 min (must be <= the environment period)
 ENVIRONMENT_PERIOD = 600 # 10 mins
 CAR_PERIOD = 21600 # 6 hours
 
@@ -33,7 +32,7 @@ def debug(*args):
         print(*args)
 
 def main():
-    print(f"Running simmulation with: \n\tDuration: {args.days} [days] \n\tSensor period: {SENSOR_PERIOD} [sec] \n\tSensor distance: {SENSOR_DISTANCE} [blocks].\n")
+    print(f"Running simmulation with: \n\tDuration: {args.days} [days] \n\tSensor period: {SENSOR_PERIOD} [sec] \n\tSensor distance: {SENSOR_DISTANCE} [blocks]\n")
 
     city = Grid()
     print("Our city is a {} grid".format([len(city.grid3d), len(city.grid3d[0]),
@@ -90,10 +89,6 @@ def main():
             if SAVE_PLOTS:
                 vis.visualize_cars(city, cars, date=date)
 
-        # cars generate co2 every minute
-        if sec % 60 == 0:
-            f.generate_co2(cars, city, 60)
-
         if sec%ENVIRONMENT_PERIOD == 0:
             # calculate wind speed
             if wind_speed_duration == 0 or sec%wind_speed_duration == 0:
@@ -109,6 +104,9 @@ def main():
             
         # every hour apply the wind effect and the trees effect
         if sec%ENVIRONMENT_PERIOD == 0:
+            # cars generate co2
+            f.generate_co2(cars, city, ENVIRONMENT_PERIOD)
+
             #every one hour visualize co2
             if SAVE_PLOTS:
                 vis.visualize_co2(city, mesh=False, d=0, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
@@ -148,22 +146,20 @@ def main():
         if sec % 60 == 0:
             sensor_manager.measure(city, sec//60)
 
-        # calculate the real co2 per cell, as well as co2 per m^3
-        if sec % REAL_C02_PERIOD == 0:
-            # We calculate co2 in the entire 0 floor of the city, that means both the roads and the empty space
-            co2_per_cell = f.calculate_co2(roads, emptys_0) / (len(roads + emptys_0))
-            real_values.append(co2_per_cell / 125)
-
         # get a measurement
         if sec % SENSOR_PERIOD == 0:
             debug("Taking gateway measurement...")
             sensing_times.append(sec)
             measures = sensor_manager.gateway()
+
             co2_per_sensor = np.sum(measures) / sensor_number
             measured_values.append(co2_per_sensor/125)
-            real_co2_per_cell = f.calculate_co2(roads, emptys_0) / (len(roads + emptys_0))
+
+            co2_per_cell = f.calculate_co2(roads, emptys_0) / (len(roads + emptys_0))
+            real_values.append(co2_per_cell / 125)
+
             data['measured_co2/cell'].append(co2_per_sensor)
-            data['real_co2/cell'].append(real_co2_per_cell)
+            data['real_co2/cell'].append(co2_per_cell)
             data['timeframe'].append(SENSOR_PERIOD)
             data['sec'].append(sec)
             if not SENSOR_STATIC:
@@ -174,12 +170,15 @@ def main():
             print()
             break
     
+    # remove outliers from measured_co2 values by averaging over n=10 samples
+    avg_measured_values = calculation.remove_outliers(measured_values, 10)
+
     # save a plot of co2 vs measured co2
     if SAVE_PLOTS:
         vis.visualize_co2_comparison(co2=real_values, co2_measured=measured_values, duration=TIME_TO_RUN, frequency=SENSOR_PERIOD)
 
-    score = calculation.calculate_error(real_values, measured_values)
-    accuracy = calculation.accuracy(real_values, measured_values)
+    score = calculation.calculate_error(real_values, avg_measured_values)
+    accuracy = calculation.accuracy(real_values, avg_measured_values)
 
     #Save results in csv file
     newline =  [str(sensor_manager.get_sensor_cost(TIME_TO_RUN)*sensor_number), str(SENSOR_DISTANCE), str(sensor_number), str(SENSOR_STATIC), str(SENSOR_PERIOD), str(TIME_TO_RUN), str(round(score, 4)), str(round(accuracy, 4))]
@@ -191,7 +190,7 @@ def main():
 
     # after the simulation is done, visualize the co2 in the city
     vis.visualize_co2(city, mesh=False, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
-    vis.visualize_accuracy(real_values, REAL_C02_PERIOD, measured_values, SENSOR_PERIOD)
+    vis.visualize_accuracy(real_values, avg_measured_values, SENSOR_PERIOD)
 
     # calculate and print the total co2 in the city
     total_co2 = f.calculate_co2(roads, emptys)
@@ -204,7 +203,6 @@ def main():
     
     print(f"\n# of sensors: {sensor_number}")
     print("Energy per device fro 1 year:", str(sensor_manager.get_used_power(TIME_TO_RUN)), "mAh")
-    
     print("\nCost per device:", str(sensor_manager.get_sensor_cost(TIME_TO_RUN)), " [€]")
     print("Total system cost:", str(sensor_manager.get_sensor_cost(TIME_TO_RUN)*sensor_number), " [€]")
 

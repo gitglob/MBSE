@@ -8,6 +8,8 @@ from math import sqrt
 import pandas as pd
 from .classes import *
 
+random.seed(10)
+
 # here we read once the necessary csv files with the information about wind in Copenhagen
 dir_path = os.path.dirname(os.path.realpath('model_data/wind_months.csv'))
 wind_month_day_df = pd.read_csv(dir_path + os.path.sep +'wind_months.csv', header=0)
@@ -228,7 +230,9 @@ def apply_wind_effect(city, roads, emptys, direction, speed):
 
                 # the co2 that goes out of grid gets lost
                 if num_OOG_flow_cells > 0:
+                    #print("CO2 before:", cell.co2)
                     cell.co2 = cell.co2 * (num_flow_cells) / (num_flow_cells + num_OOG_flow_cells)
+                    #print("CO2 after:", cell.co2)
 
                 # check if the wind flows to 1 cell
                 if len(flow_cells) == 1:
