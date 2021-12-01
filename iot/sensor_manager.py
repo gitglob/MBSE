@@ -1,10 +1,11 @@
 import numpy as np
 import random
+import copy
 
 from .device import Device
-from .battery import BatteryList
+from .battery import BatteryList, get_best_battery
 from .network import Network, NetworkList
-from .sensor import Sensor
+from .sensor import SensorList
 from .processor import ProcessorList
 
 class SensorManager:
@@ -19,7 +20,7 @@ class SensorManager:
         valid_pos = np.ones(shape=(self.city.rows, self.city.cols))
         for i in range(self.city.rows):
             for j in range(self.city.cols):
-                if (self.city.city_model[i][j][0] == self.city.ROAD and valid_pos[i][j] == 1):
+                if ((self.city.city_model[i][j][0] == self.city.ROAD or self.city.city_model[i][j][0] == self.city.NOTHING) and valid_pos[i][j] == 1):
                     self.add_sensor(i, j, 0)
                     #mark positions around as invalid
                     bottom_x = max(0, j-distance-1)
@@ -39,9 +40,9 @@ class SensorManager:
         return False
 
     def add_sensor(self, x, y, z):
-        sensor = Sensor(0.10, 1, 1.5, 0.5)
-        device = Device(sensor, NetworkList.LOWRA, BatteryList.INFINITE,
-                ProcessorList.ESP32, len(self.devices), self.period)
+        device = Device(copy.deepcopy(SensorList.SCD4),
+                copy.deepcopy(NetworkList.LORA), len(self.devices),
+                self.period)
 
         device.set_position(x, y, z)
         self.devices.append(device)
@@ -69,5 +70,11 @@ class SensorManager:
     def get_total_co2(self):
         return np.sum(self.measure_history[-1])
     
-    def get_sensor_cost(self):
-        return self.devices[0].get_total_cost()
+    def get_sensor_cost(self, runtime):
+        name, battery = get_best_battery(self.get_used_power(runtime))
+        print("Battery", name)
+        return self.devices[0].get_total_cost() + battery.cost
+
+    def get_used_power(self, runtime):
+        used_power = self.devices[0].get_used_power() * 3600*24*365 / runtime
+        return used_power
