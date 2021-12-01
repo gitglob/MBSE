@@ -165,10 +165,18 @@ def main():
     if SAVE_PLOTS:
         vis.visualize_co2_comparison(co2=real_values, co2_measured=measured_values, duration=TIME_TO_RUN, frequency=SENSOR_PERIOD)
 
-    # visualize accuracy / normalized co2 amount
-    score, real_co2_norm  = calculation.calculate_accuracy(score_values, real_values)
-    if SAVE_PLOTS:
-        vis.visualize_norm_co2(score_values=score_values, real_normalized=real_co2_norm, duration=TIME_TO_RUN, frequency=SENSOR_PERIOD)
+
+    score = calculation.calculate_error(real_values, measured_values)
+    accuracy = calculation.accuracy(real_values, measured_values)
+    print("Average accuracy = ", accuracy*100, "%")
+
+    #Save results in csv file
+    newline =  [str(sensor_manager.get_sensor_cost(TIME_TO_RUN)*sensor_number), str(SENSOR_DISTANCE), str(sensor_number), str(SENSOR_STATIC), str(SENSOR_PERIOD), str(TIME_TO_RUN), str(round(score, 4)), str(round(accuracy, 4))]
+    calculation.save_results(newline)
+
+    # save data for simulation
+    df = pd.DataFrame.from_dict(data)
+    df.to_csv(os.path.join('figures', 'run_data', f'{TIME_TO_RUN}_{SENSOR_PERIOD}_{str(sensor_number)}_{SENSOR_STATIC}_{str(sensor_manager.get_sensor_cost(TIME_TO_RUN)*sensor_number)}.csv'), index=False)
 
     # after the simulation is done, visualize the co2 in the city
     vis.visualize_co2(city, mesh=True, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
