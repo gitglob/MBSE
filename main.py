@@ -15,7 +15,7 @@ import pandas as pd
 
 
 # DEFAULT VALUES
-TIME_TO_RUN     = 3600*24 # 1 day
+TIME_TO_RUN     = 3600*24*2 # 1 day
 SENSOR_DISTANCE = 8
 SENSOR_PERIOD   = 900
 SENSOR_STATIC   = True
@@ -120,14 +120,14 @@ def main():
             # calculate wind effect
             if SAVE_PLOTS:
                 vis.visualize_wind_effect(city, wind_speed, wind_direction, date)
-            f.apply_wind_effect(city, roads, emptys_0, wind_direction, wind_speed)
+            #f.apply_wind_effect(city, roads, emptys_0, wind_direction, wind_speed)
             if SAVE_PLOTS:
                 vis.visualize_wind_effect(city, wind_speed, wind_direction, date)
 
             # apply trees effect
             if SAVE_PLOTS:
                 vis.visualize_trees_effect(city, date)
-            #f.apply_trees_effect(city, trees)
+            f.apply_trees_effect(city, trees)
             if SAVE_PLOTS:
                 vis.visualize_trees_effect(city, date)
 

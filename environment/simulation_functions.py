@@ -220,7 +220,7 @@ def apply_wind_effect(city, roads, emptys, direction, speed):
         # iterate over the empty cells of the city (these are the only ones that can hold co2)
         for cell in roads+emptys:
             # check if the current cell has co2
-            if cell.co2 > 0:
+            if cell.co2 >= 0:
                 # find how many and which adjacent grid cells are free for the current cell
                 num_adj_cells, adj_cells, num_OOG_cells = find_free_adj_cells(city, cell, "2d")
 
@@ -414,7 +414,7 @@ def match_direction(city, d, cell):
 def apply_diffusion_effect(city, roads, emptys, time):
     print("Applying diffusion...")
     for cell in roads+emptys:
-        if cell.co2>0:
+        if cell.co2 >= 0:
             # find the free adjacent cells
             num_adj_cells, free_cells, num_OOG_cells = find_free_adj_cells(city, cell, "3d")
 
@@ -430,13 +430,13 @@ def apply_diffusion_effect(city, roads, emptys, time):
             
             # iterate over free adjacent cells
             for free_cell in free_cells_not_below:
-                flow = flow_calc(cell.co2, free_cell.co2, time)/len(free_cells_not_below)
-                free_cell.stash_co2(flow)
-                cell.stash_co2(-flow)
+                flow = flow_calc(cell.co2, free_cell.co2, time) / 2
+                free_cell.co2 += flow
+                cell.co2 -= flow
 
     # now add all the stashed co2 in the cells
-    for cell in roads+emptys:
-        cell.merge_stashed_co2()
+    # for cell in roads+emptys:
+    #     cell.merge_stashed_co2()
                     
 # apply trees effect on co2 levels
 def apply_trees_effect(city, trees):
@@ -619,7 +619,8 @@ def flow_calc(source, target, time):
     diffrate = 1.6e-5
     area = 25
     distance = 5
-    flow = diffrate*((source-target)/distance)*area*time
+    realistic_coeff = 0.03
+    flow = diffrate*((source-target)/distance)*area*time*realistic_coeff
     return flow
 
 # calculate time zone (1,2,3,4) based on the current hour
