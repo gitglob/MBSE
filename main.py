@@ -11,6 +11,7 @@ from environment.classes import *
 from iot import SensorManager
 from iot import calculation
 import matplotlib.pyplot as plt
+import pandas as pd
 
 # DEFAULT VALUES
 TIME_TO_RUN     = 3600*24*3 # 1 day
