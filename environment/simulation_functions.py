@@ -222,10 +222,12 @@ def apply_wind_effect(city, roads, emptys, direction, speed):
             # check if the current cell has co2
             if cell.co2 > 0:
                 # find how many and which adjacent grid cells are free for the current cell
-                num_adj_cells, adj_cells, OOG_adj_cells_id = find_free_adj_cells(city, cell, "2d")
+                n = int(speed//5)+1 # the neighborhood that we are searching depends on the wind speed
+                num_adj_cells, adj_cells, OOG_adj_cells_id = find_free_adj_cells(city, cell, "2d", n)
+                # print("\t\t# of OOG cells:", len(OOG_adj_cells_id))
 
                 # find which cells the wind flows towards
-                flow_cells, num_OOG_flow_cells = match_direction(city, direction, cell)
+                flow_cells, num_OOG_flow_cells = match_direction(city, direction, cell, n)
                 num_flow_cells = len(flow_cells)
 
                 # the co2 that goes out of grid gets lost
@@ -311,7 +313,7 @@ def find_closest_free_cells(cell, adj_cells):
     return closest_cells
 
 # match wind direction to adjacent cell
-def match_direction(city, d, cell):
+def match_direction(city, d, cell, n):
     """
     Function to match wind direction (east, west, north, south) to a adjacent cell
 
@@ -337,30 +339,30 @@ def match_direction(city, d, cell):
     if len(d)<3:
         z = k
         if d == 'e':
-            x = i+1
+            x = i+n
             y = j
         elif d == 'w':
-            x = i-1
+            x = i-n
             y = j
         elif d == 'n':
             x = i
-            y = j+1
+            y = j+n
         elif d == 's':
             x = i
-            y = j-1
+            y = j-n
 
         elif d == 'ne':
-            x = i+1
-            y = j+1
+            x = i+n
+            y = j+n
         elif d == "nw":
-            x = i-1
-            y = j+1
+            x = i-n
+            y = j+n
         elif d == "se":
-            x = i+1
-            y = j-1
+            x = i+n
+            y = j-n
         elif d == "sw":
-            x = i-1
-            y = j-1
+            x = i-n
+            y = j-n
         
         if x>=0 and x<(city.rows) and y>=0 and y<(city.cols) and z>=0 and z<(city.height):
             retval.append(city.grid3d[x][y][z])
@@ -371,45 +373,45 @@ def match_direction(city, d, cell):
         z1 = k
         z2 = k
         if d == "ene":
-            x1 = i+1
+            x1 = i+n
             y1 = j
-            x2 = i+1
-            y2 = j+1
+            x2 = i+n
+            y2 = j+n
         elif d == "ese":
-            x1 = i+1
+            x1 = i+n
             y1 = j
-            x2 = i+1
-            y2 = j-1
+            x2 = i+n
+            y2 = j-n
         elif d == "wnw":
-            x1 = i-1
+            x1 = i-n
             y1 = j
-            x2 = i-1
-            y2 = j+1
+            x2 = i-n
+            y2 = j+n
         elif d == "wsw":
-            x1 = i-1
+            x1 = i-n
             y1 = j
-            x2 = i-1
-            y2 = j-1
+            x2 = i-n
+            y2 = j-n
         elif d == "nne":
             x1 = i
-            y1 = j+1
-            x2 = i+1
-            y2 = j+1
+            y1 = j+n
+            x2 = i+n
+            y2 = j+n
         elif d == "nnw":
             x1 = i
-            y1 = j+1
-            x2 = i-1
-            y2 = j+1
+            y1 = j+n
+            x2 = i-n
+            y2 = j+n
         elif d == "sse":
             x1 = i
-            y1 = j-1
-            x2 = i+1
-            y2 = j-1
+            y1 = j-n
+            x2 = i+n
+            y2 = j-n
         elif d == "ssw":
             x1 = i
-            y1 = j-1
-            x2 = i-1
-            y2 = j-1
+            y1 = j-n
+            x2 = i-n
+            y2 = j-n
 
         # check if the blocks that wind flows towards are inside the grid
         if x1>=0 and x1<(city.rows) and y1>=0 and y1<(city.cols) and z1>=0 and z1<(city.height):
@@ -429,7 +431,7 @@ def apply_diffusion_effect(city, roads, emptys, dt):
     for cell in roads+emptys:
         if cell.co2>0:
             # find the free adjacent cells
-            num_free_adj_cells, free_cells, OOG_cells_id = find_free_adj_cells(city, cell, "3d")
+            num_free_adj_cells, free_cells, OOG_cells_id = find_free_adj_cells(city, cell, "3d", 1)
 
             # check how many of the neighboring OOG_cells co2 diffuses towards
             num_OOG_cells = 0
@@ -541,7 +543,7 @@ def find_nearby_free_cells(city, cell):
     return num_free_cells, near_cells
 
 # Check for free adjacent cells in either 2d or 3d (inside the grid)
-def find_free_adj_cells(city, cell, d): 
+def find_free_adj_cells(city, cell, d, n): 
     """
     Function that finds the number and the position of the free adjacent cells for a city grid block in 2d or 3d.
     
@@ -566,8 +568,8 @@ def find_free_adj_cells(city, cell, d):
     num_free_cells = 0
     adj_cells = []
     if d == "2d":
-        for i in [x, x-1, x+1]:
-            for j in [y, y-1, y+1]:
+        for i in [x, x-n, x+n]:
+            for j in [y, y-n, y+n]:
                 if (i==x and j==y):
                     continue
                 elif (i>city.rows-1 or i<0) or (j>city.cols-1 or j<0):
@@ -579,9 +581,9 @@ def find_free_adj_cells(city, cell, d):
                     num_free_cells += 1
                     adj_cells.append(cell)
     elif d == "3d":
-        for i in [x, x-1, x+1]:
-            for j in [y, y-1, y+1]:
-                for k in [z, z-1, z+1]:
+        for i in [x, x-n, x+n]:
+            for j in [y, y-n, y+n]:
+                for k in [z, z-n, z+n]:
                     if (i==x and j==y and z==k):
                         continue
                     elif (i>city.rows-1 or i<0) or (j>city.cols-1 or j<0) or (k>city.height-1 or k<0):

@@ -32,7 +32,11 @@ def debug(*args):
         print(*args)
 
 def main():
-    print(f"Running simmulation with: \n\tDuration: {args.days} [days] \n\tSensor period: {SENSOR_PERIOD} [sec] \n\tSensor distance: {SENSOR_DISTANCE} [blocks]\n")
+    if SENSOR_STATIC:
+        placement = "static"
+    else:
+        placement = "dynamic"
+    print(f"Running simmulation with: \n\tDuration: {args.days} [days] \n\tSensor placement: {placement} \n\tSensor period: {SENSOR_PERIOD} [sec] \n\tSensor distance: {SENSOR_DISTANCE} [blocks]\n")
 
     city = Grid()
     print("Our city is a {} grid".format([len(city.grid3d), len(city.grid3d[0]),
@@ -48,9 +52,9 @@ def main():
     print("Placed " + str(sensor_number) + " sensors")
 
     # visualize the city
-    #vis.visualize_3d_grid(city)
+    vis.visualize_3d_grid(city)
     # visualize the sensor placement
-    #vis.visualize_sensor(city, sensor_manager.devices)
+    vis.visualize_sensor(city, sensor_manager.devices)
 
     # run the simulation - Note: Every iteration is 1 second
     sec = -1
@@ -99,6 +103,7 @@ def main():
 
             # convert wind_speed from km/h to m/s
             wind_speed = float(wind_speed_km) * 1000 / 3600
+            wind_speed += 10
             debug('wind_speed: ', wind_speed, "(m/sec)")
             debug('wind direction: ', wind_direction)
             
@@ -114,16 +119,13 @@ def main():
             # apply dispersion
             if SAVE_PLOTS:
                 vis.visualize_diffusion(city, date)
-            #f.apply_diffusion_effect(city, roads, emptys, ENVIRONMENT_PERIOD)
+            f.apply_diffusion_effect(city, roads, emptys, ENVIRONMENT_PERIOD)
             if SAVE_PLOTS:
                 vis.visualize_diffusion(city, date)
 
             # calculate wind effect
             if SAVE_PLOTS:
                 vis.visualize_wind_effect(city, wind_speed, wind_direction, date)
-                if wind_speed <=0:
-                    print("\t\t\t\tWTF WIND SPEED", wind_speed)
-                    sys.exit()
             f.apply_wind_effect(city, roads, emptys, wind_direction, wind_speed)
             if SAVE_PLOTS:
                 vis.visualize_wind_effect(city, wind_speed, wind_direction, date)
@@ -131,14 +133,14 @@ def main():
             # apply trees effect
             if SAVE_PLOTS:
                 vis.visualize_trees_effect(city, date)
-            #f.apply_trees_effect(city, trees)
+            f.apply_trees_effect(city, trees)
             if SAVE_PLOTS:
                 vis.visualize_trees_effect(city, date)
 
             # calculate rain effect
             if SAVE_PLOTS:
                 vis.visualize_rain_effect(city, date)
-            #rain_flag = f.rain(city)
+            rain_flag = f.rain(city)
             if SAVE_PLOTS and rain_flag:
                 vis.visualize_rain_effect(city, date)
 
@@ -173,8 +175,10 @@ def main():
             print()
             break
     
-    # remove outliers from measured_co2 values by averaging over n=24 samples
-    avg_measured_values = calculation.remove_outliers(measured_values, 24)
+    # remove outliers from measured_co2 values by averaging every 6 hours
+    print("Real values:", measured_values)
+    avg_measured_values = calculation.remove_outliers(measured_values, (6*60*60)/SENSOR_PERIOD)
+    print("After removing outliers:", avg_measured_values)
 
     # save a plot of co2 vs measured co2
     if SAVE_PLOTS:
@@ -194,7 +198,7 @@ def main():
 
     # after the simulation is done, visualize the co2 in the city
     vis.visualize_co2(city, mesh=False, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
-    vis.visualize_accuracy(real_values, avg_measured_values, SENSOR_PERIOD)
+    vis.visualize_accuracy(real_values, avg_measured_values, measured_values, SENSOR_PERIOD)
 
     # calculate and print the total co2 in the city
     total_co2 = f.calculate_co2(roads, emptys)
