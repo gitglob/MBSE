@@ -178,7 +178,6 @@ def main():
 
     score = calculation.calculate_error(real_values, measured_values)
     accuracy = calculation.accuracy(real_values, measured_values)
-    print("Average accuracy = ", accuracy*100, "%")
 
     #Save results in csv file
     newline =  [str(sensor_manager.get_sensor_cost(TIME_TO_RUN)*sensor_number), str(SENSOR_DISTANCE), str(sensor_number), str(SENSOR_STATIC), str(SENSOR_PERIOD), str(TIME_TO_RUN), str(round(score, 4)), str(round(accuracy, 4))]
@@ -189,35 +188,26 @@ def main():
     df.to_csv(os.path.join('figures', 'run_data', f'{TIME_TO_RUN}_{SENSOR_PERIOD}_{str(sensor_number)}_{SENSOR_STATIC}_{str(sensor_manager.get_sensor_cost(TIME_TO_RUN)*sensor_number)}.csv'), index=False)
 
     # after the simulation is done, visualize the co2 in the city
-    vis.visualize_co2(city, mesh=True, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
-    vis.visualize_accuracy(real_values, REAL_C02_PERIOD, measured_values, SENSOR_PERIOD, sensing_times)
+    vis.visualize_co2(city, mesh=False, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
+    vis.visualize_accuracy(real_values, REAL_C02_PERIOD, measured_values, SENSOR_PERIOD)
 
     # calculate and print the total co2 in the city
     total_co2 = f.calculate_co2(roads, emptys)
     print("Total accumulated co2 in the city:", total_co2, "grams")
     total_measured_co2 = sensor_manager.get_total_co2()
     print("Total measured co2:", str(total_measured_co2), "grams")
-        
-    #Save results in csv file
-    with open(results_path, 'a+', newline = "") as file:
-        writer = csv.writer(file, delimiter = ";")
-        newline =  [str(sensor_manager.get_sensor_cost()*sensor_number), str(SENSOR_DISTANCE), str(SENSOR_STATIC), str(SENSOR_PERIOD), str(TIME_TO_RUN), str(round(score/100, 2))]
-        writer.writerow(newline)
-    file.close()
-    
-    print(f"Average score of {round(score, 2)}% over {len(score_values)} samples")
-    print(f"# Sensors: {sensor_number}")
 
+    print(f"Average accuracy: {accuracy*100}%")
     print(f"Root-Mean-Square Error: {round(score, 4)}")
-
-    print(f"Sensors: {sensor_number}")
+    print(f"# of sensors: {sensor_number}")
 
     print("Energy per device fro 1 year:", str(sensor_manager.get_used_power(TIME_TO_RUN)), "mAh")
     print("Cost per device:", str(sensor_manager.get_sensor_cost(TIME_TO_RUN)), " [€]")
     print("Total system cost:", str(sensor_manager.get_sensor_cost(TIME_TO_RUN)*sensor_number), " [€]")
 
+
     # after the simulation is done, visualize the co2 in the city
-    vis.visualize_co2(city, mesh=False, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
+    vis.visualize_co2(city, mesh=True, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
     #calculation.evaluate()
 
 
