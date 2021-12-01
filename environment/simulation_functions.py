@@ -410,10 +410,28 @@ def apply_diffusion_effect(city, roads, emptys):
     for cell in roads+emptys:
         if cell.co2>0:
             # find the free adjacent cells
+<<<<<<< Updated upstream
             num_adj_cells, free_cells, num_OOG_cells = find_free_adj_cells(city, cell, "3d")
 
             # the co2 that goes out of grid gets lost
             cell.co2 = cell.co2 * (num_adj_cells / (num_adj_cells + num_OOG_cells))
+=======
+            num_free_adj_cells, free_cells, OOG_cells_id = find_free_adj_cells(city, cell, "3d")
+
+            # check how many of the neighboring OOG_cells co2 diffuses towards
+            num_OOG_cells = 0
+            for oog_cell in OOG_cells_id:
+                if oog_cell[2] >= cell.z:
+                    num_OOG_cells += 1
+
+            # the co2 that goes out of grid gets lost
+            #print(f"\t cell {[cell.x, cell.y, cell.z]} total co2: {cell.co2}")
+            lost_co2_per_cell = flow_calc(cell.co2, 0, time)
+            total_lost_co2 = lost_co2_per_cell*num_OOG_cells
+            #print(f"\t lost {total_lost_co2} co2 to #{num_OOG_cells} OOG cells")
+            available_co2 = cell.co2 - total_lost_co2
+            cell.stash_co2(-total_lost_co2)
+>>>>>>> Stashed changes
 
             # diffusion doesn't go down
             free_cells_not_below = []
@@ -422,10 +440,20 @@ def apply_diffusion_effect(city, roads, emptys):
                     free_cells_not_below.append(free_cell)
             
             # iterate over free adjacent cells
+            passed_co2 = 0
             for free_cell in free_cells_not_below:
+<<<<<<< Updated upstream
                 flow = flow_calc(cell.co2/len(free_cells_not_below), free_cell.co2)
+=======
+                flow = flow_calc(available_co2, free_cell.co2, time)
+>>>>>>> Stashed changes
                 free_cell.stash_co2(flow)
                 cell.stash_co2(-flow)
+                #print(f"\t\t{flow} co2 goes from cell {[cell.x, cell.y, cell.z]} -> cell {free_cell.x, free_cell.y, free_cell.z}")
+                passed_co2 += flow
+
+            #print(f"\tPassed {passed_co2} co2 to neighboring free cells. Current co2: {cell.co2+cell.stashed_co2}")
+
 
     # now add all the stashed co2 in the cells
     for cell in roads+emptys:

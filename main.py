@@ -21,7 +21,14 @@ SENSOR_STATIC   = True
 SAVE_PLOTS      = False
 DEBUG           = False
 
+<<<<<<< Updated upstream
 results_path = "figures\\results\\results.csv"
+=======
+# Not configurable
+REAL_C02_PERIOD = 600 # 5 min (must be <= the environment period)
+ENVIRONMENT_PERIOD = 600 # 10 mins
+CAR_PERIOD = 21600 # 6 hours
+>>>>>>> Stashed changes
 
 def debug(*args):
     if DEBUG:
@@ -53,6 +60,7 @@ def main():
     score_values = []
     real_values = []
     measured_values = []
+    sensing_times = []
     total_co2 = 0
     print("Running simulation for {} days (this might take a while) ... \n\n".format(TIME_TO_RUN/3600/24))
 
@@ -128,9 +136,23 @@ def main():
         if sec % 60 == 0:
             sensor_manager.measure(city, sec//60)
 
+<<<<<<< Updated upstream
         #get a measure
         if sec % SENSOR_PERIOD == 0:
             debug("Taking gateway measurement...")
+=======
+        # calculate the real co2 per cell, as well as co2 per m^3
+        if sec % REAL_C02_PERIOD == 0:
+            # We calculate co2 in the entire 0 floor of the city, that means both the roads and the empty space
+            co2_per_cell = f.calculate_co2(roads, emptys_0) / (len(roads + emptys_0))
+            real_values.append(co2_per_cell / 125)
+
+
+        # get a measurement
+        if sec % SENSOR_PERIOD == 0 and rain_flag:
+            print("Taking gateway measurement...\n")
+            sensing_times.append(sec)
+>>>>>>> Stashed changes
             measures = sensor_manager.gateway()
             co2_per_sensor = np.sum(measures) / sensor_number
             co2_per_cell = f.calculate_co2(roads, emptys_0) / (len(roads+emptys_0))
@@ -156,6 +178,10 @@ def main():
 
     # after the simulation is done, visualize the co2 in the city
     vis.visualize_co2(city, mesh=True, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
+<<<<<<< Updated upstream
+=======
+    vis.visualize_accuracy(real_values, REAL_C02_PERIOD, measured_values, SENSOR_PERIOD, sensing_times)
+>>>>>>> Stashed changes
 
     # calculate and print the total co2 in the city
     total_co2 = f.calculate_co2(roads, emptys)
@@ -173,8 +199,22 @@ def main():
     print(f"Average score of {round(score, 2)}% over {len(score_values)} samples")
     print(f"# Sensors: {sensor_number}")
 
+<<<<<<< Updated upstream
     print("Cost per device:", str(sensor_manager.get_sensor_cost()), "euro")
     print("Total system cost:", str(sensor_manager.get_sensor_cost()*sensor_number), "euro")
+=======
+    print(f"Root-Mean-Square Error: {round(score, 4)}")
+
+    print(f"Sensors: {sensor_number}")
+
+    print("Energy per device fro 1 year:", str(sensor_manager.get_used_power(TIME_TO_RUN)), "mAh")
+    print("Cost per device:", str(sensor_manager.get_sensor_cost(TIME_TO_RUN)), " [€]")
+    print("Total system cost:", str(sensor_manager.get_sensor_cost(TIME_TO_RUN)*sensor_number), " [€]")
+
+    # after the simulation is done, visualize the co2 in the city
+    vis.visualize_co2(city, mesh=False, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
+    #calculation.evaluate()
+>>>>>>> Stashed changes
 
 
 

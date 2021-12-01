@@ -506,6 +506,21 @@ def visualize_rain_effect(city, date):
     now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
     plt.savefig(os.path.join('figures', 'co2_rain_effect', f'{now}.png'))
     plt.close()
+<<<<<<< Updated upstream
+=======
+    
+def visualize_accuracy (real, real_period, measured, sensor_period, sensing_times):
+    plt.figure()
+    plt.plot([x*real_period/3600 for x in range(len(real))], real, "-o")
+    plt.plot([x/3600 for x in sensing_times], measured, "-o")
+    plt.legend(["Real", "Measured"], fontsize = 30)
+    plt.ylabel("CO2 amount [g/m3]", fontsize = 30)
+    plt.xlabel("Time [h]", fontsize = 30)
+    plt.title("CO2 level in the city", fontsize = 30)
+    plt.xticks(fontsize = 30)
+    plt.yticks(fontsize = 30)
+    plt.show()
+>>>>>>> Stashed changes
 
 def visualize_diffusion(city, date):
     print("Visualizing diffusion...")
