@@ -541,7 +541,7 @@ def find_free_adj_cells(city, cell, d):
     z = cell.z
 
     # counter for out of grid adjacent cells
-    num_OOG_cells = 0
+    OOG_cells_id = []
 
     # count the # of adjacent cells in 2d or 3d
     num_free_cells = 0
@@ -552,7 +552,7 @@ def find_free_adj_cells(city, cell, d):
                 if (i==x and j==y):
                     continue
                 elif (i>city.rows-1 or i<0) or (j>city.cols-1 or j<0):
-                    num_OOG_cells +=1
+                    OOG_cells_id.append([i, j])
                     continue
                 k = z
                 cell = city.grid3d[i][j][k]
@@ -566,14 +566,14 @@ def find_free_adj_cells(city, cell, d):
                     if (i==x and j==y and z==k):
                         continue
                     elif (i>city.rows-1 or i<0) or (j>city.cols-1 or j<0) or (k>city.height-1 or k<0):
-                        num_OOG_cells +=1
+                        OOG_cells_id.append([i, j, k])
                         continue
                     cell = city.grid3d[i][j][k]
                     if cell.is_free():
                         num_free_cells += 1
                         adj_cells.append(cell)
 
-    return num_free_cells, adj_cells, num_OOG_cells
+    return num_free_cells, adj_cells, OOG_cells_id
 
 # apply rain effect on co2 levels
 def rain(city):
@@ -625,7 +625,7 @@ def sec_to(sec, x):
         return minute
 
 # calculating the mass flow of CO2 between blocks (per hour)
-def flow_calc(source, target):
+def flow_calc(source, target, dt):
     diffrate = 1.6e-5
     area = 25
     distance = 5
