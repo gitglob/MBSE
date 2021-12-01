@@ -8,8 +8,7 @@ from numpy import diff
 import numpy as np
 
 
-results_path = "figures\\results\\results.csv"
-#results_path = os.path.join("figures", "results", "results.csv")
+results_path = os.path.join("figures", "results", "results.csv")
 
 
 

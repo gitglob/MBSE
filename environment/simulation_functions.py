@@ -225,7 +225,7 @@ def apply_wind_effect(city, roads, emptys, direction, speed):
                 num_adj_cells, adj_cells, num_OOG_cells = find_free_adj_cells(city, cell, "2d")
 
                 # the co2 that goes out of grid gets lost
-                cell.co2 = cell.co2 * (num_adj_cells / (num_adj_cells + num_OOG_cells))
+                #cell.co2 = cell.co2 * (num_adj_cells / (num_adj_cells + num_OOG_cells))
 
                 # find which cells the wind flows towards
                 flow_cells = match_direction(city, direction, cell)
@@ -419,7 +419,8 @@ def apply_diffusion_effect(city, roads, emptys, time):
             num_adj_cells, free_cells, num_OOG_cells = find_free_adj_cells(city, cell, "3d")
 
             # the co2 that goes out of grid gets lost
-            cell.co2 = cell.co2 * (num_adj_cells / (num_adj_cells + num_OOG_cells))
+            flow = flow_calc(cell.co2, 0, time) * num_OOG_cells
+            cell.co2 -= flow
 
             # diffusion doesn't go down
             free_cells_not_below = []
