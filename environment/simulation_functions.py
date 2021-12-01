@@ -629,7 +629,7 @@ def flow_calc(source, target, dt):
     diffrate = 1.6e-5
     area = 25
     distance = 5
-    flow = diffrate*((source-target)/distance)*area*3600
+    flow = diffrate*((source-target)/distance)*area*dt
     return flow
 
 # calculate time zone (1,2,3,4) based on the current hour
