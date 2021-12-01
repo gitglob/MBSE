@@ -53,6 +53,7 @@ def main():
     sec = -1
     wind_speed_duration = 0
     wind_speed = 0
+    wind_speed_km = 0
     wind_direction = None
     score_values = []
     real_values = []
@@ -69,18 +70,6 @@ def main():
         if sec%86400 == 0:
             print("\nDate: ", date)
 
-        # calculate wind speed
-        if wind_speed_duration == 0 or sec%wind_speed_duration == 0:
-            wind_speed_km, wind_speed_duration = f.calculate_wind_speed(f.sec_to(sec, "month")%12 + 1, sec)
-
-        # calculate wind direction
-        wind_direction = f.calculate_wind_directions(wind_speed_km)
-
-        # convert wind_speed from km/h to m/s
-        wind_speed = float(wind_speed_km) * 1000 / 3600
-        debug('wind_speed: ', wind_speed, "(m/sec)")
-        debug('wind direction: ', wind_direction)
-
         # every 6 hours generate new positions for cars
         if sec%CAR_PERIOD== 0:
             debug("Hour: ", f.sec_to(sec, "hour")%24)
@@ -92,6 +81,19 @@ def main():
         if sec % 60 == 0:
             f.generate_co2(cars, city, 60)
 
+        if sec%ENVIRONMENT_PERIOD == 0:
+            # calculate wind speed
+            if wind_speed_duration == 0 or sec%wind_speed_duration == 0:
+                wind_speed_km, wind_speed_duration = f.calculate_wind_speed(f.sec_to(sec, "month")%12 + 1, sec)
+
+            # calculate wind direction
+            wind_direction = f.calculate_wind_directions(wind_speed_km)
+
+            # convert wind_speed from km/h to m/s
+            wind_speed = float(wind_speed_km) * 1000 / 3600
+            debug('wind_speed: ', wind_speed, "(m/sec)")
+            debug('wind direction: ', wind_direction)
+            
         # every hour apply the wind effect and the trees effect
         if sec%ENVIRONMENT_PERIOD == 0:
             #every one hour visualize co2

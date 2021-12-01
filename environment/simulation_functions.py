@@ -119,14 +119,18 @@ def calculate_wind_speed(month, secs):
         num_secs -> the number of seconds that this wind speed will apply for, before moving to the next row of the table, which corresponds to a different wind speed
     """
     print("Calculating wind speed...")
-    secs = secs % 2628000
+    secs = secs % (60*60*24*30)
     month_name = match_month(month)
-    col = wind_month_day_df[month_name]
+    col = wind_month_day_df[month_name][:-1]
     
     # calculate the wind speed 
-    for i, num_days in enumerate(col[:-1]): 
+    for i, num_days in enumerate(col):
+        if i == 0:
+            pre_secs = 0
+        else:
+            pre_secs = col[i-1]
         num_secs = num_days * 86400
-        if secs < num_secs:
+        if pre_secs <= secs and secs < num_secs:
             wind_speed = wind_month_day_df['Wind Speed (km/h)'][i]
 
     #print("We have {} (km/h) wind speed for {} seconds ({} days).".format(wind_speed, num_secs, num_days))
@@ -216,13 +220,13 @@ def apply_wind_effect(city, roads, emptys, direction, speed):
             # check if the current cell has co2
             if cell.co2 > 0:
                 # find how many and which adjacent grid cells are free for the current cell
-                num_adj_cells, adj_cells, num_OOG_cells = find_free_adj_cells(city, cell, "2d")
-
-                # the co2 that goes out of grid gets lost
-                cell.co2 = cell.co2 * (num_adj_cells / (num_adj_cells + num_OOG_cells))
+                num_adj_cells, adj_cells, OOG_cells_id = find_free_adj_cells(city, cell, "2d")
 
                 # find which cells the wind flows towards
-                flow_cells = match_direction(city, direction, cell)
+                flow_cells, num_OOG_flow_cells  = match_direction(city, direction, cell)
+
+                # the co2 that goes out of grid gets lost
+                cell.co2 = cell.co2 * (num_adj_cells / (num_adj_cells + num_OOG_flow_cells))
 
                 # check if the wind flows to 1 cell
                 if len(flow_cells) == 1:
@@ -313,6 +317,9 @@ def match_direction(city, d, cell):
         c -> list with the corresponding adjacent cell(s) that the wind flows to
     """
 
+    # number of out of grid flow cells
+    num_oog_flow_cells = 0
+
     # extract coordinates
     i = cell.x
     j = cell.y
@@ -351,6 +358,8 @@ def match_direction(city, d, cell):
         
         if x>=0 and x<(city.rows) and y>=0 and y<(city.cols) and z>=0 and z<(city.height):
             retval.append(city.grid3d[x][y][z])
+        else:
+            num_oog_flow_cells += 1
 
     else:
         z1 = k
@@ -399,10 +408,14 @@ def match_direction(city, d, cell):
         # check if the blocks that wind flows towards are inside the grid
         if x1>=0 and x1<(city.rows) and y1>=0 and y1<(city.cols) and z1>=0 and z1<(city.height):
             retval.append(city.grid3d[x1][y1][z1])
+        else:
+            num_oog_flow_cells += 1
         if x2>=0 and x2<(city.rows) and y2>=0 and y2<(city.cols) and z2>=0 and z2<(city.height):
             retval.append(city.grid3d[x2][y2][z2])
+        else:
+            num_oog_flow_cells += 1
 
-    return retval
+    return retval, num_oog_flow_cells
 
 # Applying diffusion effect: The CO2 spreads vertically and horizontally
 def apply_diffusion_effect(city, roads, emptys, dt):
