@@ -36,17 +36,18 @@ def main():
     print("Our city is a {} grid".format([len(city.grid3d), len(city.grid3d[0]),
         len(city.grid3d[0][0])]))
 
-    #vis.visualize_3d_grid(city)
-
     # extract the tree cells
     trees, roads, emptys, emptys_0 = pre.extract_trees_roads_empty_blocks(city)
 
+    # initialize the sensor system
     sensor_manager = SensorManager(city, SENSOR_PERIOD)
     sensor_manager.distribute_sensors(SENSOR_DISTANCE)
     sensor_number = sensor_manager.get_sensors_count()
     print("Placed " + str(sensor_number) + " sensors")
 
-    # visualiza the sensor placement
+    # visualize the city
+    vis.visualize_3d_grid(city)
+    # visualize the sensor placement
     vis.visualize_sensor(city, sensor_manager.devices)
 
     # run the simulation - Note: Every iteration is 1 second
