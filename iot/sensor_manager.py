@@ -72,7 +72,7 @@ class SensorManager:
     
     def get_sensor_cost(self, runtime):
         name, battery = get_best_battery(self.get_used_power(runtime))
-        print("Battery", name)
+        print("Battery: ", name)
         return self.devices[0].get_total_cost() + battery.cost
 
     def get_used_power(self, runtime):

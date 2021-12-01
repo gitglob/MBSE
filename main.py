@@ -57,7 +57,6 @@ def main():
     wind_speed = 0
     wind_speed_km = 0
     wind_direction = None
-    score_values = []
     real_values = []
     measured_values = []
     sensing_times = []
@@ -114,7 +113,7 @@ def main():
             # apply dispersion
             if SAVE_PLOTS:
                 vis.visualize_diffusion(city, date)
-            f.apply_diffusion_effect(city, roads, emptys, ENVIRONMENT_PERIOD)
+            #f.apply_diffusion_effect(city, roads, emptys, ENVIRONMENT_PERIOD)
             if SAVE_PLOTS:
                 vis.visualize_diffusion(city, date)
 
@@ -152,16 +151,18 @@ def main():
             co2_per_cell = f.calculate_co2(roads, emptys_0) / (len(roads + emptys_0))
             real_values.append(co2_per_cell / 125)
 
-
         # get a measurement
         if sec % SENSOR_PERIOD == 0:
-            print("Taking gateway measurement...\n")
+            debug("Taking gateway measurement...")
             sensing_times.append(sec)
             measures = sensor_manager.gateway()
             co2_per_sensor = np.sum(measures) / sensor_number
-            co2_per_cell = f.calculate_co2(roads, emptys_0) / (len(roads+emptys_0))
-            score_values.append(1 - (abs(co2_per_sensor - co2_per_cell) / co2_per_cell))
             measured_values.append(co2_per_sensor/125)
+            real_co2_per_cell = f.calculate_co2(roads, emptys_0) / (len(roads + emptys_0))
+            data['measured_co2/cell'].append(co2_per_sensor)
+            data['real_co2/cell'].append(real_co2_per_cell)
+            data['timeframe'].append(SENSOR_PERIOD)
+            data['sec'].append(sec)
             if not SENSOR_STATIC:
                 debug("Moving sensors...")
                 sensor_manager.shuffle_sensors(roads)
@@ -173,7 +174,6 @@ def main():
     # save a plot of co2 vs measured co2
     if SAVE_PLOTS:
         vis.visualize_co2_comparison(co2=real_values, co2_measured=measured_values, duration=TIME_TO_RUN, frequency=SENSOR_PERIOD)
-
 
     score = calculation.calculate_error(real_values, measured_values)
     accuracy = calculation.accuracy(real_values, measured_values)
@@ -192,16 +192,17 @@ def main():
 
     # calculate and print the total co2 in the city
     total_co2 = f.calculate_co2(roads, emptys)
-    print("Total accumulated co2 in the city:", total_co2, "grams")
+    print("\nTotal accumulated co2 in the city:", total_co2, "grams")
     total_measured_co2 = sensor_manager.get_total_co2()
     print("Total measured co2:", str(total_measured_co2), "grams")
 
-    print(f"Average accuracy: {accuracy*100}%")
+    print(f"\nAverage accuracy: {accuracy*100}%")
     print(f"Root-Mean-Square Error: {round(score, 4)}")
-    print(f"# of sensors: {sensor_number}")
-
+    
+    print(f"\n# of sensors: {sensor_number}")
     print("Energy per device fro 1 year:", str(sensor_manager.get_used_power(TIME_TO_RUN)), "mAh")
-    print("Cost per device:", str(sensor_manager.get_sensor_cost(TIME_TO_RUN)), " [€]")
+    
+    print("\nCost per device:", str(sensor_manager.get_sensor_cost(TIME_TO_RUN)), " [€]")
     print("Total system cost:", str(sensor_manager.get_sensor_cost(TIME_TO_RUN)*sensor_number), " [€]")
 
 
