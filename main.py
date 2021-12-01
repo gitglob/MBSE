@@ -161,8 +161,7 @@ def main():
             co2_per_sensor = np.sum(measures) / sensor_number
             co2_per_cell = f.calculate_co2(roads, emptys_0) / (len(roads+emptys_0))
             score_values.append(1 - (abs(co2_per_sensor - co2_per_cell) / co2_per_cell))
-            real_values.append(co2_per_cell)
-            measured_values.append(co2_per_sensor)
+            measured_values.append(co2_per_sensor/125)
             if not SENSOR_STATIC:
                 debug("Moving sensors...")
                 sensor_manager.shuffle_sensors(roads)
