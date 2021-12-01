@@ -13,9 +13,6 @@ def calculate_accuracy(score_values, real_values):
     for r in real_values:
         real_normalized.append((r - real_min) / (real_max - real_min))
 
-<<<<<<< Updated upstream
-    return score, real_normalized
-=======
 
 #Calculating the Root-Mean-Square Error of the measurement vs real values
 def calculate_error(real, measured):
@@ -139,4 +136,3 @@ def accuracy_per_cost():
         
 
         
->>>>>>> Stashed changes
