@@ -182,6 +182,7 @@ def main():
 
     score = calculation.calculate_error(real_values, avg_measured_values)
     accuracy = calculation.accuracy(real_values, avg_measured_values)
+    print(f"\nAverage accuracy: {accuracy*100}%")
 
     #Save results in csv file
     newline =  [str(sensor_manager.get_sensor_cost(TIME_TO_RUN)*sensor_number), str(SENSOR_DISTANCE), str(sensor_number), str(SENSOR_STATIC), str(SENSOR_PERIOD), str(TIME_TO_RUN), str(round(score, 4)), str(round(accuracy, 4))]
@@ -201,7 +202,6 @@ def main():
     total_measured_co2 = sensor_manager.get_total_co2()
     print("Total measured co2:", str(total_measured_co2), "grams")
 
-    print(f"\nAverage accuracy: {accuracy*100}%")
     print(f"Root-Mean-Square Error: {round(score, 4)}")
     
     print(f"\n# of sensors: {sensor_number}")
