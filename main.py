@@ -2,7 +2,7 @@
 This is the main file, that executes the core loop of our simulation.
 '''
 import argparse
-import csv
+import sys
 
 import environment.preprocessing as pre
 import environment.simulation_functions as f
@@ -121,6 +121,9 @@ def main():
             # calculate wind effect
             if SAVE_PLOTS:
                 vis.visualize_wind_effect(city, wind_speed, wind_direction, date)
+                if wind_speed <=0:
+                    print("\t\t\t\tWTF WIND SPEED", wind_speed)
+                    sys.exit()
             f.apply_wind_effect(city, roads, emptys, wind_direction, wind_speed)
             if SAVE_PLOTS:
                 vis.visualize_wind_effect(city, wind_speed, wind_direction, date)
@@ -170,8 +173,8 @@ def main():
             print()
             break
     
-    # remove outliers from measured_co2 values by averaging over n=10 samples
-    avg_measured_values = calculation.remove_outliers(measured_values, 10)
+    # remove outliers from measured_co2 values by averaging over n=24 samples
+    avg_measured_values = calculation.remove_outliers(measured_values, 24)
 
     # save a plot of co2 vs measured co2
     if SAVE_PLOTS:
