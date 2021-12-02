@@ -126,7 +126,7 @@ def main():
             # calculate wind effect
             if SAVE_PLOTS:
                 vis.visualize_wind_effect(city, wind_speed, wind_direction, date)
-            #f.apply_wind_effect(city, roads, emptys, wind_direction, wind_speed)
+            f.apply_wind_effect(city, roads, emptys, wind_direction, wind_speed)
             if SAVE_PLOTS:
                 vis.visualize_wind_effect(city, wind_speed, wind_direction, date)
 
@@ -183,10 +183,10 @@ def main():
     avg_measured_values = calculation.remove_outliers(measured_values, (3*60*60)/SENSOR_PERIOD)
 
     # calculate MSE and accuracy
-    score = calculation.calculate_error(real_values, avg_measured_values)
-    avg_score = calculation.calculate_error(real_values, measured_values)
-    accuracy = calculation.calculate_accuracy(real_values, avg_measured_values)
-    avg_accuracy = calculation.calculate_accuracy(real_values, measured_values)
+    score = calculation.calculate_error(real_values, measured_values)
+    avg_score = calculation.calculate_error(real_values, avg_measured_values)
+    accuracy = calculation.calculate_accuracy(real_values, measured_values)
+    avg_accuracy = calculation.calculate_accuracy(real_values, avg_measured_values)
     print(f"Root-Mean-Square Error: {round(score, 4)}")
     print(f"Root-Mean-Square Error after outlier removal: {round(avg_score, 4)}")
     print(f"Average real accuracy: {accuracy}%")

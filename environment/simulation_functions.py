@@ -454,16 +454,10 @@ def apply_diffusion_effect(city, roads, emptys, dt):
                     free_cells_not_below.append(free_cell)
             
             # iterate over free adjacent cells
-            passed_co2 = 0
             for free_cell in free_cells_not_below:
                 flow = flow_calc(available_co2, free_cell.co2, dt)
                 free_cell.stash_co2(flow)
                 cell.stash_co2(-flow)
-                #print(f"\t\t{flow} co2 goes from cell {[cell.x, cell.y, cell.z]} -> cell {free_cell.x, free_cell.y, free_cell.z}")
-                passed_co2 += flow
-
-            #print(f"\tPassed {passed_co2} co2 to neighboring free cells. Current co2: {cell.co2+cell.stashed_co2}")
-
 
     # now add all the stashed co2 in the cells
     for cell in roads+emptys:
@@ -581,18 +575,14 @@ def find_free_adj_cells(city, cell, d, n):
                     num_free_cells += 1
                     adj_cells.append(cell)
     elif d == "3d":
-        for i in [x, x-n, x+n]:
-            for j in [y, y-n, y+n]:
-                for k in [z, z-n, z+n]:
-                    if (i==x and j==y and z==k):
-                        continue
-                    elif (i>city.rows-1 or i<0) or (j>city.cols-1 or j<0) or (k>city.height-1 or k<0):
-                        OOG_cells_id.append([i, j, k])
-                        continue
-                    cell = city.grid3d[i][j][k]
-                    if cell.is_free():
-                        num_free_cells += 1
-                        adj_cells.append(cell)
+        for [i, j, k] in [[x, y, z+n], [x, y, z-n], [x+n, y, z], [x-n, y, z], [x, y+n, z], [x, y-n, z]]:
+            if (i>city.rows-1 or i<0) or (j>city.cols-1 or j<0) or (k>city.height-1 or k<0):
+                OOG_cells_id.append([i, j, k])
+                continue
+            cell = city.grid3d[i][j][k]
+            if cell.is_free():
+                num_free_cells += 1
+                adj_cells.append(cell)
 
     return num_free_cells, adj_cells, OOG_cells_id
 
@@ -650,7 +640,9 @@ def flow_calc(source, target, dt):
     diffrate = 1.6e-5
     area = 25
     distance = 5
+    realistic_coef = 0.03
     flow = diffrate*((source-target)/distance)*area*dt
+    flow = flow*realistic_coef
     return flow
 
 # calculate time zone (1,2,3,4) based on the current hour
