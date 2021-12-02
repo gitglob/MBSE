@@ -130,9 +130,9 @@ def calculate_wind_speed(month, secs):
         if i == 0:
             pre_secs = 0
         else:
-            pre_secs = col[i-1]
+            pre_secs = col[i-1] + pre_secs
         num_secs = num_days * 86400
-        if pre_secs <= secs and secs < num_secs:
+        if pre_secs <= secs and secs < num_secs+pre_secs:
             wind_speed = wind_month_day_df['Wind Speed (km/h)'][i]
 
     #print("We have {} (km/h) wind speed for {} seconds ({} days).".format(wind_speed, num_secs, num_days))
@@ -644,9 +644,9 @@ def flow_calc(source, target, dt):
     diffrate = 1.6e-5
     area = 25
     distance = 5
-    realistic_coef = 0.03
+    realistic_coef = 0.1
     flow = diffrate*((source-target)/distance)*area*dt
-    #flow = flow*realistic_coef
+    flow = flow*realistic_coef
     return flow
 
 # calculate time zone (1,2,3,4) based on the current hour
