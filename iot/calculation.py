@@ -28,7 +28,7 @@ def calculate_accuracy(real, measured):
     
     # Calculating accuracy
     for i in range(len(interp_measured)):
-        acc = 100 - abs(interp_measured[i] - real[i])/real[i]
+        acc = 100 - (100*(abs(interp_measured[i] - real[i])/real[i]))
         acc_list.append(acc)
     
     accuracy = sum(acc_list)/len(acc_list)

@@ -126,7 +126,7 @@ def main():
             # calculate wind effect
             if SAVE_PLOTS:
                 vis.visualize_wind_effect(city, wind_speed, wind_direction, date)
-            f.apply_wind_effect(city, roads, emptys, wind_direction, wind_speed)
+            #f.apply_wind_effect(city, roads, emptys, wind_direction, wind_speed)
             if SAVE_PLOTS:
                 vis.visualize_wind_effect(city, wind_speed, wind_direction, date)
 
@@ -180,9 +180,7 @@ def main():
         vis.visualize_co2_comparison(co2=real_values, co2_measured=measured_values, duration=TIME_TO_RUN, frequency=SENSOR_PERIOD)
 
     # remove outliers from measured_co2 values by averaging every 3 hours
-    print("Real", measured_values)
     avg_measured_values = calculation.remove_outliers(measured_values, (3*60*60)/SENSOR_PERIOD)
-    print("avg", avg_measured_values)
 
     # calculate MSE and accuracy
     score = calculation.calculate_error(real_values, avg_measured_values)
