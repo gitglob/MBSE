@@ -1,5 +1,6 @@
 import numpy as np
 import random
+import copy
 
 from .device import Device
 from .battery import BatteryList, get_best_battery
@@ -39,7 +40,8 @@ class SensorManager:
         return False
 
     def add_sensor(self, x, y, z):
-        device = Device(SensorList.SCD4, NetworkList.LORA, len(self.devices),
+        device = Device(copy.deepcopy(SensorList.SCD4),
+                copy.deepcopy(NetworkList.LORA), len(self.devices),
                 self.period)
 
         device.set_position(x, y, z)

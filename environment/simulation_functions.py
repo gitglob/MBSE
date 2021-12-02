@@ -17,11 +17,13 @@ wind_directions_distribution_df = pd.read_csv(dir_path + os.path.sep+'wind_direc
 def generate_cars(city, roads, time, max_cars):
     """
     Function that generates cars on roads based on the time of the date and the zones specified.
+
     Input: 
         1. cells of city
         2. roads
         3. time of the day
         4. maximum number of cars
+
     Output: List of car objects that were generated. 
     """
     city_size = city.rows
@@ -108,6 +110,7 @@ def calculate_co2(roads, emptys):
 def calculate_wind_speed(month, secs):
     """
     Function that calculates the wind speed of a city based on the month and the amount of time that has passed in that month.
+
     Input:
         month -> integer inside [1, 12]
         secs -> amount of seconds that have passed in that month [0, 2.592.000]
@@ -143,6 +146,7 @@ def calculate_wind_directions(wind_speed):
     west -> i-
     north -> j+
     south -> j-
+
     Input:
         wind_speed -> wind speed in km/h
     Output:
@@ -167,6 +171,7 @@ def calculate_wind_directions(wind_speed):
 def match_month(m):
     """
     Function to match integer to the corresponding month.
+
     Input:
         m -> Integer, corresponds to month [1,12].
     Output:
@@ -201,6 +206,7 @@ def match_month(m):
 def apply_wind_effect(city, roads, emptys, direction, speed):
     """
     Function that applies the effect of wind to the co2 inside a 3d city model.
+
     Input:
         city -> the 3d grid of the model of our city as a 3d list with objects of grid_cell inside
         direction -> the wind direction ('w', 'wnw', 'nw', 'nnw', 'n', 'nne', 'ne', 'ene', 'e', 'ese',	'se', 'sse', 's', 'ssw', 'sw', 'wsw')
@@ -214,12 +220,12 @@ def apply_wind_effect(city, roads, emptys, direction, speed):
         # iterate over the empty cells of the city (these are the only ones that can hold co2)
         for cell in roads+emptys:
             # check if the current cell has co2
-            if cell.co2 > 0:
+            if cell.co2 >= 0:
                 # find how many and which adjacent grid cells are free for the current cell
                 num_adj_cells, adj_cells, num_OOG_cells = find_free_adj_cells(city, cell, "2d")
 
                 # the co2 that goes out of grid gets lost
-                cell.co2 = cell.co2 * (num_adj_cells / (num_adj_cells + num_OOG_cells))
+                #cell.co2 = cell.co2 * (num_adj_cells / (num_adj_cells + num_OOG_cells))
 
                 # find which cells the wind flows towards
                 flow_cells = match_direction(city, direction, cell)
@@ -276,6 +282,7 @@ def apply_wind_effect(city, roads, emptys, direction, speed):
 def find_closest_free_cells(cell, adj_cells):
     """
     Function that finds the closest free grid cell to the current one based on euclidean distance.
+
     Input:
         cell -> 1d integer list of current cell index ([i, j, k])
         adj_cells -> list with adjacent cells
@@ -303,6 +310,7 @@ def find_closest_free_cells(cell, adj_cells):
 def match_direction(city, d, cell):
     """
     Function to match wind direction (east, west, north, south) to a adjacent cell
+
     input:
         city -> 3d grid of city
         d -> direction of wind ('w', 'wnw', 'nw', 'nnw', 'n', 'nne', 'ne', 'ene', 'e', 'ese',	'se', 'sse', 's', 'ssw', 'sw', 'wsw')
@@ -406,12 +414,13 @@ def match_direction(city, d, cell):
 def apply_diffusion_effect(city, roads, emptys, time):
     print("Applying diffusion...")
     for cell in roads+emptys:
-        if cell.co2>0:
+        if cell.co2 >= 0:
             # find the free adjacent cells
             num_adj_cells, free_cells, num_OOG_cells = find_free_adj_cells(city, cell, "3d")
 
             # the co2 that goes out of grid gets lost
-            cell.co2 = cell.co2 * (num_adj_cells / (num_adj_cells + num_OOG_cells))
+            flow = flow_calc(cell.co2, 0, time) * num_OOG_cells
+            cell.co2 -= flow
 
             # diffusion doesn't go down
             free_cells_not_below = []
@@ -421,18 +430,19 @@ def apply_diffusion_effect(city, roads, emptys, time):
             
             # iterate over free adjacent cells
             for free_cell in free_cells_not_below:
-                flow = flow_calc(cell.co2, free_cell.co2, time)/len(free_cells_not_below)
-                free_cell.stash_co2(flow)
-                cell.stash_co2(-flow)
+                flow = flow_calc(cell.co2, free_cell.co2, time) / 2
+                free_cell.co2 += flow
+                cell.co2 -= flow
 
     # now add all the stashed co2 in the cells
-    for cell in roads+emptys:
-        cell.merge_stashed_co2()
+    # for cell in roads+emptys:
+    #     cell.merge_stashed_co2()
                     
 # apply trees effect on co2 levels
 def apply_trees_effect(city, trees):
     """
     Function that applies the effect that trees have to co2.
+
     Input:
         city -> the 3d grid of the model of our city as a 3d list with objects of grid_cell inside
     Output:
@@ -559,6 +569,7 @@ def find_free_adj_cells(city, cell, d):
 def rain(city):
     """ 
     Function that simulates rain and makes all the CO2 accumulate in the bottom layer of the city.
+
     Input: City cells
     """
 
@@ -608,7 +619,8 @@ def flow_calc(source, target, time):
     diffrate = 1.6e-5
     area = 25
     distance = 5
-    flow = diffrate*((source-target)/distance)*area*time
+    realistic_coeff = 0.03
+    flow = diffrate*((source-target)/distance)*area*time*realistic_coeff
     return flow
 
 # calculate time zone (1,2,3,4) based on the current hour
