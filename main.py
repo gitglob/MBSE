@@ -179,18 +179,11 @@ def main():
     if SAVE_PLOTS:
         vis.visualize_co2_comparison(co2=real_values, co2_measured=measured_values, duration=TIME_TO_RUN, frequency=SENSOR_PERIOD)
 
-    # remove outliers from measured_co2 values by averaging every 3 hours
-    avg_measured_values = calculation.remove_outliers(measured_values, (3*60*60)/SENSOR_PERIOD)
-
     # calculate MSE and accuracy
     score = calculation.calculate_error(real_values, measured_values)
-    avg_score = calculation.calculate_error(real_values, avg_measured_values)
     accuracy = calculation.calculate_accuracy(real_values, measured_values)
-    avg_accuracy = calculation.calculate_accuracy(real_values, avg_measured_values)
     print(f"Root-Mean-Square Error: {round(score, 4)}")
-    print(f"Root-Mean-Square Error after outlier removal: {round(avg_score, 4)}")
-    print(f"Average real accuracy: {accuracy}%")
-    print(f"Average accuracy after removing outliers: {avg_accuracy}%")
+    print(f"Real accuracy: {accuracy}%")
 
     #Save results in csv file
     newline =  [str(sensor_manager.get_sensor_cost(TIME_TO_RUN)*sensor_number), str(SENSOR_DISTANCE), str(sensor_number), str(SENSOR_STATIC), str(SENSOR_PERIOD), str(TIME_TO_RUN), str(round(score, 4)), str(round(accuracy, 4))]
@@ -202,7 +195,7 @@ def main():
 
     # after the simulation is done, visualize the co2 in the city
     vis.visualize_co2(city, mesh=False, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
-    vis.visualize_accuracy(real_values, avg_measured_values, measured_values, SENSOR_PERIOD)
+    vis.visualize_accuracy(real_values, measured_values, SENSOR_PERIOD)
 
     # calculate and print the total co2 in the city
     total_co2 = f.calculate_co2(roads, emptys)

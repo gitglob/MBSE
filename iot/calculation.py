@@ -11,24 +11,18 @@ results_path = os.path.join("figures", "results", "results.csv")
 
 # Calculating the Root-Mean-Square Error of the measurement vs real values
 def calculate_error(real, measured):
-    # Interpolating the samples
-    interp_measured = interpolate(real, measured)
-
     summ = 0
     for i in range(len(real)):
-        summ += pow(real[i] - interp_measured[i], 2)
+        summ += pow(real[i] - measured[i], 2)
     error = math.sqrt(summ/len(real))
     return(error)
 
 def calculate_accuracy(real, measured):
     acc_list = []
-
-    # Interpolate the samples
-    interp_measured = interpolate(real, measured)
     
     # Calculating accuracy
-    for i in range(len(interp_measured)):
-        acc = 100 - (100*(abs(interp_measured[i] - real[i])/real[i]))
+    for i in range(len(measured)):
+        acc = 100 - (100*(abs(measured[i] - real[i])/real[i]))
         acc_list.append(acc)
     
     accuracy = sum(acc_list)/len(acc_list)

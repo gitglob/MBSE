@@ -575,14 +575,18 @@ def find_free_adj_cells(city, cell, d, n):
                     num_free_cells += 1
                     adj_cells.append(cell)
     elif d == "3d":
-        for [i, j, k] in [[x, y, z+n], [x, y, z-n], [x+n, y, z], [x-n, y, z], [x, y+n, z], [x, y-n, z]]:
-            if (i>city.rows-1 or i<0) or (j>city.cols-1 or j<0) or (k>city.height-1 or k<0):
-                OOG_cells_id.append([i, j, k])
-                continue
-            cell = city.grid3d[i][j][k]
-            if cell.is_free():
-                num_free_cells += 1
-                adj_cells.append(cell)
+        for i in [x, x-n, x+n]:
+            for j in [y, y-n, y+n]:
+                for k in [z, z-n, z+n]:
+                    if (i==x and j==y and z==k):
+                        continue
+                    elif (i>city.rows-1 or i<0) or (j>city.cols-1 or j<0) or (k>city.height-1 or k<0):
+                        OOG_cells_id.append([i, j, k])
+                        continue
+                    cell = city.grid3d[i][j][k]
+                    if cell.is_free():
+                        num_free_cells += 1
+                        adj_cells.append(cell)
 
     return num_free_cells, adj_cells, OOG_cells_id
 
@@ -642,7 +646,7 @@ def flow_calc(source, target, dt):
     distance = 5
     realistic_coef = 0.03
     flow = diffrate*((source-target)/distance)*area*dt
-    flow = flow*realistic_coef
+    #flow = flow*realistic_coef
     return flow
 
 # calculate time zone (1,2,3,4) based on the current hour
