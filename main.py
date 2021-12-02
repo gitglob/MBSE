@@ -171,22 +171,28 @@ def main():
                 debug("Moving sensors...")
                 sensor_manager.shuffle_sensors(roads)
 
-        if sec >= TIME_TO_RUN:
+        if sec >= TIME_TO_RUN-1:
             print()
             break
     
-    # remove outliers from measured_co2 values by averaging every 6 hours
-    print("Real values:", measured_values)
-    avg_measured_values = calculation.remove_outliers(measured_values, (6*60*60)/SENSOR_PERIOD)
-    print("After removing outliers:", avg_measured_values)
-
     # save a plot of co2 vs measured co2
     if SAVE_PLOTS:
         vis.visualize_co2_comparison(co2=real_values, co2_measured=measured_values, duration=TIME_TO_RUN, frequency=SENSOR_PERIOD)
 
+    # remove outliers from measured_co2 values by averaging every 3 hours
+    print("Real", measured_values)
+    avg_measured_values = calculation.remove_outliers(measured_values, (3*60*60)/SENSOR_PERIOD)
+    print("avg", avg_measured_values)
+
+    # calculate MSE and accuracy
     score = calculation.calculate_error(real_values, avg_measured_values)
-    accuracy = calculation.accuracy(real_values, avg_measured_values)
-    print(f"\nAverage accuracy: {accuracy*100}%")
+    avg_score = calculation.calculate_error(real_values, measured_values)
+    accuracy = calculation.calculate_accuracy(real_values, avg_measured_values)
+    avg_accuracy = calculation.calculate_accuracy(real_values, measured_values)
+    print(f"Root-Mean-Square Error: {round(score, 4)}")
+    print(f"Root-Mean-Square Error after outlier removal: {round(avg_score, 4)}")
+    print(f"Average real accuracy: {accuracy}%")
+    print(f"Average accuracy after removing outliers: {avg_accuracy}%")
 
     #Save results in csv file
     newline =  [str(sensor_manager.get_sensor_cost(TIME_TO_RUN)*sensor_number), str(SENSOR_DISTANCE), str(sensor_number), str(SENSOR_STATIC), str(SENSOR_PERIOD), str(TIME_TO_RUN), str(round(score, 4)), str(round(accuracy, 4))]
@@ -205,8 +211,6 @@ def main():
     print("\nTotal accumulated co2 in the city:", total_co2, "grams")
     total_measured_co2 = sensor_manager.get_total_co2()
     print("Total measured co2:", str(total_measured_co2), "grams")
-
-    print(f"Root-Mean-Square Error: {round(score, 4)}")
     
     print(f"\n# of sensors: {sensor_number}")
     print("Energy per device fro 1 year:", str(sensor_manager.get_used_power(TIME_TO_RUN)), "mAh")

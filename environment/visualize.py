@@ -509,16 +509,12 @@ def visualize_rain_effect(city, date):
     
 def visualize_accuracy (real, avg_measured, measured, sensor_period):
     print("Visualizing accuracy...")
-    print(avg_measured)
-    print(len(avg_measured))
     avg_measured = interpolate(real, avg_measured)
-    print(avg_measured)
-    print(len(avg_measured))
 
     plt.figure()
     plt.plot([x*sensor_period/3600 for x in range(len(real))], real, "-o", label="real")
-    plt.plot([x*sensor_period/3600 for x in range(len(avg_measured))], avg_measured, "-o", label="averaged measured")
-    plt.plot([x*sensor_period/3600 for x in range(len(measured))], measured, "-o", label="measured")
+    plt.plot([x*sensor_period/3600 for x in range(len(avg_measured))], avg_measured, "-.o", label="averaged measured")
+    plt.plot([x*sensor_period/3600 for x in range(len(measured))], measured, "--o", label="measured")
     plt.legend()
     plt.ylabel("CO2 amount [g/m3]", fontsize = 30)
     plt.xlabel("Time [h]", fontsize = 30)
@@ -596,18 +592,8 @@ def visualize_diffusion(city, date):
 
 def visualize_co2_comparison(co2, co2_measured, duration, frequency):
     # replace measured values with average measured values every 10 points
-    avg_measured = []
-    sum_ = 0
-    count = 0
-    for i, x in enumerate(co2_measured):
-        sum_ += x
-        count += 1
-        if i%10 == 0 or i == len(co2_measured)-1:
-            avg_measured.append(sum_/count)
-            sum_ = 0
-            count = 0
+    co2_measured = interpolate(co2, co2_measured)
 
-    co2_measured = avg_measured
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(111)
 

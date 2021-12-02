@@ -20,18 +20,19 @@ def calculate_error(real, measured):
     error = math.sqrt(summ/len(real))
     return(error)
 
-def accuracy(real, measured):
-    values = []
+def calculate_accuracy(real, measured):
+    acc_list = []
 
     # Interpolate the samples
     interp_measured = interpolate(real, measured)
     
     # Calculating accuracy
     for i in range(len(interp_measured)):
-        acc = 1 - abs(real[i] - interp_measured[i])/real[i]
-        values.append(acc)
+        acc = 100 - abs(interp_measured[i] - real[i])/real[i]
+        acc_list.append(acc)
     
-    accuracy = sum(values)/len(values)
+    accuracy = sum(acc_list)/len(acc_list)
+
     return(accuracy)
 
 # Save results in csv file
@@ -120,7 +121,7 @@ def remove_outliers(measured, n):
     for i, x in enumerate(measured):
         sum_ += x
         count += 1
-        if i%n == 0 or i == len(measured)-1:
+        if count==n or i == len(measured)-1:
             avg_measured.append(sum_/count)
             sum_ = 0
             count = 0
