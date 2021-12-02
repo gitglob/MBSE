@@ -160,7 +160,7 @@ def main():
                 # calculate wind effect
                 if SAVE_PLOTS:
                     vis.visualize_wind_effect(city, wind_speed, wind_direction, date)
-                f.apply_wind_effect(city, roads, emptys,
+                f.apply_wind_effect(city, roads, emptys_0,
                                     wind_direction, wind_speed)
                 if SAVE_PLOTS:
                     vis.visualize_wind_effect(city, wind_speed, wind_direction, date)
