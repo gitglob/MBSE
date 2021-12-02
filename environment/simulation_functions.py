@@ -130,7 +130,7 @@ def calculate_wind_speed(month, secs):
         if i == 0:
             pre_secs = 0
         else:
-            pre_secs = col[i-1] + pre_secs
+            pre_secs = col[i-1]*86400 + pre_secs
         num_secs = num_days * 86400
         if pre_secs <= secs and secs < num_secs+pre_secs:
             wind_speed = wind_month_day_df['Wind Speed (km/h)'][i]
