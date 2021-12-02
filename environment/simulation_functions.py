@@ -455,7 +455,7 @@ def apply_diffusion_effect(city, roads, emptys, dt):
             
             # iterate over free adjacent cells
             for free_cell in free_cells_not_below:
-                flow = flow_calc(available_co2, free_cell.co2, dt)
+                flow = flow_calc(available_co2, free_cell.co2, dt)/2
                 free_cell.stash_co2(flow)
                 cell.stash_co2(-flow)
 
@@ -646,7 +646,7 @@ def flow_calc(source, target, dt):
     distance = 5
     realistic_coef = 0.1
     flow = diffrate*((source-target)/distance)*area*dt
-    flow = flow*realistic_coef
+    #flow = flow*realistic_coef
     return flow
 
 # calculate time zone (1,2,3,4) based on the current hour
