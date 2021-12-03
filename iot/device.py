@@ -1,4 +1,5 @@
 import random
+random.seed(10)
 
 
 class Device:
