@@ -242,7 +242,7 @@ def visualize_co2(city, mesh=False, d = 3, wind_direction=None, wind_speed=0, da
         plt.savefig(os.path.join('figures', 'co2_timeseries', f'{now}.png'))
         plt.close()
 
-def visualize_sensor(city, sensors, sensors, static, T, d):
+def visualize_sensor(city, sensors, static, T, d):
     # creating figures
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(111)
