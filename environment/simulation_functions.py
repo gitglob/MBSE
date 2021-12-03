@@ -8,8 +8,6 @@ from math import sqrt
 import pandas as pd
 from .classes import *
 
-random.seed(10)
-
 # here we read once the necessary csv files with the information about wind in Copenhagen
 dir_path = os.path.dirname(os.path.realpath('model_data/wind_months.csv'))
 wind_month_day_df = pd.read_csv(dir_path + os.path.sep +'wind_months.csv', header=0)
@@ -127,16 +125,18 @@ def calculate_wind_speed(month, secs):
     
     # calculate the wind speed 
     for i, num_days in enumerate(col):
-        if i == 0:
-            pre_secs = 0
+        if i>0:
+            pre_days = col[i-1]
         else:
-            pre_secs = col[i-1]*86400 + pre_secs
-        num_secs = num_days * 86400
-        if pre_secs <= secs and secs < num_secs+pre_secs:
+            pre_days = 0
+        pre_secs = pre_days * 60*60*24
+        num_secs = num_days * 60*60*24
+        if pre_secs <= secs and secs < num_secs:
             wind_speed = wind_month_day_df['Wind Speed (km/h)'][i]
+            wind_speed_duration = num_secs
 
     #print("We have {} (km/h) wind speed for {} seconds ({} days).".format(wind_speed, num_secs, num_days))
-    return wind_speed, num_secs
+    return wind_speed, wind_speed_duration
 
 # calculate the wind direction
 def calculate_wind_directions(wind_speed):
@@ -220,21 +220,15 @@ def apply_wind_effect(city, roads, emptys, direction, speed):
         # iterate over the empty cells of the city (these are the only ones that can hold co2)
         for cell in roads+emptys:
             # check if the current cell has co2
-            if cell.co2 > 0:
+            if cell.co2 >= 0:
                 # find how many and which adjacent grid cells are free for the current cell
-                n = int(speed//5)+1 # the neighborhood that we are searching depends on the wind speed
-                num_adj_cells, adj_cells, OOG_adj_cells_id = find_free_adj_cells(city, cell, "2d", n)
-                # print("\t\t# of OOG cells:", len(OOG_adj_cells_id))
-
-                # find which cells the wind flows towards
-                flow_cells, num_OOG_flow_cells = match_direction(city, direction, cell, n)
-                num_flow_cells = len(flow_cells)
+                num_adj_cells, adj_cells, num_OOG_cells = find_free_adj_cells(city, cell, "2d")
 
                 # the co2 that goes out of grid gets lost
-                if num_OOG_flow_cells > 0:
-                    #print("CO2 before:", cell.co2)
-                    cell.co2 = cell.co2 * (num_flow_cells) / (num_flow_cells + num_OOG_flow_cells)
-                    #print("CO2 after:", cell.co2)
+                #cell.co2 = cell.co2 * (num_adj_cells / (num_adj_cells + num_OOG_cells))
+
+                # find which cells the wind flows towards
+                flow_cells = match_direction(city, direction, cell)
 
                 # check if the wind flows to 1 cell
                 if len(flow_cells) == 1:
@@ -281,7 +275,7 @@ def apply_wind_effect(city, roads, emptys, direction, speed):
 
         # iterate over the empty cells of the city (these are the only ones that can hold co2)
         for cell in roads+emptys:
-            if cell.stashed_co2!=0:
+            if cell.stashed_co2>0:
                 cell.merge_stashed_co2()
             
 # find the closest free cells
@@ -313,7 +307,7 @@ def find_closest_free_cells(cell, adj_cells):
     return closest_cells
 
 # match wind direction to adjacent cell
-def match_direction(city, d, cell, n):
+def match_direction(city, d, cell):
     """
     Function to match wind direction (east, west, north, south) to a adjacent cell
 
@@ -324,9 +318,6 @@ def match_direction(city, d, cell, n):
     output:
         c -> list with the corresponding adjacent cell(s) that the wind flows to
     """
-
-    # number of out of grid flow cells
-    num_oog_flow_cells = 0
 
     # extract coordinates
     i = cell.x
@@ -339,113 +330,97 @@ def match_direction(city, d, cell, n):
     if len(d)<3:
         z = k
         if d == 'e':
-            x = i+n
+            x = i+1
             y = j
         elif d == 'w':
-            x = i-n
+            x = i-1
             y = j
         elif d == 'n':
             x = i
-            y = j+n
+            y = j+1
         elif d == 's':
             x = i
-            y = j-n
+            y = j-1
 
         elif d == 'ne':
-            x = i+n
-            y = j+n
+            x = i+1
+            y = j+1
         elif d == "nw":
-            x = i-n
-            y = j+n
+            x = i-1
+            y = j+1
         elif d == "se":
-            x = i+n
-            y = j-n
+            x = i+1
+            y = j-1
         elif d == "sw":
-            x = i-n
-            y = j-n
+            x = i-1
+            y = j-1
         
         if x>=0 and x<(city.rows) and y>=0 and y<(city.cols) and z>=0 and z<(city.height):
             retval.append(city.grid3d[x][y][z])
-        else:
-            num_oog_flow_cells += 1
 
     else:
         z1 = k
         z2 = k
         if d == "ene":
-            x1 = i+n
+            x1 = i+1
             y1 = j
-            x2 = i+n
-            y2 = j+n
+            x2 = i+1
+            y2 = j+1
         elif d == "ese":
-            x1 = i+n
+            x1 = i+1
             y1 = j
-            x2 = i+n
-            y2 = j-n
+            x2 = i+1
+            y2 = j-1
         elif d == "wnw":
-            x1 = i-n
+            x1 = i-1
             y1 = j
-            x2 = i-n
-            y2 = j+n
+            x2 = i-1
+            y2 = j+1
         elif d == "wsw":
-            x1 = i-n
+            x1 = i-1
             y1 = j
-            x2 = i-n
-            y2 = j-n
+            x2 = i-1
+            y2 = j-1
         elif d == "nne":
             x1 = i
-            y1 = j+n
-            x2 = i+n
-            y2 = j+n
+            y1 = j+1
+            x2 = i+1
+            y2 = j+1
         elif d == "nnw":
             x1 = i
-            y1 = j+n
-            x2 = i-n
-            y2 = j+n
+            y1 = j+1
+            x2 = i-1
+            y2 = j+1
         elif d == "sse":
             x1 = i
-            y1 = j-n
-            x2 = i+n
-            y2 = j-n
+            y1 = j-1
+            x2 = i+1
+            y2 = j-1
         elif d == "ssw":
             x1 = i
-            y1 = j-n
-            x2 = i-n
-            y2 = j-n
+            y1 = j-1
+            x2 = i-1
+            y2 = j-1
 
         # check if the blocks that wind flows towards are inside the grid
         if x1>=0 and x1<(city.rows) and y1>=0 and y1<(city.cols) and z1>=0 and z1<(city.height):
             retval.append(city.grid3d[x1][y1][z1])
-        else:
-            num_oog_flow_cells += 1
         if x2>=0 and x2<(city.rows) and y2>=0 and y2<(city.cols) and z2>=0 and z2<(city.height):
             retval.append(city.grid3d[x2][y2][z2])
-        else:
-            num_oog_flow_cells += 1
 
-    return retval, num_oog_flow_cells
+    return retval
 
 # Applying diffusion effect: The CO2 spreads vertically and horizontally
-def apply_diffusion_effect(city, roads, emptys, dt):
+def apply_diffusion_effect(city, roads, emptys, time):
     print("Applying diffusion...")
     for cell in roads+emptys:
-        if cell.co2>0:
+        if cell.co2 >= 0:
             # find the free adjacent cells
-            num_free_adj_cells, free_cells, OOG_cells_id = find_free_adj_cells(city, cell, "3d", 1)
-
-            # check how many of the neighboring OOG_cells co2 diffuses towards
-            num_OOG_cells = 0
-            for oog_cell in OOG_cells_id:
-                if oog_cell[2] >= cell.z:
-                    num_OOG_cells += 1
+            num_adj_cells, free_cells, num_OOG_cells = find_free_adj_cells(city, cell, "3d")
 
             # the co2 that goes out of grid gets lost
-            #print(f"\t cell {[cell.x, cell.y, cell.z]} total co2: {cell.co2}")
-            lost_co2_per_cell = flow_calc(cell.co2, 0, dt)
-            total_lost_co2 = lost_co2_per_cell*num_OOG_cells
-            #print(f"\t lost {total_lost_co2} co2 to #{num_OOG_cells} OOG cells")
-            available_co2 = cell.co2 - total_lost_co2
-            cell.stash_co2(-total_lost_co2)
+            flow = flow_calc(cell.co2, 0, time) * num_OOG_cells
+            cell.co2 -= flow
 
             # diffusion doesn't go down
             free_cells_not_below = []
@@ -455,13 +430,13 @@ def apply_diffusion_effect(city, roads, emptys, dt):
             
             # iterate over free adjacent cells
             for free_cell in free_cells_not_below:
-                flow = flow_calc(available_co2, free_cell.co2, dt)/2
-                free_cell.stash_co2(flow)
-                cell.stash_co2(-flow)
+                flow = flow_calc(cell.co2, free_cell.co2, time) / 2
+                free_cell.co2 += flow
+                cell.co2 -= flow
 
     # now add all the stashed co2 in the cells
-    for cell in roads+emptys:
-        cell.merge_stashed_co2()
+    # for cell in roads+emptys:
+    #     cell.merge_stashed_co2()
                     
 # apply trees effect on co2 levels
 def apply_trees_effect(city, trees):
@@ -537,7 +512,7 @@ def find_nearby_free_cells(city, cell):
     return num_free_cells, near_cells
 
 # Check for free adjacent cells in either 2d or 3d (inside the grid)
-def find_free_adj_cells(city, cell, d, n): 
+def find_free_adj_cells(city, cell, d): 
     """
     Function that finds the number and the position of the free adjacent cells for a city grid block in 2d or 3d.
     
@@ -556,18 +531,18 @@ def find_free_adj_cells(city, cell, d, n):
     z = cell.z
 
     # counter for out of grid adjacent cells
-    OOG_cells_id = []
+    num_OOG_cells = 0
 
     # count the # of adjacent cells in 2d or 3d
     num_free_cells = 0
     adj_cells = []
     if d == "2d":
-        for i in [x, x-n, x+n]:
-            for j in [y, y-n, y+n]:
+        for i in [x, x-1, x+1]:
+            for j in [y, y-1, y+1]:
                 if (i==x and j==y):
                     continue
                 elif (i>city.rows-1 or i<0) or (j>city.cols-1 or j<0):
-                    OOG_cells_id.append([i, j])
+                    num_OOG_cells +=1
                     continue
                 k = z
                 cell = city.grid3d[i][j][k]
@@ -575,20 +550,20 @@ def find_free_adj_cells(city, cell, d, n):
                     num_free_cells += 1
                     adj_cells.append(cell)
     elif d == "3d":
-        for i in [x, x-n, x+n]:
-            for j in [y, y-n, y+n]:
-                for k in [z, z-n, z+n]:
+        for i in [x, x-1, x+1]:
+            for j in [y, y-1, y+1]:
+                for k in [z, z-1, z+1]:
                     if (i==x and j==y and z==k):
                         continue
                     elif (i>city.rows-1 or i<0) or (j>city.cols-1 or j<0) or (k>city.height-1 or k<0):
-                        OOG_cells_id.append([i, j, k])
+                        num_OOG_cells +=1
                         continue
                     cell = city.grid3d[i][j][k]
                     if cell.is_free():
                         num_free_cells += 1
                         adj_cells.append(cell)
 
-    return num_free_cells, adj_cells, OOG_cells_id
+    return num_free_cells, adj_cells, num_OOG_cells
 
 # apply rain effect on co2 levels
 def rain(city):
@@ -639,14 +614,13 @@ def sec_to(sec, x):
         minute = sec // 60
         return minute
 
-# calculating the mass flow of CO2 between blocks (per hour)
-def flow_calc(source, target, dt):
+# calculating the mass flow of CO2 between blocks 
+def flow_calc(source, target, time):
     diffrate = 1.6e-5
     area = 25
     distance = 5
-    realistic_coef = 0.1
-    flow = diffrate*((source-target)/distance)*area*dt
-    #flow = flow*realistic_coef
+    realistic_coeff = 0.03
+    flow = diffrate*((source-target)/distance)*area*time*realistic_coeff
     return flow
 
 # calculate time zone (1,2,3,4) based on the current hour

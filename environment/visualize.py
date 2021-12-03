@@ -5,6 +5,8 @@ from pylab import *
 import seaborn as sns
 import os
 import datetime
+import pandas as pd
+
 
 # Visualize 3d grid
 def visualize_3d_grid(city):
@@ -51,10 +53,12 @@ def visualize_3d_grid(city):
     ax.scatter(x3, y3, z3, s=0.5, c='blue', alpha=1)
     ax.scatter(x4, y4, z4, s=0.5, c='white', alpha=1)
     plt.title("3d CITY MODEL \n\nBlue: buildings \nGreen: trees \nRed: roads \n White: empty (air)")
+    plt.savefig(os.path.join('figures', 'city_model', 'city_3d_model.png'))
     plt.show()
 
+
 # Visualize cards
-def visualize_cars(city, cars, date):
+def visualize_cars(city, cars):
     print("Visualizing cars...")
     x1 = []
     x2 = []
@@ -66,50 +70,50 @@ def visualize_cars(city, cars, date):
     y3 = []
     y4 = []
     y5 = []
+    z1 = []
+    z2 = []
+    z3 = []
+    z4 = []
+    z5 = []
 
     car_pos = []
     for car in cars:
         x5.append(car.x)
         y5.append(car.y)
-        car_pos.append([car.x, car.y])
+        z5.append(car.z)
+        car_pos.append([car.x, car.y, car.z])
 
-    k = 0
     for i in range(city.rows):
         for j in range(city.cols):
-            if city.grid3d[i][j][k].contains == "empty":
-                x4.append(i)
-                y4.append(j)
-            elif city.grid3d[i][j][k].contains == "building":
-                x3.append(i)
-                y3.append(j)
-            elif city.grid3d[i][j][k].contains == "tree":
-                x2.append(i)
-                y2.append(j)
-            else:
-                if [i, j] not in car_pos:
-                    x1.append(i)
-                    y1.append(j)
+            for k in range(city.height):
+                if city.grid3d[i][j][k].contains == "empty":
+                    x4.append(i)
+                    y4.append(j)
+                    z4.append(k)
+                elif city.grid3d[i][j][k].contains == "building":
+                    x3.append(i)
+                    y3.append(j)
+                    z3.append(k)
+                elif city.grid3d[i][j][k].contains == "tree":
+                    x2.append(i)
+                    y2.append(j)
+                    z2.append(k)
+                else:
+                    if [i, j, k] not in car_pos:
+                        x1.append(i)
+                        y1.append(j)
+                        z1.append(k)
 
     plt.rcParams["figure.figsize"] = [10, 10]
     plt.rcParams["figure.autolayout"] = True
     fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.scatter(x1, y1, c='red', s=0.8, alpha=1)
-    ax.scatter(x2, y2, c='green', s=0.8, alpha=1)
-    ax.scatter(x3, y3, c='blue', s=0.8, alpha=1)
-    ax.scatter(x4, y4, c='white', s=0.8, alpha=1)
-    ax.scatter(x5, y5, c='black', s=3, alpha=1)
-    
-    # adding title and labels
-    ax.set_title(date + "\n\nCar positions on the city ground floor. \n\nBlue: buildings \nGreen: trees \nRed: roads \n White: empty (air) \n Black: cars")
-    ax.set_xlabel('X-axis')
-    ax.set_ylabel('Y-axis')
-
-    # displaying plot
-    # plt.show()
-    now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-    plt.savefig(os.path.join('figures', 'car_positions', f'{now}.png'))
-    plt.close()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter(x1, y1, z1, c='red', s=0.5, alpha=1)
+    ax.scatter(x2, y2, z2, c='green', s=0.5, alpha=1)
+    ax.scatter(x3, y3, z3, c='blue', s=0.5, alpha=1)
+    ax.scatter(x4, y4, z4, c='white', s=0.5, alpha=1)
+    ax.scatter(x5, y5, z5, c='black', s=0.75, alpha=1)
+    plt.show()
 
 # Visualize CO2 levels in 3d grid or just one floor (d=[0,1,2] -> show this floor, d=3 -> show a 3d visualization)
 def visualize_co2(city, mesh=False, d = 3, wind_direction=None, wind_speed=0, date=None):
@@ -178,7 +182,10 @@ def visualize_co2(city, mesh=False, d = 3, wind_direction=None, wind_speed=0, da
         ax.set_zlabel('Z-axis')
 
         # displaying plot
-        plt.show()
+        # plt.show()
+        now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        plt.savefig(os.path.join('figures', 'co2_3d', f'{now}.png'))
+        plt.close()
 
     # 2d visualization
     else:
@@ -242,7 +249,7 @@ def visualize_co2(city, mesh=False, d = 3, wind_direction=None, wind_speed=0, da
         plt.savefig(os.path.join('figures', 'co2_timeseries', f'{now}.png'))
         plt.close()
 
-def visualize_sensor(city, sensors):
+def visualize_sensor(city, sensors, static, T, d):
     # creating figures
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(111)
@@ -279,15 +286,17 @@ def visualize_sensor(city, sensors):
     ax.scatter(s_x, s_y, s=4, marker='o', c='#a10000', alpha=1)
 
     # adding title and labels
-    ax.set_title("City 2d Sensor location")
+    if static:
+        placement = "static"
+    else:
+        placement = "dynamic"
+    ax.set_title(f"City 2d Sensor location (ground floor, sensors marked as red dots) \n\n Sensor placement: {placement} \nSensor period: {T} sec \nSensor distance: {d} m")
     ax.set_xlabel('X-axis')
     ax.set_ylabel('Y-axis')
 
     # displaying plot
+    plt.savefig(os.path.join('figures', 'sensor_placement', 'sensor_placement.png'))
     plt.show()
-    #now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-    #plt.savefig(os.path.join('figures', 'sensor_placement', f'{now}.png'))
-    #plt.close()
 
 def visualize_co2_measures(values):
     print("Visualizing real co2...")
@@ -507,13 +516,12 @@ def visualize_rain_effect(city, date):
     plt.savefig(os.path.join('figures', 'co2_rain_effect', f'{now}.png'))
     plt.close()
     
-def visualize_accuracy (real, measured, sensor_period):
-    print("Visualizing accuracy...")
-
+    
+def visualize_accuracy (real, real_period, measured, sensor_period):
     plt.figure()
-    plt.plot([x*sensor_period/3600 for x in range(len(real))], real, "-o", label="real")
-    plt.plot([x*sensor_period/3600 for x in range(len(measured))], measured, "--o", label="measured")
-    plt.legend()
+    plt.plot([x*real_period/3600 for x in range(len(real))], real, "-")
+    plt.plot([x*sensor_period/3600 for x in range(len(measured))], measured, "-")
+    plt.legend(["Real", "Measured"], fontsize = 30)
     plt.ylabel("CO2 amount [g/m3]", fontsize = 30)
     plt.xlabel("Time [h]", fontsize = 30)
     plt.title("CO2 level in the city", fontsize = 30)
@@ -589,7 +597,6 @@ def visualize_diffusion(city, date):
     plt.close()
 
 def visualize_co2_comparison(co2, co2_measured, duration, frequency):
-    # replace measured values with average measured values every 10 points
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(111)
 
@@ -625,12 +632,3 @@ def visualize_norm_co2(score_values, real_normalized, duration, frequency):
     now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
     plt.savefig(os.path.join('figures', 'co2_normalized_acc', f'{now}.png'))
     plt.close()
-
-# unused
-def interpolate(real, measured):
-    diff = (len(real)-1) / (len(measured)-1)
-    interp_measured =np.interp(range(len(real)),
-            [x*diff for x in range(len(measured))],
-            measured)
-
-    return interp_measured
