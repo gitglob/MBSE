@@ -242,7 +242,7 @@ def visualize_co2(city, mesh=False, d = 3, wind_direction=None, wind_speed=0, da
         plt.savefig(os.path.join('figures', 'co2_timeseries', f'{now}.png'))
         plt.close()
 
-def visualize_sensor(city, sensors):
+def visualize_sensor(city, sensors, sensors, static, T, d):
     # creating figures
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(111)
@@ -280,10 +280,16 @@ def visualize_sensor(city, sensors):
 
     # adding title and labels
     ax.set_title("City 2d Sensor location")
+    if static:
+        placement = "static"
+    else:
+        placement = "dynamic"
+    ax.set_title(f"City 2d Sensor location (ground floor, sensors marked as red dots) \n\n Sensor placement: {placement} \nSensor period: {T} sec \nSensor distance: {d} m")
     ax.set_xlabel('X-axis')
     ax.set_ylabel('Y-axis')
 
     # displaying plot
+    plt.savefig(os.path.join('figures', 'sensor_placement', 'sensor_placement.png'))
     plt.show()
     #now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
     #plt.savefig(os.path.join('figures', 'sensor_placement', f'{now}.png'))

@@ -53,8 +53,8 @@ def main():
 
     # visualize the city
     vis.visualize_3d_grid(city)
-    # visualize the sensor placement
-    vis.visualize_sensor(city, sensor_manager.devices)
+    # visualiza the sensor placement
+    vis.visualize_sensor(city, sensor_manager.devices, SENSOR_STATIC, SENSOR_PERIOD, SENSOR_DISTANCE)
 
     # run the simulation - Note: Every iteration is 1 second
     sec = -1
