@@ -129,3 +129,30 @@ def interpolate(real, measured):
             measured)
 
     return interp_measured
+
+def compare():
+    # read csv
+    df = pd.read_csv(os.path.join(os.getcwd(), 'figures', 'results', 'results.csv'), sep=';')
+    df = df[df['Accuracy']>0]
+
+    # cost-efficiency factor
+    df['ce'] = df['Cost']/(df['Accuracy']*100)
+
+    # most cost efficient solution
+    print('The most accurate simulation has the following characteristics:')
+    print('Number of sensors: ', df.loc[[df['Accuracy'].idxmax()]]['Number of sensors'].item())
+    print('Sensor distance: ', df.loc[[df['Accuracy'].idxmax()]]['Sensor distance'].item())
+    print('Sampling time: ', df.loc[[df['Accuracy'].idxmax()]]['Sampling time'].item())
+    print('Static placement: ', df.loc[[df['Accuracy'].idxmax()]]['Static'].item())
+    print('Accuracy: ', df.loc[[df['Accuracy'].idxmax()]]['Accuracy'].item(), '\n')
+
+    # most cost efficient solution
+    print('The most cost-efficient simulation has the following characteristics:')
+    print('Number of sensors: ', df.loc[[df['ce'].idxmin()]]['Number of sensors'].item())
+    print('Sensor distance: ', df.loc[[df['ce'].idxmin()]]['Sensor distance'].item())
+    print('Sampling time: ', df.loc[[df['ce'].idxmin()]]['Sampling time'].item())
+    print('Static placement: ', df.loc[[df['ce'].idxmin()]]['Static'].item())
+    print('Accuracy: ', df.loc[[df['ce'].idxmin()]]['Accuracy'].item())
+
+    return
+

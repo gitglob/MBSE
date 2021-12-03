@@ -51,10 +51,10 @@ def main():
     sensor_number = sensor_manager.get_sensors_count()
     print("Placed " + str(sensor_number) + " sensors")
 
-    # visualize the city
-    vis.visualize_3d_grid(city)
-    # visualiza the sensor placement
-    vis.visualize_sensor(city, sensor_manager.devices, SENSOR_STATIC, SENSOR_PERIOD, SENSOR_DISTANCE)
+    # # visualize the city
+    # vis.visualize_3d_grid(city)
+    # # visualiza the sensor placement
+    # vis.visualize_sensor(city, sensor_manager.devices, SENSOR_STATIC, SENSOR_PERIOD, SENSOR_DISTANCE)
 
     # run the simulation - Note: Every iteration is 1 second
     sec = -1
@@ -193,9 +193,9 @@ def main():
     df = pd.DataFrame.from_dict(data)
     df.to_csv(os.path.join('figures', 'run_data', f'{TIME_TO_RUN}_{SENSOR_PERIOD}_{str(sensor_number)}_{SENSOR_STATIC}_{str(sensor_manager.get_sensor_cost(TIME_TO_RUN)*sensor_number)}.csv'), index=False)
 
-    # after the simulation is done, visualize the co2 in the city
-    vis.visualize_co2(city, mesh=False, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
-    vis.visualize_accuracy(real_values, measured_values, SENSOR_PERIOD)
+    # # after the simulation is done, visualize the co2 in the city
+    # vis.visualize_co2(city, mesh=False, d=3, wind_direction=wind_direction, wind_speed=wind_speed, date=date)
+    # vis.visualize_accuracy(real_values, measured_values, SENSOR_PERIOD)
 
     # calculate and print the total co2 in the city
     total_co2 = f.calculate_co2(roads, emptys)
@@ -243,4 +243,11 @@ if __name__ == "__main__":
         os.makedirs(os.path.join('figures', f'{folder}'), exist_ok=True)
 
     os.makedirs(os.path.join('figures', 'run_data'), exist_ok=True)
-    main()
+
+    # # run simulations 
+    # for SENSOR_STATIC in [True, False]:
+    #     for SENSOR_PERIOD in [15*60, 60*60, 4*60*60]:
+    #         for SENSOR_DISTANCE in [8, 15, 30]:
+    #             print(SENSOR_STATIC, SENSOR_PERIOD, SENSOR_DISTANCE)
+    #             main()
+    calculation.compare()
