@@ -54,7 +54,7 @@ def visualize_3d_grid(city):
     plt.show()
 
 # Visualize cards
-def visualize_cars(city, cars, date):
+def visualize_cars(city, cars, date = None):
     print("Visualizing cars...")
     x1 = []
     x2 = []
