@@ -63,11 +63,11 @@ def main():
             except FileExistsError:
                 pass
 
-    if DEBUG:
-        print("TIME TO RUN:", running_time_in_days,
-              "\nSENSORS DISTANCE IN METERS:", SENSOR_DISTANCE,
-              "\nSENSORS SAMPLING PERIOD IN SECONDS", SENSOR_PERIOD,
-              "\nSAVE_PLOTS:", SAVE_PLOTS)
+    # if DEBUG:
+    #     print("TIME TO RUN:", running_time_in_days,
+    #           "\nSENSORS DISTANCE IN METERS:", SENSOR_DISTANCE,
+    #           "\nSENSORS SAMPLING PERIOD IN SECONDS", SENSOR_PERIOD,
+    #           "\nSAVE_PLOTS:", SAVE_PLOTS)
 
     TIME_TO_RUN = running_time_in_days * 3600 * 24
     
