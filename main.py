@@ -47,14 +47,21 @@ def main():
     DEBUG = app.debug
 
     results_path = os.path.join("figures", "results", "results.csv")
-    folders = [
-        'co2_comparison', 'co2_diffusion', 'co2_normalized_acc', 'co2_rain_effect', 'co2_timeseries', 'co2_3d', 
-        'co2_trees_effect', 'co2_wind_effect', 'results', 'city_model', 'sensor_placement', 'results', 'car_positions', 'run_data'
-    ]
+    folders = ['co2_comparison', 'co2_diffusion', 'co2_normalized_acc', 'co2_rain_effect', 'co2_timeseries', 'co2_3d', 
+        'co2_trees_effect', 'co2_wind_effect', 'results', 'city_model', 'car_positions']
+    
+    mandatory_folders = ['sensor_placement', 'results', 'run_data'] # folders that must be present at all times
+    
     try:
         os.mkdir("figures")
     except FileExistsError:
         pass
+        
+    for folder in mandatory_folders:
+        try:
+            os.mkdir("figures/" + folder)
+        except FileExistsError:
+            pass
 
     if SAVE_PLOTS:
         for folder in folders:
