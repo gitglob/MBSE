@@ -58,7 +58,7 @@ def visualize_3d_grid(city):
 
 
 # Visualize cards
-def visualize_cars(city, cars):
+def visualize_cars(city, cars, date=None):
     print("Visualizing cars...")
     x1 = []
     x2 = []
@@ -108,6 +108,7 @@ def visualize_cars(city, cars):
     plt.rcParams["figure.autolayout"] = True
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
+    ax.set_title(date)
     ax.scatter(x1, y1, z1, c='red', s=0.5, alpha=1)
     ax.scatter(x2, y2, z2, c='green', s=0.5, alpha=1)
     ax.scatter(x3, y3, z3, c='blue', s=0.5, alpha=1)

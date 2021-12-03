@@ -49,7 +49,7 @@ def main():
     results_path = os.path.join("figures", "results", "results.csv")
     folders = [
         'co2_comparison', 'co2_diffusion', 'co2_normalized_acc', 'co2_rain_effect', 'co2_timeseries', 'co2_3d', 
-        'co2_trees_effect', 'co2_wind_effect', 'results', 'city_model', 'sensor_placement', 'results', 'car_positions'
+        'co2_trees_effect', 'co2_wind_effect', 'results', 'city_model', 'sensor_placement', 'results', 'car_positions', 'run_data'
     ]
     try:
         os.mkdir("figures")
@@ -79,8 +79,7 @@ def main():
         else:
             placement = "dynamic"
             
-        print(f"Running simmulation with: \n\tDuration: {TIME_TO_RUN} [days] \n\tSensor placement: {placement} \n\tSensor period: \
-              \{SENSOR_PERIOD} [sec] \n\tSensor distance: {SENSOR_DISTANCE} [blocks]\n")
+        print(f"Running simmulation with: \n\tDuration: {TIME_TO_RUN} [days] \n\tSensor placement: {placement} \n\tSensor period: {SENSOR_PERIOD} [sec] \n\tSensor distance: {SENSOR_DISTANCE} [blocks]\n")
         
         city = Grid()
         print("Our city is a {} grid".format([len(city.grid3d), len(city.grid3d[0]),
