@@ -286,7 +286,7 @@ def visualize_sensor(city, sensors):
     # displaying plot
     plt.show()
     #now = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-    #plt.savefig(os.path.join('figures', 'co2_timeseries', f'{now}.png'))
+    #plt.savefig(os.path.join('figures', 'sensor_placement', f'{now}.png'))
     #plt.close()
 
 def visualize_co2_measures(values):
