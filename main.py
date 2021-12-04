@@ -249,12 +249,13 @@ if __name__ == "__main__":
 
     os.makedirs(os.path.join('figures', 'run_data'), exist_ok=True)
 
-    # run simulations 
+    # run all simulations and compare them 
     if RUN_ALL:
         for SENSOR_STATIC in [True, False]:
             for SENSOR_PERIOD in [15*60, 60*60, 4*60*60]:
                 for SENSOR_DISTANCE in [8, 15, 30]:
                     main()
         calculation.compare()
+    # run the simulation with the specified parameters
     else:
         main()
