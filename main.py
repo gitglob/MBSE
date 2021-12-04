@@ -20,6 +20,7 @@ SENSOR_PERIOD   = 900 # seconds
 SENSOR_STATIC   = True
 SAVE_PLOTS      = False
 DEBUG           = False
+RUN_ALL         = False
 
 results_path = os.path.join("figures", "results", "results.csv")
 
@@ -222,7 +223,10 @@ parser.add_argument('-s', '--save-plots', action='store_true',
         help='Save intermediate plots.')
 parser.add_argument('-v', '--verbose', action='store_true',
         help='Activate debug logs.')
-
+# parser.add_argument('-a', '--run-all', type=bool, default=True,
+#         help='Run all simulations and compare.')
+parser.add_argument('-a', '--run-all', action='store_true',
+        help='Run all simulations and compare.')
 
 
 if __name__ == "__main__":
@@ -233,6 +237,7 @@ if __name__ == "__main__":
     SENSOR_PERIOD = args.sensor_period
     SENSOR_STATIC = bool(args.sensor_movement == "static")
     SAVE_PLOTS = args.save_plots
+    RUN_ALL = args.run_all
 
     #create needed folders
     folders = [
@@ -244,10 +249,12 @@ if __name__ == "__main__":
 
     os.makedirs(os.path.join('figures', 'run_data'), exist_ok=True)
 
-    # # run simulations 
-    # for SENSOR_STATIC in [True, False]:
-    #     for SENSOR_PERIOD in [15*60, 60*60, 4*60*60]:
-    #         for SENSOR_DISTANCE in [8, 15, 30]:
-    #             print(SENSOR_STATIC, SENSOR_PERIOD, SENSOR_DISTANCE)
-    #             main()
-    calculation.compare()
+    # run simulations 
+    if RUN_ALL:
+        for SENSOR_STATIC in [True, False]:
+            for SENSOR_PERIOD in [15*60, 60*60, 4*60*60]:
+                for SENSOR_DISTANCE in [8, 15, 30]:
+                    main()
+        calculation.compare()
+    else:
+        main()

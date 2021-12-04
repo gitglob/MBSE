@@ -155,4 +155,3 @@ def compare():
     print('Accuracy: ', df.loc[[df['ce'].idxmin()]]['Accuracy'].item())
 
     return
-
