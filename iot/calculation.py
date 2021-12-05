@@ -144,7 +144,8 @@ def compare():
     print('Sensor distance: ', df.loc[[df['Accuracy'].idxmax()]]['Sensor distance'].item())
     print('Sampling time: ', df.loc[[df['Accuracy'].idxmax()]]['Sampling time'].item())
     print('Static placement: ', df.loc[[df['Accuracy'].idxmax()]]['Static'].item())
-    print('Accuracy: ', df.loc[[df['Accuracy'].idxmax()]]['Accuracy'].item(), '\n')
+    print('Accuracy: ', df.loc[[df['Accuracy'].idxmax()]]['Accuracy'].item())
+    print('Cost: ', df.loc[[df['Accuracy'].idxmax()]]['Cost'].item(), '\n')
 
     # most cost efficient solution
     print('The most cost-efficient simulation has the following characteristics:')
@@ -153,5 +154,6 @@ def compare():
     print('Sampling time: ', df.loc[[df['ce'].idxmin()]]['Sampling time'].item())
     print('Static placement: ', df.loc[[df['ce'].idxmin()]]['Static'].item())
     print('Accuracy: ', df.loc[[df['ce'].idxmin()]]['Accuracy'].item())
+    print('Cost: ', df.loc[[df['ce'].idxmin()]]['Cost'].item(), '\n')
 
     return
