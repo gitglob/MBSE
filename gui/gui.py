@@ -5,10 +5,10 @@ import tkinter as tk
 ''' DEFAULT VALUES FOR THE SIMULATION
 
 TIME_TO_RUN     = 3600*24*1 # 1 day
-SENSOR_DISTANCE = 0 # 15 meters => 3 blocks
-SENSOR_PERIOD   = 600 # seconds (5mins)
+SENSOR_DISTANCE = 8 # blocks
+SENSOR_PERIOD   = 900 # seconds (5mins)
 SENSOR_STATIC   = True
-SAVE_PLOTS      = True
+SAVE_PLOTS      = False
 DEBUG           = False
 
 '''
@@ -26,22 +26,67 @@ class GUI:
 
         self.parameters_button = tk.Button(self.master, text='Set Parameters', padx=10, pady=10,
                                            command=self.set_parameters,  font=('Helvetica', 10, 'bold'))
+        
+        self.multiple_simulations = tk.Button(self.master, text='Run Multiple Simulations', padx=10, pady=10,
+                                           command=self.multiple_simulations,  font=('Helvetica', 10, 'bold'))
 
         self.canvas = canvas
         self.startButton_window = self.canvas.create_window(
-            360, 645, window=self.startButton)
+            270, 645, window=self.startButton)
         self.parameters_window = self.canvas.create_window(
-            510, 645, window=self.parameters_button)
+            420, 645, window=self.parameters_button)
+        self.multiple_simulations = self.canvas.create_window(
+            578, 645, window=self.multiple_simulations)
         self.quitButton_window = self.canvas.create_window(
-            605, 645, window=self.quitButton)
-
+            692, 645, window=self.quitButton)
+        
         self.days = 1
         self.sensors_distance = 8
         self.sensors_period = 900
         self.sensors_movement = True  # True = 'static'
         self.save_plots = False
         self.debug = False
+        self.run_all = False
         self.frame.pack()
+
+#%%     ##################### MULTIPLE SIMULATIONS #####################
+
+    def multiple_simulations(self):
+        self.run_all = True
+        self.parameters2 = tk.Toplevel()
+        parameters2 = self.parameters2
+        parameters2.title("Multiple Simulation Parameters")
+        parameters2.geometry("450x200")
+        button = tk.Button(parameters2, text="THE PARAMETERS ARE SET !!", command=self.close_windows_parameters2,
+                           padx=10, pady=10, bd=5, font=('Helvetica', 18, 'bold'))
+        button.grid(row=10, column=1)
+#%%     SAVE PLOTS
+
+        self.save_plots2 = tk.BooleanVar()
+        self.s_p = tk.Checkbutton(parameters2, text='Save Plots of the Simulation', variable=self.save_plots2,
+                                  onvalue=True, offvalue=False, command=self.get_check_value_save_plots)
+        self.s_p.grid(row=1, column=1, sticky="nw")
+
+
+#%%     DEBUG
+
+        self.debug2 = tk.BooleanVar()
+        self.d = tk.Checkbutton(parameters2, text='Debug', variable=self.debug2,
+                                onvalue=True, offvalue=False, command=self.set_debug)
+        self.d.grid(row=3, column=1, sticky="nw",  pady=5)        
+
+#%%     DAYS OF SIMULATION
+
+        self.e = tk.Entry(self.parameters2, width=5, font=('Helvetica', 18, 'bold'),
+                          textvariable=tk.IntVar())
+        self.e.grid(row=5, column=1, sticky="nw", padx=5, pady=5)
+
+        button1 = tk.Button(
+            self.parameters2, text="Set the Days for the Simulation", command=self.set_days)
+        button1.grid(row=5, column=1, sticky="ne", padx=5, pady=5)
+
+
+
 
 
 #%%     ##################### PARAMETERS #####################
@@ -131,6 +176,9 @@ class GUI:
 
     def close_windows_parameters(self):  # THIS IS FOR THE PARAMETERS BUTTON
         self.parameters.destroy()
+        
+    def close_windows_parameters2(self):  # THIS IS FOR THE RUN MULTIPLE SIMULATIONS BUTTON
+        self.parameters2.destroy()
 
     def close_windows(self):  # THIS IS FOR THE QUIT BUTTON
         self.days = 0
