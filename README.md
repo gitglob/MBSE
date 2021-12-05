@@ -18,3 +18,8 @@ How to run:
      * Remember to always click on the corresponding button of a parameter, after you set its desired value.
      * When you are done, just press `THE PARAMETERS ARE SET !!` and then you are ready to start the simulation with the desired parameters.
    * Press `QUIT` if you want to exit the simulation and close all the windows.
+
+
+Additional notes:
+- In the folder "figures", after you run thesimulation with the "-s" parameter, there will be saved a number of proof of concept plots, as well some visualizations for the final results. However, it will take much much more time.
+- In the folder "model_data", one can find the initial datasets regarding the weather in Copenhagen, which were used for the purposes of the project.
