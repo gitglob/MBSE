@@ -1,3 +1,7 @@
 *.pyc
 __pycache__
+gui/.DS_Store
+.DS_Store
+
 figures/
+

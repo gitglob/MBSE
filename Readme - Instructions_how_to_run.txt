@@ -1,15 +1,12 @@
-Repository for the course 02223: Model Based Systems Engineering
+How to run the simulation:
 
-Simulation of co2 generation inside a 3d city environment and implementation of a sensor system that effectively (accuracy + low cost) measures the the co2 levels.
+1. Clone the repository: https://github.com/gitglob/MBSE
 
-How to run:
-1. Clone the repository
 2. On a terminal, change to the project directory and type: `pip install -r requirements.txt`
+
 3. To run the simulation: `python main.py`
-[![gui3.png](https://i.postimg.cc/rp1rhztm/gui3.png)](https://postimg.cc/wtBMMq28)
  
-4. * Press `START the Simulation`, if you want to execute the simulation with the default values:\
-   `gui/gui.py -> lines: 5-12`.
+4. * Press `START the Simulation`, if you want to execute the simulation with the default values (`gui/gui.py -> lines: 5-12`).
    * Press `Set Parameters`, in order to modify the parameters of the simulation.
      * Remember to always click on the corresponding button of a parameter, after you set its desired value.
      * When you are done, just press `THE PARAMETERS ARE SET !!` and then you are ready to start the simulation with the desired parameters.
