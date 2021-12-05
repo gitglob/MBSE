@@ -8,7 +8,8 @@ How to run:
 3. To run the simulation: `python main.py`
 [![gui3.png](https://i.postimg.cc/rp1rhztm/gui3.png)](https://postimg.cc/wtBMMq28)
  
-4. * Press `START the Simulation`, if you want to execute the simulation with the default values (`gui/gui.py -> lines: 5-12`).
+4. * Press `START the Simulation`, if you want to execute the simulation with the\
+   default values (`gui/gui.py -> lines: 5-12`).
    * Press `Set Parameters`, in order to modify the parameters of the simulation.
      * Remember to always click on the corresponding button of a parameter, after you set its desired value.
      * When you are done, just press `THE PARAMETERS ARE SET !!` and then you are ready to start the simulation with the desired parameters.
