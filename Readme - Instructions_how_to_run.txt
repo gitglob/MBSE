@@ -1,6 +1,6 @@
 How to run the simulation:
 
-1. Clone the repository: https://github.com/gitglob/MBSE/tree/Kostas_gui
+1. Clone the repository: https://github.com/gitglob/MBSE
 
 2. On a terminal, change to the project directory and type: `pip install -r requirements.txt`
 
